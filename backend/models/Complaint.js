@@ -1,14 +1,18 @@
 const mongoose = require('mongoose');
 
-const complaintSchema = mongoose.Schema({
+const ComplaintSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  
+  // Add this field to filter by society
+  societyId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Society', 
+    required: true 
+  },
+  
   title: { type: String, required: true },
   description: { type: String, required: true },
-  status: { type: String, default: 'Pending' }, // Pending or Resolved
-  votes: { type: Number, default: 0 },
-  votedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] // Track who voted
-}, {
-  timestamps: true // <--- THIS IS CRITICAL for showing Dates
-});
+  status: { type: String, enum: ['Pending', 'Resolved', 'Declined'], default: 'Pending' }
+}, { timestamps: true });
 
-module.exports = mongoose.model('Complaint', complaintSchema);
+module.exports = mongoose.model('Complaint', ComplaintSchema);

@@ -3,21 +3,17 @@ const router = express.Router();
 const { 
   getComplaints, 
   addComplaint, 
-  updateComplaintStatus, // Check this name!
-  voteComplaint, 
-  deleteComplaint 
+  updateComplaintStatus, 
+  deleteComplaint // <--- Ensure this is imported
 } = require('../controllers/complaintController');
-const { protect, admin } = require('../middleware/authMiddleware');
 
-// Check line 6 - ensure getComplaints is not undefined
+const { protect } = require('../middleware/authMiddleware');
+
 router.get('/', protect, getComplaints);
 router.post('/', protect, addComplaint);
+router.put('/status/:id', protect, updateComplaintStatus);
 
-// Update status (Admin only)
-router.put('/status/:id', protect, admin, updateComplaintStatus);
-
- 
-
-router.delete('/:id', protect, admin, deleteComplaint);
+// This is the line that was crashing because deleteComplaint was undefined
+router.delete('/:id', protect, deleteComplaint); 
 
 module.exports = router;

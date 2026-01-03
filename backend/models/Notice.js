@@ -4,9 +4,15 @@ const noticeSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   type: { type: String, default: 'General' },
+
+  // Add this field to filter by society
+  societyId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Society', 
+    required: true 
+  },
   
-  // --- NEW FIELD: Link to Society ---
-  society: { type: mongoose.Schema.Types.ObjectId, ref: 'Society', required: true },
+  
   
   createdAt: { type: Date, default: Date.now }
 });
