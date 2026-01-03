@@ -15,7 +15,9 @@ const UserSchema = new mongoose.Schema({
 
   flatDetails: {
     wing: { type: String },
-    flatNumber: { type: String }
+    floor: { type: String },
+    flatNumber: { type: String },
+    residentType: { type: String, enum: ['Owner', 'Tenant'], default: 'Owner' } // <--- Added This
   }
 }, { timestamps: true });
 

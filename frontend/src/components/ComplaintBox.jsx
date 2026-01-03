@@ -83,13 +83,28 @@ const ComplaintBox = () => {
                             c.status === 'Declined' ? '8px solid #ef4444' : '8px solid #f59e0b' 
               }}>
                 
+                {/* Header: Title + Status */}
                 <div style={cardHeaderRow}>
                   <h4 style={titleStyle}>{c.title}</h4>
                   <span style={badgeStyle(c.status)}>{c.status}</span>
                 </div>
 
+                {/* --- NEW: RAISED BY SECTION --- */}
+                <div style={{ fontSize: '0.9rem', color: '#334155', marginBottom: '5px', fontWeight: '500' }}>
+                   👤 <strong>From: </strong>
+                   {c.user ? c.user.name : 'Unknown Member'}
+                   
+                   {/* Show Flat Details if available */}
+                   {c.user && c.user.flatDetails && (
+                     <span style={{ color: '#64748b', fontSize: '0.85rem' }}>
+                       {` (Wing ${c.user.flatDetails.wing} - ${c.user.flatDetails.flatNumber})`}
+                     </span>
+                   )}
+                </div>
+
+                {/* Time Info */}
                 <div style={timeInfoStyle}>
-                  🕒 **Raised:** {formatDate(c.createdAt)}
+                  🕒 {formatDate(c.createdAt)}
                   {c.status !== 'Pending' && (
                     <span style={{ marginLeft: '15px', color: c.status === 'Resolved' ? '#10b981' : '#ef4444', fontWeight: 'bold' }}>
                       ● {c.status} on: {formatDate(c.updatedAt)}

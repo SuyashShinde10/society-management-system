@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 
 const ADMIN_SECRET = "SOCIETY_ADMIN_2025"; 
 
-// --- 1. REGISTER ---
+// --- 1. REGISTER (For Society Admins) ---
 const registerUser = async (req, res) => {
   try {
     const { 
@@ -14,18 +14,22 @@ const registerUser = async (req, res) => {
       societyId, flatDetails, secretCode 
     } = req.body;
 
+    // Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: "User already exists" });
 
+    // Validate Admin Secret
     if (role === 'admin' && secretCode !== ADMIN_SECRET) {
       return res.status(403).json({ message: "Invalid Admin Secret Code" });
     }
 
+    // Hash Password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     let assignedSocietyId;
 
+    // Create Society if Admin
     if (role === 'admin') {
       if (!societyName || !address || !regNumber) {
         return res.status(400).json({ message: "Building details are required for Admins" });
@@ -40,25 +44,29 @@ const registerUser = async (req, res) => {
       });
       assignedSocietyId = newSociety._id;
     } else {
+      // Logic for members registering themselves (if enabled)
       if (!societyId) return res.status(400).json({ message: "Please select a Society to join" });
       assignedSocietyId = societyId;
     }
 
+    // Create User
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
       role: role || 'member',
-      society: assignedSocietyId,
+      societyId: assignedSocietyId, // <--- Using 'societyId' to match Model
       flatDetails: role === 'member' ? flatDetails : undefined
     });
 
+    // Link Society to Admin
     if (role === 'admin') {
       await Society.findByIdAndUpdate(assignedSocietyId, { createdBy: user._id });
     }
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
+    console.error("Register Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -67,15 +75,22 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    // Find user and get their Society details
     const user = await User.findOne({ email });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ message: "Invalid Credentials" });
     }
 
-    await user.populate('society', 'name');
+    // Populate using 'societyId'
+    await user.populate('societyId', 'name');
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign(
+      { id: user._id, role: user.role, societyId: user.societyId?._id }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '1d' }
+    );
 
     res.json({
       token,
@@ -84,26 +99,32 @@ const loginUser = async (req, res) => {
         name: user.name, 
         email: user.email,
         role: user.role,
-        societyName: user.society ? user.society.name : 'Unknown Society'
+        societyId: user.societyId?._id, // Send ID for frontend use
+        societyName: user.societyId ? user.societyId.name : 'Unknown Society'
       }
     });
   } catch (error) {
+    console.error("Login Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// --- 3. GET ALL USERS ---
+// --- 3. GET ALL USERS (For Admin Dashboard) ---
 const getAllUsers = async (req, res) => {
   try {
-    const mySocietyId = req.user.society;
-    const users = await User.find({ society: mySocietyId, role: 'member' }).select('-password');
+    // Filter by the logged-in admin's societyId
+    const mySocietyId = req.user.societyId;
+    
+    const users = await User.find({ societyId: mySocietyId, role: 'member' })
+                            .select('-password')
+                            .sort({ createdAt: -1 });
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// --- 4. GET ALL SOCIETIES (THIS IS THE MISSING FUNCTION) ---
+// --- 4. GET ALL SOCIETIES ---
 const getAllSocieties = async (req, res) => {
   try {
     const societies = await Society.find({}, 'name address');
@@ -123,45 +144,95 @@ const deleteUser = async (req, res) => {
   }
 };
 
-// 6. ADD MEMBER (By Admin)
+// --- 6. ADD MEMBER (By Admin) ---
 const addMember = async (req, res) => {
   try {
-    const { name, email, password, wing, floor, flatNumber } = req.body;
+    // 1. Extract residentType from body
+    const { name, email, password, wing, floor, flatNumber, residentType } = req.body;
 
-    // 1. Check if user exists
+    // 2. Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-    // 2. Hash Password
+    // 3. Hash Password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 3. Create User (Linked to Admin's Society)
+    // 4. Create User (Linked to Admin's Society)
     await User.create({
       name,
       email,
       password: hashedPassword,
       role: 'member',
-      society: req.user.society, // <--- Auto-assign to Admin's society
+      societyId: req.user.societyId, // <--- Using 'societyId'
       flatDetails: {
         wing,
         floor,
-        flatNumber
+        flatNumber,
+        residentType: residentType || 'Owner' // <--- Save Status (Default to Owner)
       }
     });
 
     res.status(201).json({ message: 'Member added successfully' });
   } catch (error) {
+    console.error("Add Member Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// --- EXPORT ALL FUNCTIONS TOGETHER ---
+
+// --- 7. UPDATE MEMBER (Admin) ---
+const updateMember = async (req, res) => {
+  try {
+    const { name, email, wing, floor, flatNumber, residentType } = req.body;
+    
+    // Find user by ID
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Update basic info
+    user.name = name || user.name;
+    user.email = email || user.email;
+
+    // Update flat details if provided
+    if (user.flatDetails) {
+      user.flatDetails.wing = wing || user.flatDetails.wing;
+      user.flatDetails.floor = floor || user.flatDetails.floor;
+      user.flatDetails.flatNumber = flatNumber || user.flatDetails.flatNumber;
+      user.flatDetails.residentType = residentType || user.flatDetails.residentType;
+    }
+
+    await user.save();
+    res.json({ message: "Member updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// --- 8. GET SOCIETY LIMITS (For Form Dropdowns) ---
+const getSocietyLimits = async (req, res) => {
+  try {
+    const society = await Society.findById(req.user.societyId);
+    if (!society) return res.status(404).json({ message: "Society not found" });
+
+    res.json({
+      wings: society.wings,           // e.g. ["A", "B"]
+      floors: society.floors,         // e.g. 10
+      flatsPerFloor: society.flatsPerFloor // e.g. 4
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// --- EXPORT ALL FUNCTIONS ---
 module.exports = {
   registerUser,
   loginUser,
   getAllUsers,
-  getAllSocieties, // <--- Ensure this is here
+  getAllSocieties,
   deleteUser,
-  addMember
+  addMember,
+  updateMember,
+  getSocietyLimits
 };

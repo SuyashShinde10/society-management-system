@@ -1,56 +1,51 @@
 const Notice = require('../models/Notice');
 
-// 1. Get Notices
 const getNotices = async (req, res) => {
   try {
-    // Check if user is authenticated properly
-    if (!req.user || !req.user.society) {
-      return res.status(400).json({ message: "User not linked to a society" });
-    }
-
-    const mySocietyId = req.user.society; 
-    const notices = await Notice.find({ society: mySocietyId }).sort({ createdAt: -1 });
+    if (!req.user.societyId) return res.json([]);
+    const notices = await Notice.find({ societyId: req.user.societyId }).sort({ createdAt: -1 });
     res.json(notices);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// 2. Add Notice
 const addNotice = async (req, res) => {
   try {
-    const { title, description, type } = req.body;
-    
-    if (!req.user || !req.user.society) {
-      return res.status(400).json({ message: "User not linked to a society" });
+    // 1. Extract 'content' matching the Model
+    const { title, content } = req.body; 
+
+    if (!req.user.societyId) {
+      return res.status(400).json({ message: "Error: Account not linked to Society." });
     }
 
-    await Notice.create({
+    // 2. Create using 'content'
+    const notice = await Notice.create({
       title,
-      description,
-      type,
-      society: req.user.society
+      content, 
+      societyId: req.user.societyId,
+      createdBy: req.user._id
     });
 
-    res.status(201).json({ message: "Notice added" });
+    res.status(201).json(notice);
   } catch (error) {
+    console.error("Add Notice Error:", error); // Helps debug
     res.status(500).json({ message: error.message });
   }
 };
 
-// 3. Delete Notice
 const deleteNotice = async (req, res) => {
   try {
-    await Notice.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted" });
+    const notice = await Notice.findById(req.params.id);
+    if (!notice) return res.status(404).json({ message: 'Notice not found' });
+
+    if (req.user.role !== 'admin') return res.status(401).json({ message: 'Not authorized' });
+
+    await notice.deleteOne();
+    res.json({ message: 'Notice removed' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// --- SAFE EXPORT (Do not change this) ---
-module.exports = {
-  getNotices,
-  addNotice,
-  deleteNotice
-};
+module.exports = { getNotices, addNotice, deleteNotice };

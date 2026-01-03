@@ -8,16 +8,14 @@ const protect = async (req, res, next) => {
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Find user
-      const user = await User.findById(decoded.id).select('-password');
-
-      // SAFETY CHECK: If user was deleted from DB, reject the token
-      if (!user) {
-        return res.status(401).json({ message: 'User not found (Account may have been deleted)' });
+      
+      // Select societyId so we can use it in controllers
+      req.user = await User.findById(decoded.id).select('-password');
+      
+      if (!req.user) {
+        return res.status(401).json({ message: 'Not authorized, user not found' });
       }
 
-      req.user = user;
       next();
     } catch (error) {
       console.error(error);
@@ -30,6 +28,7 @@ const protect = async (req, res, next) => {
   }
 };
 
+// --- ADD THIS FUNCTION ---
 const admin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();
@@ -38,4 +37,4 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin };
+module.exports = { protect, admin }; // Export both

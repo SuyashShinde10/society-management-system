@@ -7,19 +7,27 @@ const {
   getAllUsers, 
   getAllSocieties, 
   deleteUser,
-  addMember // <--- New Import
+  addMember,
+  updateMember,
+  getSocietyLimits
 } = require('../controllers/authController');
 
+// Import both middlewares
 const { protect, admin } = require('../middleware/authMiddleware');
 
-// Public Routes
+// --- PUBLIC ROUTES ---
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/societies', getAllSocieties);
 
-// Protected Routes
+// --- PROTECTED ROUTES (Admin Only) ---
+// Note: We use 'protect' to identify user, 'admin' to check role
 router.get('/users', protect, admin, getAllUsers);
-router.post('/add-member', protect, admin, addMember); // <--- New Route
-router.delete('/users/:id', protect, admin, deleteUser);
+router.post('/add-member', protect, admin, addMember);
+router.delete('/user/:id', protect, admin, deleteUser); // Changed to /user/:id to match typical conventions
+router.put('/user/:id', protect, admin, updateMember); // For editing members
+
+// --- PROTECTED ROUTES (Any Logged In User) ---
+router.get('/society-limits', protect, getSocietyLimits);
 
 module.exports = router;

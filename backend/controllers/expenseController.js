@@ -1,43 +1,65 @@
 const Expense = require('../models/Expense');
 
+// @desc    Get all expenses for the society
 const getExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find({ society: req.user.society }).sort({ date: -1 });
+    if (!req.user.societyId) return res.json([]);
+    
+    const expenses = await Expense.find({ societyId: req.user.societyId })
+                                  .sort({ createdAt: -1 });
     res.json(expenses);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+// @desc    Add a new expense
 const addExpense = async (req, res) => {
   try {
     const { title, amount, category } = req.body;
 
-    // SAFETY CHECK
-    if (!req.user.society) {
-      return res.status(400).json({ message: "Error: User not linked to society." });
+    if (!req.user.societyId) {
+      return res.status(400).json({ message: "Error: Your account is not linked to a Society." });
     }
-    
-    await Expense.create({
+
+    const expense = await Expense.create({
       title,
       amount,
       category,
-      society: req.user.society
+      societyId: req.user.societyId,
+      recordedBy: req.user._id
     });
 
-    res.status(201).json({ message: "Expense added" });
+    res.status(201).json(expense);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+// @desc    Delete an expense
 const deleteExpense = async (req, res) => {
   try {
-    await Expense.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted" });
+    const expense = await Expense.findById(req.params.id);
+
+    if (!expense) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+
+    // Optional: Check if user is authorized (Admin only)
+    if (req.user.role !== 'admin') {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    await expense.deleteOne();
+    res.json({ message: 'Expense removed' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = { getExpenses, addExpense, deleteExpense };
+// --- EXPORT ALL FUNCTIONS ---
+module.exports = {
+  getExpenses,
+  addExpense,
+  deleteExpense // <--- This was missing
+};

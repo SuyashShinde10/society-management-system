@@ -1,13 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { getExpenses, addExpense, deleteExpense } = require('../controllers/expenseController');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { 
+  getExpenses, 
+  addExpense, 
+  deleteExpense // <--- Ensure this is imported
+} = require('../controllers/expenseController');
 
-// 1. GET Expenses -> Visible to ALL logged-in users (Removed 'admin')
+const { protect } = require('../middleware/authMiddleware');
+
 router.get('/', protect, getExpenses);
+router.post('/', protect, addExpense);
 
-// 2. ADD/DELETE Expenses -> Restricted to Admin ONLY
-router.post('/', protect, admin, addExpense);
-router.delete('/:id', protect, admin, deleteExpense);
+// This line was crashing because deleteExpense was undefined
+router.delete('/:id', protect, deleteExpense); 
 
 module.exports = router;
