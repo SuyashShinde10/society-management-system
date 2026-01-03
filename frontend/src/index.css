@@ -1,0 +1,107 @@
+:root {
+  --primary: #2563eb;    /* Professional Blue */
+  --secondary: #475569;  /* Grey */
+  --accent: #22c55e;     /* Green for success */
+  --danger: #ef4444;     /* Red for logout/delete */
+  --bg: #f8fafc;         /* Light Grey Background */
+  --card-bg: #ffffff;    /* White Card */
+  --text: #1e293b;       /* Dark Blue-Grey Text */
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- NAVBAR --- */
+nav {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1rem 2rem !important; /* Force padding */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+nav h2 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 1.5rem;
+}
+
+nav button {
+  padding: 0.5rem 1rem !important;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* --- DASHBOARD & CARDS --- */
+h1 {
+  text-align: center;
+  margin-top: 2rem;
+  color: var(--secondary);
+}
+
+/* The card that was invisible before */
+div[style*="background: #f4f4f4"] {
+  background: var(--card-bg) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 12px !important;
+  padding: 2rem !important;
+  max-width: 500px;
+  margin: 2rem auto; /* Centers the card */
+  border: 1px solid #e2e8f0;
+}
+
+/* Fix text inside the card */
+div[style*="background: #f4f4f4"] h3 {
+  color: var(--primary);
+  margin-top: 0;
+}
+
+div[style*="background: #f4f4f4"] p {
+  color: var(--secondary);
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+}
+
+/* --- FORMS (Login/Register) --- */
+form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 3rem auto;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 12px !important;
+  background-color: var(--primary) !important;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: #1d4ed8 !important;
+}
