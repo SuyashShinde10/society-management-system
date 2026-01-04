@@ -13,8 +13,8 @@ const app = express();
 // --- CORS CONFIGURATION (FIXED) ---
 app.use(cors({
   origin: [
-    "http://localhost:5173",                          // Local testing
-    "https://awaastech.vercel.app/"             // <--- ADD YOUR NEW FRONTEND URL HERE
+    "http://localhost:5173",
+    "https://awaastech.vercel.app" // ⚠️ MUST MATCH YOUR FRONTEND URL EXACTLY (No trailing slash)
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,

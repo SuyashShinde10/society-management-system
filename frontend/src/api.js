@@ -1,15 +1,16 @@
 import axios from 'axios';
 
-// 1. PASTE YOUR NEW VERCEL BACKEND URL HERE
-const PRODUCTION_URL = 'https://society-management-system-flame.vercel.app/'; 
+// ✅ FIX: Ensure this ends with '/api'
+const PRODUCTION_URL = 'https://society-management-system-flame.vercel.app/api'; 
 
-// Auto-detect: Are we on localhost?
 const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
 const api = axios.create({
   baseURL: IS_LOCAL ? 'http://localhost:5000/api' : PRODUCTION_URL,
   withCredentials: true,
-  headers: { 'Content-Type': 'application/json' }
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
 
 api.interceptors.request.use(
