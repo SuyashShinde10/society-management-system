@@ -8,10 +8,11 @@ connectDB();
 
 const app = express();
 
+// Industrial CORS Protocol
 app.use(cors({
   origin: [
-    "https://society-management-system-five.vercel.app", // YOUR NEW FRONTEND
-    "http://localhost:5173"                             // Local Dev
+    "https://society-management-system-five.vercel.app", 
+    "http://localhost:5173"
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
@@ -19,19 +20,20 @@ app.use(cors({
 
 app.use(express.json());
 
-// Routes
+// Routes - Note the '/api' prefix here
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/notices', require('./routes/noticeRoutes'));
 app.use('/api/expenses', require('./routes/expenseRoutes'));
 
-// Heartbeat route to test if the 404 is gone
+// Heartbeat route
 app.get('/', (req, res) => res.json({ status: "VERCEL_BACKEND_ACTIVE" }));
 
+// Vercel handles the port in production
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => console.log(`// LOCAL_DEV_ACTIVE_ON_${PORT}`));
 }
 
-// CRITICAL: This is what Vercel looks for to prevent 404
+// CRITICAL for Vercel Serverless
 module.exports = app;

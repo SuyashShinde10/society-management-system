@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // Use your backend URL confirmed by the heartbeat test
-  baseURL: 'https://society-management-system-wis5.vercel.app', 
+  // Added /api to match your backend route prefixes
+  baseURL: 'https://society-management-system-wis5.vercel.app/api', 
   timeout: 10000, 
 });
 
