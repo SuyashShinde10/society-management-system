@@ -1,12 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // 1. UPDATE THIS to your new Vercel Backend URL
-  // Ensure it includes '/api' at the end if your routes require it
-  baseURL: 'https://society-management-system-wis5-backend.vercel.app/api', 
+  // 1. UPDATED: Points to your confirmed active Vercel domain
+  baseURL: 'https://society-management-system-wis5.vercel.app', 
   
-  // 2. Vercel is much faster than Render's free tier, 
-  // but a 10s timeout is a safe industrial standard.
+  // 2. Vercel standard timeout
   timeout: 10000, 
 });
 

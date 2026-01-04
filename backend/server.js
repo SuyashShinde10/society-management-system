@@ -9,7 +9,10 @@ connectDB();
 const app = express();
 
 app.use(cors({
-  origin: ["https://society-management-system-wis5.vercel.app", "http://localhost:5173"],
+  origin: [
+    "https://society-management-system-five.vercel.app/", // Your Frontend Domain
+    "http://localhost:5173"                             // Local Dev
+  ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
