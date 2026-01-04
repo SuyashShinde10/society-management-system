@@ -2,112 +2,197 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
+  const theme = {
+    bg: '#F2F2F2',      // Cold Bone
+    surface: '#FFFFFF', 
+    textMain: '#1A1A1A', // Sharp Ink
+    textSec: '#4A4A4A',  
+    border: '#1A1A1A',   // Brutalist thick borders
+    accent: '#2563EB',   // Electric Cobalt
+  };
+
   return (
-    <div style={{ fontFamily: 'sans-serif', color: '#1e293b' }}>
-      
-      {/* --- NAVBAR --- */}
-      <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 50px', borderBottom: '1px solid #e2e8f0', background: 'white' }}>
-        <h2 style={{ margin: 0, color: '#2563eb', fontWeight: '800', letterSpacing: '-1px' }}>
+    <div style={{ backgroundColor: theme.bg, minHeight: '100vh', color: theme.textMain }}>
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Space+Mono:wght@400;700&display=swap');
+          
+          .brutal-btn {
+            font-family: 'Space Mono', monospace;
+            transition: all 0.2s ease;
+          }
+
+          .brutal-btn:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 8px 8px 0px #1A1A1A !important;
+          }
+
+          .brutal-card:hover {
+            background-color: #fff !important;
+            transform: translateY(-5px);
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.1);
+          }
+        `}
+      </style>
+
+      {/* --- NAVIGATION --- */}
+      <nav style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        padding: '30px 60px', 
+        borderBottom: `3px solid ${theme.border}`, 
+        background: theme.surface 
+      }}>
+        <h2 style={{ 
+          margin: 0, 
+          fontFamily: "'Cormorant Garamond', serif", 
+          fontSize: '32px', 
+          fontWeight: '600', 
+          textTransform: 'uppercase' 
+        }}>
           AwaasTech.
         </h2>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <Link to="/login" style={navLinkStyle}>Login</Link>
-          <Link to="/register" style={primaryButtonStyle}>Get Started</Link>
+        <div style={{ display: 'flex', gap: '30px', alignItems: 'center', fontFamily: "'Space Mono', monospace" }}>
+          <Link to="/login" style={{ textDecoration: 'none', color: theme.textMain, fontWeight: '700', fontSize: '14px' }}>[ LOGIN ]</Link>
+          <Link to="/register" className="brutal-btn" style={{ 
+            textDecoration: 'none', 
+            background: theme.textMain, 
+            color: 'white', 
+            padding: '12px 24px', 
+            fontWeight: '700',
+            fontSize: '14px',
+            boxShadow: `4px 4px 0px ${theme.accent}`
+          }}>
+            INITIALIZE_SYSTEM
+          </Link>
         </div>
       </nav>
 
       {/* --- HERO SECTION --- */}
-      <header style={{ textAlign: 'center', padding: '100px 20px', background: 'linear-gradient(to bottom, #f8fafc, #fff)' }}>
-        <h1 style={{ fontSize: '3.5rem', fontWeight: '800', marginBottom: '20px', color: '#0f172a' }}>
-          Modern Living, <span style={{ color: '#2563eb' }}>Simplified.</span>
-        </h1>
-        <p style={{ fontSize: '1.25rem', color: '#64748b', maxWidth: '600px', margin: '0 auto 40px', lineHeight: '1.6' }}>
-          The all-in-one platform to manage your housing society. 
-          Track expenses, post notices, and connect with neighbors—effortlessly.
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
-          <Link to="/register" style={{ ...primaryButtonStyle, padding: '15px 35px', fontSize: '1.1rem' }}>
-            Create Account
-          </Link>
-          <Link to="/login" style={{ ...secondaryButtonStyle, padding: '15px 35px', fontSize: '1.1rem' }}>
-            Member Login
-          </Link>
+      <header style={{ 
+        padding: '120px 60px', 
+        borderBottom: `3px solid ${theme.border}`,
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ maxWidth: '900px', borderLeft: `12px solid ${theme.textMain}`, paddingLeft: '40px' }}>
+          <p style={{ fontFamily: "'Space Mono', monospace", fontWeight: '700', fontSize: '14px', color: theme.accent, marginBottom: '20px' }}>
+            // INFRASTRUCTURE_MANAGEMENT_V2.0
+          </p>
+          <h1 style={{ 
+            fontFamily: "'Cormorant Garamond', serif", 
+            fontSize: 'clamp(50px, 8vw, 90px)', 
+            fontWeight: '600', 
+            lineHeight: '0.85', 
+            textTransform: 'uppercase',
+            margin: '0 0 30px 0' 
+          }}>
+            Society <br /> Living. <br /> <span style={{ color: theme.accent }}>Coded.</span>
+          </h1>
+          <p style={{ 
+            fontFamily: "'Space Mono', monospace", 
+            fontSize: '16px', 
+            color: theme.textSec, 
+            maxWidth: '550px', 
+            lineHeight: '1.5',
+            marginBottom: '50px'
+          }}>
+            Unified protocol for managing housing assets. Digital notice dissemination, financial auditing, and resident verification. Strictly optimized for efficiency.
+          </p>
+          <div style={{ display: 'flex', gap: '20px' }}>
+            <Link to="/register" className="brutal-btn" style={{ 
+              textDecoration: 'none', 
+              background: theme.accent, 
+              color: 'white', 
+              padding: '20px 40px', 
+              fontWeight: '700',
+              fontFamily: "'Space Mono', monospace",
+              boxShadow: `6px 6px 0px ${theme.textMain}`
+            }}>
+              CREATE_ADMIN_ID
+            </Link>
+            <Link to="/login" className="brutal-btn" style={{ 
+              textDecoration: 'none', 
+              background: 'transparent', 
+              color: theme.textMain, 
+              border: `3px solid ${theme.border}`,
+              padding: '20px 40px', 
+              fontWeight: '700',
+              fontFamily: "'Space Mono', monospace"
+            }}>
+              MEMBER_AUTH
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* --- ABOUT / FEATURES SECTION --- */}
-      <section style={{ padding: '80px 50px', background: 'white' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
+      {/* --- FEATURES SECTION --- */}
+      <section style={{ padding: '100px 60px' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+          gap: '0px', // No gap, borders will touch
+          border: `3px solid ${theme.border}`
+        }}>
           
           <FeatureCard 
-            icon="📢" 
-            title="Digital Notice Board" 
-            desc="Never miss an update. View urgent meetings, events, and maintenance alerts instantly from your dashboard." 
+            id="01"
+            title="Notice_Protocol" 
+            desc="Zero-latency dissemination of critical society updates, meeting minutes, and maintenance schedules." 
           />
           <FeatureCard 
-            icon="💰" 
-            title="Expense Tracking" 
-            desc="Transparent financial management. Admins can log expenses, and members can view society spending in real-time." 
+            id="02"
+            title="Financial_Ledger" 
+            desc="Automated audit trails for society spending. Real-time transparency for all verified stakeholders." 
           />
           <FeatureCard 
-            icon="🛡️" 
-            title="Secure & Private" 
-            desc="Your data is safe with us. Built with modern security standards to ensure only verified members access details." 
+            id="03"
+            title="Security_Firewall" 
+            desc="Restricted access environment. Modern encryption standards to secure resident metadata." 
           />
 
         </div>
       </section>
-
-      
-      {/* <footer style={{ background: '#0f172a', color: '#94a3b8', padding: '50px 20px', textAlign: 'center' }}>
-        <h3 style={{ color: 'white', marginBottom: '10px' }}>AwaasTech.</h3>
-        <p style={{ marginBottom: '30px' }}>Making society management smarter, faster, and better.</p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', fontSize: '0.9rem' }}>
-          <span>© 2026 AwaasTech. Inc.</span>
-          <a href="#" style={{ color: '#94a3b8', textDecoration: 'none' }}>Privacy Policy</a>
-          <a href="#" style={{ color: '#94a3b8', textDecoration: 'none' }}>Terms of Service</a>
-        </div>
-      </footer> */}
     </div>
   );
 };
 
-// --- SUB-COMPONENTS & STYLES ---
+// --- SUB-COMPONENTS ---
 
-const FeatureCard = ({ icon, title, desc }) => (
-  <div style={{ padding: '30px', borderRadius: '12px', border: '1px solid #e2e8f0', transition: '0.3s' }}>
-    <div style={{ fontSize: '3rem', marginBottom: '20px' }}>{icon}</div>
-    <h3 style={{ marginBottom: '10px', color: '#1e293b' }}>{title}</h3>
-    <p style={{ color: '#64748b', lineHeight: '1.6' }}>{desc}</p>
+const FeatureCard = ({ id, title, desc }) => (
+  <div className="brutal-card" style={{ 
+    padding: '50px', 
+    border: '1px solid #1A1A1A', 
+    background: '#EAEAEA',
+    transition: '0.3s'
+  }}>
+    <div style={{ 
+      fontFamily: "'Space Mono', monospace", 
+      fontSize: '14px', 
+      fontWeight: '700', 
+      color: '#2563EB',
+      marginBottom: '40px' 
+    }}>
+      [{id}]
+    </div>
+    <h3 style={{ 
+      fontFamily: "'Cormorant Garamond', serif", 
+      fontSize: '32px', 
+      textTransform: 'uppercase',
+      marginBottom: '20px' 
+    }}>
+      {title}
+    </h3>
+    <p style={{ 
+      fontFamily: "'Space Mono', monospace", 
+      fontSize: '14px', 
+      lineHeight: '1.6', 
+      color: '#4A4A4A' 
+    }}>
+      {desc}
+    </p>
   </div>
 );
-
-const navLinkStyle = {
-  textDecoration: 'none',
-  color: '#475569',
-  fontWeight: '600',
-  padding: '10px 15px'
-};
-
-const primaryButtonStyle = {
-  textDecoration: 'none',
-  background: '#2563eb',
-  color: 'white',
-  padding: '10px 20px',
-  borderRadius: '8px',
-  fontWeight: '600',
-  transition: '0.2s'
-};
-
-const secondaryButtonStyle = {
-  textDecoration: 'none',
-  background: 'white',
-  color: '#2563eb',
-  border: '1px solid #e2e8f0',
-  padding: '10px 20px',
-  borderRadius: '8px',
-  fontWeight: '600',
-  transition: '0.2s'
-};
 
 export default Home;

@@ -5,141 +5,85 @@ import AuthContext from '../context/AuthContext';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useContext(AuthContext);
+  const auth = useContext(AuthContext); 
   const navigate = useNavigate();
+
+  // Guard: If context is not yet ready, show nothing or a technical loader
+  if (!auth) return null;
+  const { login } = auth;
+
+  const theme = {
+    bg: '#F2F2F2',
+    surface: '#FFFFFF', 
+    textMain: '#1A1A1A',
+    textSec: '#4A4A4A',  
+    border: '#1A1A1A',
+    accent: '#2563EB',
+    fieldBg: '#E8E8E8'
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // --- VALIDATION ---
-    if (!email.includes('@')) {
-      return alert("Please enter a valid email address.");
-    }
-    if (!password) {
-      return alert("Please enter your password.");
-    }
-    // ------------------
-
-    try {
-      await login(email, password);
+    const result = await login(email, password);
+    if (result.success) {
       navigate('/dashboard');
-    } catch (error) {
-      alert('Invalid Email or Password');
+    } else {
+      alert(`ACCESS_DENIED: ${result.message}`);
     }
   };
 
   return (
-    <div style={pageStyle}>
-      <div style={cardStyle}>
-        
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <h2 style={{ margin: '0 0 10px 0', color: '#1e293b', fontSize: '1.8rem' }}>Welcome Back</h2>
-          <p style={{ margin: 0, color: '#64748b' }}>Enter your credentials to access your account.</p>
-        </div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.bg, padding: '20px' }}>
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Space+Mono:wght@400;700&display=swap');
+          .brutal-input { font-family: 'Space Mono', monospace; transition: all 0.2s; border: 1px solid #1A1A1A; outline: none; }
+          .brutal-input:focus { background: #fff !important; transform: translate(-2px, -2px); box-shadow: 4px 4px 0px #1A1A1A; }
+          .auth-link:hover { color: #1A1A1A !important; text-decoration: underline !important; }
+        `}
+      </style>
 
-        <form onSubmit={handleSubmit}>
-          
-          {/* Email Input */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelStyle}>Email Address</label>
-            <input 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-              placeholder="name@example.com"
-              style={inputStyle}
-            />
+      <div style={{ 
+        background: theme.surface, padding: '60px', border: `3px solid ${theme.border}`,
+        boxShadow: '12px 12px 0px rgba(0,0,0,0.1)', width: '100%', maxWidth: '440px' 
+      }}>
+        <header style={{ marginBottom: '40px', borderLeft: `8px solid ${theme.textMain}`, paddingLeft: '20px' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', textTransform: 'uppercase', margin: 0, lineHeight: '0.9' }}>
+            Secure <br /> Portal.
+          </h2>
+          <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginTop: '12px', color: theme.textSec }}>
+            STATUS: RESTRICTED // LOGIN_REQUIRED
+          </p>
+        </header>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div>
+            <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '8px' }}>USER_IDENTIFIER</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ADDR@DOMAIN.COM" className="brutal-input" style={{ width: '100%', padding: '14px', background: theme.fieldBg, boxSizing: 'border-box' }} />
           </div>
 
-          {/* Password Input */}
-          <div style={{ marginBottom: '25px' }}>
-            <label style={labelStyle}>Password</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-              placeholder="••••••••"
-              style={inputStyle}
-            />
+          <div>
+            <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '8px' }}>ACCESS_KEY</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="brutal-input" style={{ width: '100%', padding: '14px', background: theme.fieldBg, boxSizing: 'border-box' }} />
           </div>
 
-          {/* Submit Button */}
-          <button type="submit" style={buttonStyle}>
-            Sign In
+          <button type="submit" style={{ 
+            padding: '18px', background: theme.textMain, color: 'white', border: 'none', 
+            fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer',
+            boxShadow: `6px 6px 0px ${theme.accent}`, marginTop: '10px'
+          }}>
+            AUTHORIZE_SESSION
           </button>
         </form>
 
-        {/* Footer Link */}
-        <p style={{ marginTop: '25px', textAlign: 'center', color: '#64748b', fontSize: '0.9rem' }}>
-          Don't have an account? <Link to="/register" style={linkStyle}>Register here</Link>
-        </p>
-
+        <footer style={{ marginTop: '35px', textAlign: 'center', borderTop: `1px dashed ${theme.border}`, paddingTop: '20px' }}>
+          <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', color: theme.textSec, margin: 0 }}>
+            NEW_STAKEHOLDER? <Link to="/register" className="auth-link" style={{ color: theme.accent, fontWeight: '700', textDecoration: 'none' }}>REGISTER_SYSTEM</Link>
+          </p>
+        </footer>
       </div>
     </div>
   );
-};
-
-// --- STYLES ---
-
-const pageStyle = {
-  minHeight: '100vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: '#f1f5f9', // Light gray background
-  fontFamily: 'sans-serif'
-};
-
-const cardStyle = {
-  background: 'white',
-  padding: '40px',
-  borderRadius: '12px',
-  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-  width: '100%',
-  maxWidth: '400px',
-  border: '1px solid #e2e8f0'
-};
-
-const labelStyle = {
-  display: 'block',
-  marginBottom: '8px',
-  fontWeight: '600',
-  color: '#334155',
-  fontSize: '0.9rem'
-};
-
-const inputStyle = {
-  width: '100%',
-  padding: '12px',
-  borderRadius: '8px',
-  border: '1px solid #cbd5e1',
-  fontSize: '1rem',
-  boxSizing: 'border-box',
-  outline: 'none',
-  transition: 'border 0.2s',
-  color: '#1e293b'
-};
-
-const buttonStyle = {
-  width: '100%',
-  padding: '12px',
-  background: '#2563eb',
-  color: 'white',
-  border: 'none',
-  borderRadius: '8px',
-  fontSize: '1rem',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  transition: 'background 0.2s'
-};
-
-const linkStyle = {
-  color: '#2563eb',
-  textDecoration: 'none',
-  fontWeight: '600'
 };
 
 export default Login;

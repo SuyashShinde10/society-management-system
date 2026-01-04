@@ -5,7 +5,6 @@ import AuthContext from '../context/AuthContext';
 const AddMember = () => {
   const { user } = useContext(AuthContext);
 
-  // Form State
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,14 +13,21 @@ const AddMember = () => {
   const [flatNumber, setFlatNumber] = useState('');
   const [residentType, setResidentType] = useState('Owner');
 
-  // Limits State (Fetched from Admin's Society Settings)
   const [limits, setLimits] = useState({
     wings: [],
     floors: 0,
     flatsPerFloor: 0
   });
 
-  // 1. Fetch Society Limits on Load
+  const theme = {
+    bg: '#F2F2F2',
+    surface: '#FFFFFF',
+    textMain: '#1A1A1A',
+    textSec: '#4A4A4A',
+    border: '#1A1A1A',
+    accent: '#2563EB',
+  };
+
   useEffect(() => {
     const fetchLimits = async () => {
       try {
@@ -31,23 +37,19 @@ const AddMember = () => {
           floors: parseInt(data.floors) || 0,
           flatsPerFloor: parseInt(data.flatsPerFloor) || 0
         });
-        // Auto-select first wing if available
         if (data.wings && data.wings.length > 0) setWing(data.wings[0]);
       } catch (error) {
-        console.error("Failed to load building details");
+        console.error("// ERR_INTAKE_LIMITS_FETCH_FAILED");
       }
     };
     if (user?.role === 'admin') fetchLimits();
   }, [user]);
 
-  // 2. Auto-Generate Flat Number Dropdown based on Floor & Limit
   const getFlatOptions = () => {
     const options = [];
     const count = limits.flatsPerFloor;
     const currentFloor = parseInt(floor);
-
     for (let i = 1; i <= count; i++) {
-      // Logic: If Floor 0 -> 1, 2, 3. If Floor 5 -> 501, 502, 503
       const flatNo = currentFloor === 0 ? i : (currentFloor * 100) + i;
       options.push(flatNo.toString());
     }
@@ -56,116 +58,152 @@ const AddMember = () => {
 
   const handleAddMember = async (e) => {
     e.preventDefault();
-    if (!user || !user.societyId) return alert("Error: You are not linked to a society.");
-
     const payload = {
       name, email, password, role: 'member', 
       societyId: user.societyId, 
       flatDetails: { wing, floor, flatNumber, residentType }
     };
-
     try {
       await api.post('/auth/register', payload);
-      alert('Resident Added Successfully!');
-      // Reset Form
+      alert('IDENT_CREATED: Resident added to registry.');
       setName(''); setEmail(''); setPassword(''); 
       setFloor('0'); setFlatNumber(''); setResidentType('Owner');
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to add resident');
+      alert(error.response?.data?.message || 'REGISTRATION_FAILED');
     }
   };
 
   return (
-    <div style={containerStyle}>
-      <h3 style={headerStyle}>➕ Add New Resident</h3>
-      <form onSubmit={handleAddMember} style={formStyle}>
+    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, padding: '40px', marginBottom: '40px' }}>
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Space+Mono:wght@400;700&display=swap');
+          
+          .registry-input {
+            font-family: 'Space Mono', monospace;
+            border: 1px solid #1A1A1A;
+            background: #F2F2F2;
+            padding: 12px;
+            outline: none;
+            font-size: 13px;
+            width: 100%;
+            box-sizing: border-box;
+          }
+
+          .registry-input:focus {
+            background: #fff;
+            box-shadow: 4px 4px 0px #1A1A1A;
+          }
+
+          .registry-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: #1A1A1A;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 8px;
+          }
+        `}
+      </style>
+
+      <h3 style={{ 
+        fontFamily: "'Cormorant Garamond', serif", 
+        fontSize: '28px', 
+        textTransform: 'uppercase', 
+        margin: '0 0 30px 0', 
+        borderBottom: `2px solid ${theme.border}`, 
+        paddingBottom: '15px' 
+      }}>
+        Resident_Intake_Form
+      </h3>
+
+      <form onSubmit={handleAddMember} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
         
-        {/* Read-Only Building Name */}
-        <div style={fullRowStyle}>
-          <label style={labelStyle}>Building / Society Name</label>
-          <input 
-            value={user.societyName || 'Your Society'} 
-            disabled 
-            style={{ ...inputStyle, background: '#f1f5f9', color: '#64748b', cursor: 'not-allowed' }} 
-          />
-        </div>
-
-        <div style={rowStyle}>
-          <div>
-            <label style={labelStyle}>Full Name</label>
-            <input placeholder="Ex: Rahul Sharma" value={name} onChange={(e) => setName(e.target.value)} required style={inputStyle} />
-          </div>
-          <div>
-            <label style={labelStyle}>Email Address</label>
-            <input placeholder="Ex: rahul@gmail.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
+        {/* Read-Only Asset Name */}
+        <div style={{ background: '#EAEAEA', padding: '15px', border: '1px dashed #1A1A1A' }}>
+          <label className="registry-label">Assigned_Asset</label>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '14px', fontWeight: '700' }}>
+            {user.societyName?.toUpperCase() || 'CORE_SYSTEM'}
           </div>
         </div>
 
-        <div style={rowStyle}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
           <div>
-            <label style={labelStyle}>Set Password</label>
-            <input placeholder="Create a password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} required style={inputStyle} />
+            <label className="registry-label">Legal_Name</label>
+            <input placeholder="F_NAME L_NAME" value={name} onChange={(e) => setName(e.target.value)} required className="registry-input" />
           </div>
           <div>
-            <label style={labelStyle}>Resident Status</label>
-            <select value={residentType} onChange={(e) => setResidentType(e.target.value)} style={inputStyle}>
-              <option value="Owner">Owner</option>
-              <option value="Tenant">Rented / Tenant</option>
+            <label className="registry-label">Communication_Email</label>
+            <input type="email" placeholder="ADDR@DOMAIN.COM" value={email} onChange={(e) => setEmail(e.target.value)} required className="registry-input" />
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div>
+            <label className="registry-label">Access_Credential</label>
+            <input placeholder="SET_PASSKEY" type="text" value={password} onChange={(e) => setPassword(e.target.value)} required className="registry-input" />
+          </div>
+          <div>
+            <label className="registry-label">Occupancy_Status</label>
+            <select value={residentType} onChange={(e) => setResidentType(e.target.value)} className="registry-input" style={{ height: '43px' }}>
+              <option value="Owner">OWNER</option>
+              <option value="Tenant">TENANT</option>
             </select>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
-          
-          {/* --- WING DROPDOWN (Restricted) --- */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', padding: '20px', background: '#F9F9F9', border: '1px solid #1A1A1A' }}>
           <div>
-            <label style={labelStyle}>Wing</label>
-            <select value={wing} onChange={(e) => setWing(e.target.value)} required style={inputStyle}>
-              <option value="">Select</option>
+            <label className="registry-label">Structure_Wing</label>
+            <select value={wing} onChange={(e) => setWing(e.target.value)} required className="registry-input">
+              <option value="">N/A</option>
               {limits.wings.map((w) => (
                 <option key={w} value={w}>{w}</option>
               ))}
             </select>
           </div>
 
-          {/* --- FLOOR DROPDOWN (Restricted 0 to Max) --- */}
           <div>
-            <label style={labelStyle}>Floor</label>
-            <select value={floor} onChange={(e) => setFloor(e.target.value)} required style={inputStyle}>
-              {/* Generate 0 to limits.floors options */}
+            <label className="registry-label">Floor_Level</label>
+            <select value={floor} onChange={(e) => setFloor(e.target.value)} required className="registry-input">
               {[...Array(limits.floors + 1).keys()].map((f) => (
-                <option key={f} value={f}>{f === 0 ? "0 (Ground)" : f}</option>
+                <option key={f} value={f}>{f === 0 ? "00_GROUND" : f.toString().padStart(2, '0')}</option>
               ))}
             </select>
           </div>
 
-          {/* --- FLAT DROPDOWN (Restricted) --- */}
           <div>
-            <label style={labelStyle}>Flat No</label>
-            <select value={flatNumber} onChange={(e) => setFlatNumber(e.target.value)} required style={inputStyle}>
-              <option value="">Select Flat</option>
+            <label className="registry-label">Unit_Number</label>
+            <select value={flatNumber} onChange={(e) => setFlatNumber(e.target.value)} required className="registry-input">
+              <option value="">SELECT</option>
               {getFlatOptions().map((flat) => (
                 <option key={flat} value={flat}>{flat}</option>
               ))}
             </select>
           </div>
-
         </div>
 
-        <button type="submit" style={buttonStyle}>Register Resident</button>
+        <button type="submit" style={{ 
+          padding: '18px', 
+          background: theme.textMain, 
+          color: 'white', 
+          border: 'none', 
+          fontFamily: "'Space Mono', monospace", 
+          fontWeight: '700', 
+          cursor: 'pointer', 
+          fontSize: '14px',
+          boxShadow: `6px 6px 0px ${theme.accent}`,
+          transition: 'all 0.1s'
+        }}
+        onMouseOver={(e) => e.target.style.transform = 'translate(-2px, -2px)'}
+        onMouseOut={(e) => e.target.style.transform = 'translate(0, 0)'}
+        >
+          [ AUTHORIZE_NEW_RESIDENT ]
+        </button>
       </form>
     </div>
   );
 };
-
-// --- STYLES ---
-const containerStyle = { background: 'white', padding: '30px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '30px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' };
-const headerStyle = { margin: '0 0 25px 0', color: '#1e293b', borderBottom: '1px solid #e2e8f0', paddingBottom: '15px' };
-const formStyle = { display: 'flex', flexDirection: 'column', gap: '20px' };
-const rowStyle = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' };
-const fullRowStyle = { display: 'flex', flexDirection: 'column', gap: '5px' };
-const labelStyle = { fontSize: '0.85rem', fontWeight: '600', color: '#475569', marginBottom: '5px', display: 'block' };
-const inputStyle = { width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.95rem' };
-const buttonStyle = { padding: '14px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', marginTop: '10px' };
 
 export default AddMember;

@@ -1,22 +1,31 @@
 import axios from 'axios';
 
-// If we are in production (deployed), use the Live Backend URL.
-// If we are in development (local), use localhost.
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'; 
-// Note: If you used 'Create React App' instead of Vite, use process.env.REACT_APP_API_URL
-
 const api = axios.create({
-  baseURL: API_URL, 
+  // Ensure this matches your Vercel Backend exactly
+  baseURL: 'https://mental-wellbeing-app-sandy.vercel.app/api',
+  timeout: 15000, 
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
-// ... (Keep your interceptors for tokens as they are) ...
-
+// REQUEST: Attach Token
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
+
+// RESPONSE: Catch the REAL error message from the backend
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Log the error for the developer to see in the console
+    console.error("// NETWORK_TRACE:", error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
 
 export default api;

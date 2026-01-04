@@ -4,14 +4,10 @@ import api from '../api';
 
 const Register = () => {
   const navigate = useNavigate();
-  
-  // Basic User Info (Always Admin)
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secretCode, setSecretCode] = useState('');
-
-  // Society Data
   const [societyName, setSocietyName] = useState('');
   const [address, setAddress] = useState('');
   const [regNumber, setRegNumber] = useState('');
@@ -20,137 +16,82 @@ const Register = () => {
   const [flatsPerFloor, setFlatsPerFloor] = useState('');
 
   const WING_OPTIONS = ['A', 'B', 'C', 'D', 'E'];
+  const theme = { bg: '#F2F2F2', surface: '#FFFFFF', textMain: '#1A1A1A', textSec: '#4A4A4A', border: '#1A1A1A', accent: '#2563EB', fieldBg: '#E8E8E8' };
 
-  const handleCheckboxChange = (option) => {
-    if (wings.includes(option)) {
-      setWings(wings.filter(item => item !== option));
-    } else {
-      setWings([...wings, option]);
-    }
-  };
+  const handleCheckboxChange = (opt) => wings.includes(opt) ? setWings(wings.filter(i => i !== opt)) : setWings([...wings, opt]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validations
-    if (!name || !email || !password || !secretCode || !societyName || !address || !regNumber || wings.length === 0 || !floors || !flatsPerFloor) {
-      return alert("Please fill all fields and select at least one Wing.");
-    }
-    if (password.length < 6) return alert("Password must be 6+ chars");
+    if (wings.length === 0) return alert("VALIDATION_ERROR: Select Wings.");
 
     const payload = {
-      name, email, password, secretCode,
-      role: 'admin', // Hardcoded to admin
+      name, email, password, secretCode, role: 'admin',
       societyName, address, regNumber,
       wings: wings.join(','),
-      floors, flatsPerFloor
+      floors: Number(floors),
+      flatsPerFloor: Number(flatsPerFloor)
     };
 
     try {
       await api.post('/auth/register', payload);
-      alert('Society Registered Successfully! Please Login.');
+      alert('REGISTRY_SUCCESS: Society Deployed.');
       navigate('/login');
     } catch (error) {
-      alert(error.response?.data?.message || 'Registration Failed');
+      if (!error.response) {
+        // This is where SERVER_UNREACHABLE usually comes from (CORS or Down)
+        alert("PROTOCOL_ERROR: Server unreachable. This is likely a CORS issue or the server is waking up. Please try again in 10 seconds.");
+      } else {
+        alert(`REGISTRATION_REJECTED: ${error.response.data.message || "Unknown Error"}`);
+      }
     }
   };
 
   return (
-    <div style={pageStyle}>
-      <div style={cardStyle}>
-        
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '25px' }}>
-          <h2 style={{ margin: '0 0 10px 0', color: '#1e293b' }}>Register New Society</h2>
-          <p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-            Create a digital space for your building management
-          </p>
-        </div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.bg, padding: '40px 20px' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Space+Mono:wght@400;700&display=swap');
+        .brutal-input { font-family: 'Space Mono', monospace; transition: 0.2s; border: 1px solid #1A1A1A; width: 100%; padding: 15px; box-sizing: border-box; background: #E8E8E8; outline: none; }
+        .brutal-input:focus { background: #fff; transform: translate(-2px, -2px); box-shadow: 4px 4px 0px #1A1A1A; }
+      `}</style>
+
+      <div style={{ background: theme.surface, padding: '60px', border: `3px solid ${theme.border}`, boxShadow: '12px 12px 0px rgba(0,0,0,0.1)', width: '100%', maxWidth: '580px' }}>
+        <header style={{ marginBottom: '50px', borderLeft: `8px solid ${theme.textMain}`, paddingLeft: '20px' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', fontWeight: '600', margin: 0, lineHeight: '0.9', textTransform: 'uppercase' }}>Society <br/> Deployment.</h2>
+          <p style={{ margin: '15px 0 0 0', color: theme.textSec, fontSize: '12px', fontFamily: "'Space Mono', monospace", fontWeight: '700' }}>VERSION: 2.0.26 // STATUS: PENDING_AUTH</p>
+        </header>
 
         <form onSubmit={handleSubmit}>
-          
-          {/* Admin Info */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
-            <h4 style={sectionHeader}>👤 Admin Details</h4>
-            <input type="text" placeholder="Admin Full Name" value={name} onChange={(e) => setName(e.target.value)} required style={inputStyle} />
-            <input type="email" placeholder="Admin Email" value={email} onChange={(e) => setEmail(e.target.value)} required style={inputStyle} />
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required style={inputStyle} />
-            <input type="text" placeholder="Secret Code (for recovery)" value={secretCode} onChange={(e) => setSecretCode(e.target.value)} required style={inputStyle} />
-          </div>
-
-          <div style={{ width: '100%', height: '1px', background: '#e2e8f0', margin: '20px 0' }}></div>
-
-          {/* Society Details */}
-          <div style={{ background: '#eff6ff', padding: '20px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-            <h4 style={{ ...sectionHeader, color: '#1e3a8a', marginTop: 0 }}>🏢 Building Details</h4>
-            
+          <div style={{ marginBottom: '30px' }}>
+            <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '10px' }}>SECTION_01: ADMIN_ID</label>
             <div style={{ display: 'grid', gap: '10px' }}>
-              <input placeholder="Society Name" value={societyName} onChange={(e) => setSocietyName(e.target.value)} required style={inputStyle} />
-              <input placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} required style={inputStyle} />
-              <input placeholder="Registration Number" value={regNumber} onChange={(e) => setRegNumber(e.target.value)} required style={inputStyle} />
-            </div>
-
-            {/* Wing Selection */}
-            <div style={{ margin: '15px 0' }}>
-              <label style={labelStyle}>Select Wings:</label>
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                {WING_OPTIONS.map((w) => (
-                  <div 
-                    key={w} 
-                    onClick={() => handleCheckboxChange(w)}
-                    style={{
-                      ...wingChipStyle,
-                      background: wings.includes(w) ? '#2563eb' : 'white',
-                      color: wings.includes(w) ? 'white' : '#64748b',
-                      borderColor: wings.includes(w) ? '#2563eb' : '#cbd5e1'
-                    }}
-                  >
-                    {w}
-                  </div>
-                ))}
+              <input placeholder="FULL_NAME" value={name} onChange={(e) => setName(e.target.value)} required className="brutal-input" />
+              <input type="email" placeholder="EMAIL_ADDR" value={email} onChange={(e) => setEmail(e.target.value)} required className="brutal-input" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <input type="password" placeholder="PASS_KEY" value={password} onChange={(e) => setPassword(e.target.value)} required className="brutal-input" />
+                <input type="text" placeholder="SEC_CODE" value={secretCode} onChange={(e) => setSecretCode(e.target.value)} required className="brutal-input" />
               </div>
             </div>
+          </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              <input 
-                type="number" 
-                min="0" 
-                placeholder="Total Floors" 
-                value={floors} 
-                onChange={(e) => setFloors(e.target.value)} 
-                required 
-                style={inputStyle} 
-              />
-              <input 
-                type="number" 
-                min="0" 
-                placeholder="Flats per Floor" 
-                value={flatsPerFloor} 
-                onChange={(e) => setFlatsPerFloor(e.target.value)} 
-                required 
-                style={inputStyle} 
-              />
+          <div style={{ marginBottom: '30px' }}>
+            <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '10px' }}>SECTION_02: STRUCTURE</label>
+            <div style={{ display: 'grid', gap: '10px' }}>
+              <input placeholder="SOCIETY_NAME" value={societyName} onChange={(e) => setSocietyName(e.target.value)} required className="brutal-input" />
+              <input placeholder="ADDRESS" value={address} onChange={(e) => setAddress(e.target.value)} required className="brutal-input" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <input type="number" placeholder="FLOORS" value={floors} onChange={(e) => setFloors(e.target.value)} required className="brutal-input" />
+                <input type="number" placeholder="FLATS_PER_FL" value={flatsPerFloor} onChange={(e) => setFlatsPerFloor(e.target.value)} required className="brutal-input" />
+              </div>
             </div>
           </div>
 
-          <button type="submit" style={buttonStyle}>Register Society</button>
+          <button type="submit" style={{ width: '100%', padding: '20px', backgroundColor: theme.textMain, color: 'white', border: 'none', fontSize: '16px', fontWeight: '700', fontFamily: "'Space Mono', monospace", cursor: 'pointer', boxShadow: `6px 6px 0px ${theme.accent}` }}>
+            INITIALIZE_SYSTEM
+          </button>
         </form>
-
-        <p style={{ marginTop: '20px', textAlign: 'center', color: '#64748b' }}>
-          Already have an account? <Link to="/login" style={{ color: '#2563eb', fontWeight: 'bold', textDecoration: 'none' }}>Login</Link>
-        </p>
       </div>
     </div>
   );
 };
-
-// --- STYLES ---
-const pageStyle = { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', fontFamily: 'sans-serif', padding: '20px' };
-const cardStyle = { background: 'white', padding: '40px', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', width: '100%', maxWidth: '500px', border: '1px solid #e2e8f0' };
-const sectionHeader = { margin: '0 0 10px 0', fontSize: '1rem', color: '#334155' };
-const inputStyle = { width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.95rem', boxSizing: 'border-box', outline: 'none' };
-const labelStyle = { display: 'block', marginBottom: '8px', fontWeight: '600', color: '#475569', fontSize: '0.9rem' };
-const wingChipStyle = { width: '40px', height: '40px', borderRadius: '50%', border: '1px solid', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 'bold', transition: 'all 0.2s', userSelect: 'none' };
-const buttonStyle = { width: '100%', padding: '14px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', marginTop: '25px', boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)' };
 
 export default Register;

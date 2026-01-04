@@ -1,37 +1,34 @@
 const express = require('express');
-const dotenv = require('dotenv');
 const cors = require('cors');
+const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 
-// 1. Load Environment Variables
 dotenv.config();
-
-// 2. Connect to Database
 connectDB();
 
-// 3. Initialize Express App
 const app = express();
 
-// 4. Middleware (Allows us to accept JSON data)
+// INDUSTRIAL CORS CONFIG
+app.use(cors({
+  origin: ["https://mental-wellbeing-app-sandy.vercel.app", "http://localhost:5173", "http://localhost:3000"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
 app.use(express.json());
-app.use(cors());
 
+// Routes
 app.use('/api/auth', require('./routes/authRoutes'));
-
 app.use('/api/complaints', require('./routes/complaintRoutes'));
-
 app.use('/api/notices', require('./routes/noticeRoutes'));
-
 app.use('/api/expenses', require('./routes/expenseRoutes'));
 
-// 5. Basic Test Route
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
+app.get('/', (req, res) => res.json({ status: "AwaasTech_Systems_Online" }));
 
-// 6. Define Port and Start Server
 const PORT = process.env.PORT || 5000;
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => console.log(`// SYSTEM_READY_ON_PORT_${PORT}`));
+}
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-}); 
+// REQUIRED FOR VERCEL
+module.exports = app;

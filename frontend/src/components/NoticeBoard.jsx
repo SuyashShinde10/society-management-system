@@ -5,10 +5,17 @@ import AuthContext from '../context/AuthContext';
 const NoticeBoard = () => {
   const { user } = useContext(AuthContext);
   const [notices, setNotices] = useState([]);
-  
-  // Form State
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState(''); // <--- Using 'content'
+  const [content, setContent] = useState('');
+
+  const theme = {
+    bg: '#F2F2F2',
+    surface: '#FFFFFF',
+    textMain: '#1A1A1A',
+    textSec: '#4A4A4A',
+    border: '#1A1A1A',
+    accent: '#2563EB',
+  };
 
   useEffect(() => {
     fetchNotices();
@@ -19,87 +26,135 @@ const NoticeBoard = () => {
       const { data } = await api.get('/notices');
       setNotices(data);
     } catch (error) {
-      console.error("Failed to fetch notices");
+      console.error("// DISPATCH_FETCH_ERROR");
     }
   };
 
   const handlePost = async (e) => {
     e.preventDefault();
-    if (!title || !content) return alert("Fill all fields");
-
+    if (!title || !content) return alert("All fields required.");
     try {
-      // Sending 'content' key to match backend
       await api.post('/notices', { title, content });
       setTitle('');
       setContent('');
       fetchNotices();
     } catch (error) {
-      alert("Failed to post notice");
+      alert("BROADCAST_FAILURE");
     }
   };
 
   const handleDelete = async (id) => {
-    if(!window.confirm("Delete this notice?")) return;
+    if(!window.confirm("// DELETE_NOTICE: Proceed?")) return;
     try {
       await api.delete(`/notices/${id}`);
       fetchNotices();
     } catch (error) {
-      alert("Failed to delete");
+      alert("TERMINATION_FAILED");
     }
   };
 
   return (
-    <div style={containerStyle}>
-      <h3 style={headerStyle}>📢 Notice Board</h3>
+    <div style={{ background: theme.surface, height: '100%', border: `3px solid ${theme.border}`, padding: '0' }}>
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Space+Mono:wght@400;700&display=swap');
+          
+          .dispatch-input {
+            font-family: 'Space Mono', monospace;
+            border: 1px solid #1A1A1A;
+            background: #F2F2F2;
+            padding: 10px;
+            outline: none;
+            font-size: 13px;
+          }
 
-      {user && user.role === 'admin' && (
-        <form onSubmit={handlePost} style={formStyle}>
-          <input 
-            placeholder="Notice Title" 
-            value={title} 
-            onChange={(e) => setTitle(e.target.value)} 
-            style={inputStyle} 
-          />
-          <textarea 
-            placeholder="Write notice details..." 
-            value={content} 
-            onChange={(e) => setContent(e.target.value)} 
-            style={{...inputStyle, minHeight: '60px'}} 
-          />
-          <button type="submit" style={buttonStyle}>Post Notice</button>
-        </form>
-      )}
+          .dispatch-input:focus {
+            background: #fff;
+            box-shadow: 4px 4px 0px #1A1A1A;
+          }
 
-      <div style={listStyle}>
-        {notices.length === 0 ? <p style={{color: '#94a3b8', textAlign:'center'}}>No notices yet.</p> : (
-          notices.map((n) => (
-            <div key={n._id} style={cardStyle}>
-              <div style={{display:'flex', justifyContent:'space-between'}}>
-                <h4 style={{margin:'0 0 5px 0', color: '#1e293b'}}>{n.title}</h4>
-                {user.role === 'admin' && (
-                  <button onClick={() => handleDelete(n._id)} style={deleteBtn}>×</button>
-                )}
-              </div>
-              <p style={{margin:0, color: '#64748b', fontSize:'0.9rem'}}>{n.content}</p>
-              <span style={{fontSize:'0.75rem', color:'#cbd5e1', marginTop:'8px', display:'block'}}>
-                {new Date(n.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-          ))
+          .notice-item {
+            border-bottom: 1px solid #1A1A1A;
+            padding: 20px;
+            transition: background 0.2s;
+          }
+
+          .notice-item:hover {
+            background: #F9F9F9;
+          }
+        `}
+      </style>
+
+      {/* HEADER */}
+      <div style={{ background: theme.textMain, color: 'white', padding: '15px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <span style={{ fontSize: '20px' }}>📢</span>
+        <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px' }}>
+          Official_Dispatches
+        </h3>
+      </div>
+
+      <div style={{ padding: '20px' }}>
+        {user && user.role === 'admin' && (
+          <form onSubmit={handlePost} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '30px', borderBottom: `4px double ${theme.border}`, paddingBottom: '30px' }}>
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700' }}>// COMPOSE_NEW_BROADCAST</span>
+            <input 
+              placeholder="TITLE" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              className="dispatch-input"
+            />
+            <textarea 
+              placeholder="BODY_CONTENT" 
+              value={content} 
+              onChange={(e) => setContent(e.target.value)} 
+              className="dispatch-input"
+              style={{ minHeight: '80px' }}
+            />
+            <button type="submit" style={{ 
+              background: theme.accent, 
+              color: 'white', 
+              border: 'none', 
+              padding: '12px', 
+              fontFamily: "'Space Mono', monospace", 
+              fontWeight: '700', 
+              cursor: 'pointer',
+              boxShadow: '4px 4px 0px #1A1A1A'
+            }}>
+              EXECUTE_POST
+            </button>
+          </form>
         )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '500px', overflowY: 'auto', border: `1px solid ${theme.border}` }}>
+          {notices.length === 0 ? (
+            <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', padding: '20px', textAlign: 'center' }}>// NO_DATA_AVAILABLE</p>
+          ) : (
+            notices.map((n) => (
+              <div key={n._id} className="notice-item">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <h4 style={{ margin: '0 0 10px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', textTransform: 'uppercase', color: theme.textMain }}>
+                    {n.title}
+                  </h4>
+                  {user.role === 'admin' && (
+                    <button onClick={() => handleDelete(n._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700', color: '#ef4444' }}>[X]</button>
+                  )}
+                </div>
+                <p style={{ margin: 0, fontFamily: "'Space Mono', monospace", fontSize: '13px', color: theme.textSec, lineHeight: '1.4' }}>
+                  {n.content}
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', alignItems: 'center' }}>
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', fontWeight: '700', background: '#E8E8E8', padding: '2px 6px' }}>
+                    DATE: {new Date(n.createdAt).toLocaleDateString()}
+                  </span>
+                  <span style={{ fontSize: '10px', fontFamily: "'Space Mono', monospace", opacity: 0.4 }}>ID: {n._id.substring(0,8)}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
 };
-
-// --- STYLES ---
-const containerStyle = { background: 'white', padding: '25px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', height: '100%', border: '1px solid #e2e8f0' };
-const headerStyle = { margin: '0 0 20px 0', color: '#0f172a', borderBottom: '2px solid #f1f5f9', paddingBottom: '10px' };
-const formStyle = { display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #f1f5f9' };
-const inputStyle = { padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.9rem' };
-const buttonStyle = { padding: '10px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' };
-const listStyle = { display: 'flex', flexDirection: 'column', gap: '15px', maxHeight: '400px', overflowY: 'auto' };
-const cardStyle = { background: '#f8fafc', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #3b82f6' };
-const deleteBtn = { background: 'transparent', border: 'none', color: '#ef4444', fontSize: '1.2rem', cursor: 'pointer', lineHeight: '0.5' };
 
 export default NoticeBoard;
