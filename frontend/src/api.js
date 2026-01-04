@@ -1,15 +1,11 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // Ensure this matches your Vercel Backend exactly
-  baseURL: 'https://mental-wellbeing-app-sandy.vercel.app/api',
-  timeout: 15000, 
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  // REPLACE this with your actual Render URL (e.g., https://your-app.onrender.com/api)
+  baseURL: 'https://society-backend-api-w7dz.onrender.com', 
+  timeout: 30000, // Render "Free Tier" takes 30+ seconds to wake up
 });
 
-// REQUEST: Attach Token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -17,15 +13,5 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
-
-// RESPONSE: Catch the REAL error message from the backend
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Log the error for the developer to see in the console
-    console.error("// NETWORK_TRACE:", error.response?.data || error.message);
-    return Promise.reject(error);
-  }
-);
 
 export default api;
