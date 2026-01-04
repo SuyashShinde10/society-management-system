@@ -15,19 +15,19 @@ const Register = () => {
   const [floors, setFloors] = useState('');
   const [flatsPerFloor, setFlatsPerFloor] = useState('');
 
-  const WING_OPTIONS = ['A', 'B', 'C', 'D', 'E'];
+  const WING_OPTIONS = ['A', 'B', 'C', 'D', 'E', 'F'];
   const theme = { bg: '#F2F2F2', surface: '#FFFFFF', textMain: '#1A1A1A', textSec: '#4A4A4A', border: '#1A1A1A', accent: '#2563EB', fieldBg: '#E8E8E8' };
 
   const handleCheckboxChange = (opt) => wings.includes(opt) ? setWings(wings.filter(i => i !== opt)) : setWings([...wings, opt]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (wings.length === 0) return alert("VALIDATION_ERROR: Select Wings.");
+    if (wings.length === 0) return alert("VALIDATION_ERROR: Select at least one Wing.");
 
     const payload = {
       name, email, password, secretCode, role: 'admin',
       societyName, address, regNumber,
-      wings: wings.join(','),
+      wings: wings, // Sending as array for backend compatibility
       floors: Number(floors),
       flatsPerFloor: Number(flatsPerFloor)
     };
@@ -38,8 +38,7 @@ const Register = () => {
       navigate('/login');
     } catch (error) {
       if (!error.response) {
-        // This is where SERVER_UNREACHABLE usually comes from (CORS or Down)
-        alert("PROTOCOL_ERROR: Server unreachable. This is likely a CORS issue or the server is waking up. Please try again in 10 seconds.");
+        alert("PROTOCOL_ERROR: Server unreachable. Check your Vercel logs.");
       } else {
         alert(`REGISTRATION_REJECTED: ${error.response.data.message || "Unknown Error"}`);
       }
@@ -52,6 +51,7 @@ const Register = () => {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Space+Mono:wght@400;700&display=swap');
         .brutal-input { font-family: 'Space Mono', monospace; transition: 0.2s; border: 1px solid #1A1A1A; width: 100%; padding: 15px; box-sizing: border-box; background: #E8E8E8; outline: none; }
         .brutal-input:focus { background: #fff; transform: translate(-2px, -2px); box-shadow: 4px 4px 0px #1A1A1A; }
+        .wing-btn { border: 1px solid #1A1A1A; padding: 10px; cursor: pointer; font-family: 'Space Mono', monospace; font-size: 12px; text-align: center; transition: 0.2s; }
       `}</style>
 
       <div style={{ background: theme.surface, padding: '60px', border: `3px solid ${theme.border}`, boxShadow: '12px 12px 0px rgba(0,0,0,0.1)', width: '100%', maxWidth: '580px' }}>
@@ -61,6 +61,7 @@ const Register = () => {
         </header>
 
         <form onSubmit={handleSubmit}>
+          {/* SECTION 01: ADMIN */}
           <div style={{ marginBottom: '30px' }}>
             <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '10px' }}>SECTION_01: ADMIN_ID</label>
             <div style={{ display: 'grid', gap: '10px' }}>
@@ -73,11 +74,33 @@ const Register = () => {
             </div>
           </div>
 
+          {/* SECTION 02: STRUCTURE */}
           <div style={{ marginBottom: '30px' }}>
             <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '10px' }}>SECTION_02: STRUCTURE</label>
             <div style={{ display: 'grid', gap: '10px' }}>
               <input placeholder="SOCIETY_NAME" value={societyName} onChange={(e) => setSocietyName(e.target.value)} required className="brutal-input" />
               <input placeholder="ADDRESS" value={address} onChange={(e) => setAddress(e.target.value)} required className="brutal-input" />
+              
+              {/* WING SELECTION */}
+              <div style={{ marginTop: '5px' }}>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', display: 'block', marginBottom: '8px' }}>SELECT_WINGS:</span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '5px' }}>
+                  {WING_OPTIONS.map(opt => (
+                    <div 
+                      key={opt}
+                      onClick={() => handleCheckboxChange(opt)}
+                      className="wing-btn"
+                      style={{ 
+                        backgroundColor: wings.includes(opt) ? theme.textMain : theme.fieldBg,
+                        color: wings.includes(opt) ? 'white' : theme.textMain
+                      }}
+                    >
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <input type="number" placeholder="FLOORS" value={floors} onChange={(e) => setFloors(e.target.value)} required className="brutal-input" />
                 <input type="number" placeholder="FLATS_PER_FL" value={flatsPerFloor} onChange={(e) => setFlatsPerFloor(e.target.value)} required className="brutal-input" />
