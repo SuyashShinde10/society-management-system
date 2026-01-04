@@ -10,7 +10,7 @@ const app = express();
 
 app.use(cors({
   origin: [
-    "https://society-management-system-five.vercel.app/", // Your Frontend Domain
+    "https://society-management-system-five.vercel.app", // YOUR NEW FRONTEND
     "http://localhost:5173"                             // Local Dev
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],

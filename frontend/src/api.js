@@ -1,10 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // 1. UPDATED: Points to your confirmed active Vercel domain
+  // Use your backend URL confirmed by the heartbeat test
   baseURL: 'https://society-management-system-wis5.vercel.app', 
-  
-  // 2. Vercel standard timeout
   timeout: 10000, 
 });
 
