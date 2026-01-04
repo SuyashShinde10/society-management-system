@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
-import axios from "axios";
+// 1. CHANGE: Import the central 'api' instance instead of 'axios' directly
+import api from "../api"; 
 
 const AuthContext = createContext();
 
@@ -7,7 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_BASE_URL = "https://mental-wellbeing-app-sandy.vercel.app/api"; 
+  // 2. REMOVED: const API_BASE_URL = "https://mental-wellbeing-app-sandy.vercel.app/api"; 
+  // We don't need this anymore because 'api.js' already knows the URL.
 
   useEffect(() => {
     const userInfo = localStorage.getItem("userInfo");
@@ -23,21 +25,26 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
+      // 3. CHANGE: Use 'api.post' and remove the full URL prefix
+      const { data } = await api.post('/auth/login', { email, password });
+      
       setUser(data.user);
       localStorage.setItem("userInfo", JSON.stringify(data.user));
       localStorage.setItem("token", data.token);
       return { success: true };
     } catch (error) {
+      console.error("Login Error:", error); // Added for debugging
       return { success: false, message: error.response?.data?.message || "Login failed" };
     }
   };
 
   const register = async (userData) => {
     try {
-      await axios.post(`${API_BASE_URL}/auth/register`, userData);
+      // 4. CHANGE: Use 'api.post' here too
+      await api.post('/auth/register', userData);
       return { success: true };
     } catch (error) {
+      console.error("Register Error:", error); // Added for debugging
       return { success: false, message: error.response?.data?.message || "Registration failed" };
     }
   };
@@ -46,6 +53,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userInfo");
     localStorage.removeItem("token");
     setUser(null);
+    // Optional: Reload page to clear any memory states
+    // window.location.reload(); 
   };
 
   return (

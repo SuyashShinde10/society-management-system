@@ -1,14 +1,13 @@
 const Complaint = require('../models/Complaint');
 
-// @desc    Get all complaints for the user's society
 const getComplaints = async (req, res) => {
   try {
-    if (!req.user.societyId) {
-      return res.status(400).json({ message: "User is not linked to any society." });
+    if (!req.user || !req.user.societyId) {
+      return res.status(200).json([]); // Return empty list instead of crashing
     }
 
     const complaints = await Complaint.find({ societyId: req.user.societyId })
-      .populate('user', 'name flatDetails') // <--- CRITICAL: Fetches Name & Flat
+      .populate('user', 'name flatDetails')
       .sort({ createdAt: -1 });
 
     res.status(200).json(complaints);
@@ -18,7 +17,6 @@ const getComplaints = async (req, res) => {
   }
 };
 
-// @desc    Create a new complaint
 const addComplaint = async (req, res) => {
   try {
     const { title, description } = req.body;
@@ -42,18 +40,15 @@ const addComplaint = async (req, res) => {
   }
 };
 
-// @desc    Update complaint status
 const updateComplaintStatus = async (req, res) => {
   try {
     const { status } = req.body;
     const complaint = await Complaint.findById(req.params.id);
 
-    if (!complaint) {
-      return res.status(404).json({ message: 'Complaint not found' });
-    }
+    if (!complaint) return res.status(404).json({ message: 'Complaint not found' });
     
-    // Check if user has a societyId (prevents crash for old admins)
-    if (req.user.societyId && complaint.societyId && complaint.societyId.toString() !== req.user.societyId.toString()) {
+    // Authorization Check
+    if (req.user.societyId && complaint.societyId.toString() !== req.user.societyId.toString()) {
       return res.status(401).json({ message: 'Not authorized' });
     }
 
@@ -83,9 +78,4 @@ const deleteComplaint = async (req, res) => {
   }
 };
 
-module.exports = {
-  getComplaints,
-  addComplaint,
-  updateComplaintStatus,
-  deleteComplaint,
-};
+module.exports = { getComplaints, addComplaint, updateComplaintStatus, deleteComplaint };

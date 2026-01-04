@@ -10,7 +10,7 @@ const Register = () => {
   const [secretCode, setSecretCode] = useState('');
   const [societyName, setSocietyName] = useState('');
   const [address, setAddress] = useState('');
-  const [regNumber, setRegNumber] = useState('');
+  const [regNumber, setRegNumber] = useState(''); // State was here, but input was missing
   const [wings, setWings] = useState([]);
   const [floors, setFloors] = useState('');
   const [flatsPerFloor, setFlatsPerFloor] = useState('');
@@ -25,9 +25,15 @@ const Register = () => {
     if (wings.length === 0) return alert("VALIDATION_ERROR: Select at least one Wing.");
 
     const payload = {
-      name, email, password, secretCode, role: 'admin',
-      societyName, address, regNumber,
-      wings: wings, // Sending as array for backend compatibility
+      name, 
+      email, 
+      password, 
+      secretCode, 
+      role: 'admin',
+      societyName, 
+      address, 
+      regNumber, // Now this will actually have data
+      wings: wings, 
       floors: Number(floors),
       flatsPerFloor: Number(flatsPerFloor)
     };
@@ -37,11 +43,8 @@ const Register = () => {
       alert('REGISTRY_SUCCESS: Society Deployed.');
       navigate('/login');
     } catch (error) {
-      if (!error.response) {
-        alert("PROTOCOL_ERROR: Server unreachable. Check your Vercel logs.");
-      } else {
-        alert(`REGISTRATION_REJECTED: ${error.response.data.message || "Unknown Error"}`);
-      }
+      console.error("DEBUG_REG_ERROR:", error.response?.data);
+      alert(`REGISTRATION_REJECTED: ${error.response?.data?.message || "Check console for details"}`);
     }
   };
 
@@ -55,35 +58,42 @@ const Register = () => {
       `}</style>
 
       <div style={{ background: theme.surface, padding: '60px', border: `3px solid ${theme.border}`, boxShadow: '12px 12px 0px rgba(0,0,0,0.1)', width: '100%', maxWidth: '580px' }}>
-        <header style={{ marginBottom: '50px', borderLeft: `8px solid ${theme.textMain}`, paddingLeft: '20px' }}>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', fontWeight: '600', margin: 0, lineHeight: '0.9', textTransform: 'uppercase' }}>Society <br/> Deployment.</h2>
-          <p style={{ margin: '15px 0 0 0', color: theme.textSec, fontSize: '12px', fontFamily: "'Space Mono', monospace", fontWeight: '700' }}>VERSION: 2.0.26 // STATUS: PENDING_AUTH</p>
+        <header style={{ marginBottom: '40px', borderLeft: `8px solid ${theme.textMain}`, paddingLeft: '20px' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', margin: 0, lineHeight: '0.9', textTransform: 'uppercase' }}>Society <br/> Deployment.</h2>
+          <p style={{ margin: '15px 0 0 0', color: theme.textSec, fontSize: '10px', fontFamily: "'Space Mono', monospace" }}>VER: 2.0.26 // PORT: 443</p>
         </header>
 
         <form onSubmit={handleSubmit}>
-          {/* SECTION 01: ADMIN */}
-          <div style={{ marginBottom: '30px' }}>
-            <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '10px' }}>SECTION_01: ADMIN_ID</label>
+          <div style={{ marginBottom: '25px' }}>
+            <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '10px' }}>SECTION_01: ADMIN_CREDENTIALS</label>
             <div style={{ display: 'grid', gap: '10px' }}>
               <input placeholder="FULL_NAME" value={name} onChange={(e) => setName(e.target.value)} required className="brutal-input" />
-              <input type="email" placeholder="EMAIL_ADDR" value={email} onChange={(e) => setEmail(e.target.value)} required className="brutal-input" />
+              <input type="email" placeholder="EMAIL_ADDRESS" value={email} onChange={(e) => setEmail(e.target.value)} required className="brutal-input" />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <input type="password" placeholder="PASS_KEY" value={password} onChange={(e) => setPassword(e.target.value)} required className="brutal-input" />
-                <input type="text" placeholder="SEC_CODE" value={secretCode} onChange={(e) => setSecretCode(e.target.value)} required className="brutal-input" />
+                <input type="password" placeholder="PASSWORD" value={password} onChange={(e) => setPassword(e.target.value)} required className="brutal-input" />
+                <input type="text" placeholder="SECRET_CODE" value={secretCode} onChange={(e) => setSecretCode(e.target.value)} required className="brutal-input" />
               </div>
             </div>
           </div>
 
-          {/* SECTION 02: STRUCTURE */}
-          <div style={{ marginBottom: '30px' }}>
-            <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '10px' }}>SECTION_02: STRUCTURE</label>
+          <div style={{ marginBottom: '25px' }}>
+            <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '10px' }}>SECTION_02: SOCIETY_MANIFEST</label>
             <div style={{ display: 'grid', gap: '10px' }}>
               <input placeholder="SOCIETY_NAME" value={societyName} onChange={(e) => setSocietyName(e.target.value)} required className="brutal-input" />
-              <input placeholder="ADDRESS" value={address} onChange={(e) => setAddress(e.target.value)} required className="brutal-input" />
+              <input placeholder="PHYSICAL_ADDRESS" value={address} onChange={(e) => setAddress(e.target.value)} required className="brutal-input" />
               
-              {/* WING SELECTION */}
+              {/* --- FIX: ADDED MISSING REGISTRATION INPUT HERE --- */}
+              <input 
+                placeholder="REGISTRATION_NO (e.g. REG-12345)" 
+                value={regNumber} 
+                onChange={(e) => setRegNumber(e.target.value)} 
+                required 
+                className="brutal-input" 
+              />
+              {/* ------------------------------------------------ */}
+
               <div style={{ marginTop: '5px' }}>
-                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', display: 'block', marginBottom: '8px' }}>SELECT_WINGS:</span>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', display: 'block', marginBottom: '8px' }}>WING_CONFIGURATION:</span>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '5px' }}>
                   {WING_OPTIONS.map(opt => (
                     <div 
@@ -102,14 +112,14 @@ const Register = () => {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <input type="number" placeholder="FLOORS" value={floors} onChange={(e) => setFloors(e.target.value)} required className="brutal-input" />
-                <input type="number" placeholder="FLATS_PER_FL" value={flatsPerFloor} onChange={(e) => setFlatsPerFloor(e.target.value)} required className="brutal-input" />
+                <input type="number" placeholder="TOTAL_FLOORS" value={floors} onChange={(e) => setFloors(e.target.value)} required className="brutal-input" />
+                <input type="number" placeholder="FLATS/FLOOR" value={flatsPerFloor} onChange={(e) => setFlatsPerFloor(e.target.value)} required className="brutal-input" />
               </div>
             </div>
           </div>
 
           <button type="submit" style={{ width: '100%', padding: '20px', backgroundColor: theme.textMain, color: 'white', border: 'none', fontSize: '16px', fontWeight: '700', fontFamily: "'Space Mono', monospace", cursor: 'pointer', boxShadow: `6px 6px 0px ${theme.accent}` }}>
-            INITIALIZE_SYSTEM
+            INITIALIZE_DEPLOYMENT
           </button>
         </form>
       </div>

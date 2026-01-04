@@ -6,30 +6,33 @@ const connectDB = require('./config/db');
 dotenv.config();
 
 // Connect to Database
-// Ensure this function handles connection errors gracefully
 connectDB(); 
 
 const app = express();
 
-// CORS Configuration
+// --- CORS CONFIGURATION (FIXED) ---
 app.use(cors({
+  // ❌ REMOVED: origin: "*", (This crashes with credentials: true)
+  
+  // ✅ ADDED: Specific origins only
   origin: [
-    "https://society-management-system-five.vercel.app", // Your Frontend URL
-    "http://localhost:5173"                              // Local Development
+    "http://localhost:5173", // Your Local Frontend
+    "http://127.0.0.1:5173"  // Backup for Localhost
   ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Added OPTIONS for preflight checks
-  credentials: true
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true, // This allows cookies/sessions to work
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json());
 
-// Routes
+// --- ROUTES ---
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/notices', require('./routes/noticeRoutes'));
 app.use('/api/expenses', require('./routes/expenseRoutes'));
 
-// Heartbeat route (Access this in browser to verify backend is running)
+// --- HEALTH CHECK ---
 app.get('/', (req, res) => {
   res.json({ 
     status: "VERCEL_BACKEND_ACTIVE", 
@@ -38,9 +41,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Vercel Serverless Handling
-// Vercel requires the app to be exported. 
-// It handles the 'listen' part automatically in production.
+// --- SERVER START ---
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => console.log(`// LOCAL_DEV_ACTIVE_ON_${PORT}`));

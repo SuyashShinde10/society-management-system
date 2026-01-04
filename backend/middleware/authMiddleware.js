@@ -17,18 +17,18 @@ const protect = async (req, res, next) => {
       }
 
       next();
+      return; // Stop execution
     } catch (error) {
       console.error(error);
-      res.status(401).json({ message: 'Not authorized, token failed' });
+      return res.status(401).json({ message: 'Not authorized, token failed' });
     }
   }
 
   if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+    return res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
 
-// --- ADD THIS FUNCTION ---
 const admin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();
@@ -37,4 +37,4 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin }; // Export both
+module.exports = { protect, admin };

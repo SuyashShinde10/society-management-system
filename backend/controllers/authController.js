@@ -3,10 +3,6 @@ const Society = require('../models/Society');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Change this to match your frontend .env if needed, 
-// but for now, we'll keep your hardcoded secret.
-const ADMIN_SECRET = "SOCIETY_ADMIN_2025"; 
-
 // --- 1. REGISTER (For Society Admins) ---
 const registerUser = async (req, res) => {
   try {
@@ -20,12 +16,14 @@ const registerUser = async (req, res) => {
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: "EMAIL_ALREADY_IN_USE" });
 
-    // B. Admin Verification
-    if (role === 'admin' && secretCode !== ADMIN_SECRET) {
-      return res.status(403).json({ message: "INVALID_ADMIN_SECRET_KEY" });
+    // B. Admin Verification (SECURE)
+    if (role === 'admin') {
+        if (secretCode !== process.env.ADMIN_SECRET) {
+            return res.status(403).json({ message: "INVALID_ADMIN_SECRET_KEY" });
+        }
     }
 
-    // C. Data Integrity: Cast Strings to Numbers for Society Setup
+    // C. Data Integrity
     const castedFloors = Number(floors);
     const castedFlats = Number(flatsPerFloor);
 
@@ -41,7 +39,6 @@ const registerUser = async (req, res) => {
         return res.status(400).json({ message: "SOCIETY_METADATA_MISSING" });
       }
 
-      // Check if Society Reg Number is already taken
       const societyCheck = await Society.findOne({ regNumber });
       if (societyCheck) return res.status(400).json({ message: "SOCIETY_REGISTRATION_EXISTS" });
 
@@ -49,13 +46,12 @@ const registerUser = async (req, res) => {
         name: societyName,
         address,
         regNumber,
-        wings: typeof wings === 'string' ? wings.split(',') : wings,
+        wings: Array.isArray(wings) ? wings : (typeof wings === 'string' ? wings.split(',') : []),
         floors: castedFloors,
         flatsPerFloor: castedFlats
       });
       assignedSocietyId = newSociety._id;
     } else {
-      // Logic for members joining via public registry
       if (!societyId) return res.status(400).json({ message: "TARGET_SOCIETY_NOT_SELECTED" });
       assignedSocietyId = societyId;
     }
@@ -87,7 +83,6 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Find user and select societyId
     const user = await User.findOne({ email });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -97,10 +92,9 @@ const loginUser = async (req, res) => {
     // Populate society data
     await user.populate('societyId', 'name');
 
-    // Token Generation
     const token = jwt.sign(
       { id: user._id, role: user.role, societyId: user.societyId?._id }, 
-      process.env.JWT_SECRET || 'fallback_secret', 
+      process.env.JWT_SECRET, 
       { expiresIn: '24h' }
     );
 
@@ -125,7 +119,6 @@ const loginUser = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const mySocietyId = req.user.societyId;
-    
     const users = await User.find({ societyId: mySocietyId, role: 'member' })
                             .select('-password')
                             .sort({ createdAt: -1 });
@@ -149,8 +142,8 @@ const getAllSocieties = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const userToDelete = await User.findById(req.params.id);
-    
-    // Security: Only delete users within the same society
+    if (!userToDelete) return res.status(404).json({ message: "USER_NOT_FOUND" });
+
     if (userToDelete.societyId.toString() !== req.user.societyId.toString()) {
         return res.status(403).json({ message: "AUTH_DOMAIN_MISMATCH" });
     }
@@ -162,7 +155,7 @@ const deleteUser = async (req, res) => {
   }
 };
 
-// --- 6. ADD MEMBER (By Admin) ---
+// --- 6. ADD MEMBER ---
 const addMember = async (req, res) => {
   try {
     const { name, email, password, wing, floor, flatNumber, residentType } = req.body;
@@ -202,7 +195,6 @@ const updateMember = async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "RECORD_NOT_FOUND" });
 
-    // Update Logic
     if (name) user.name = name;
     if (email) user.email = email;
 
@@ -237,12 +229,5 @@ const getSocietyLimits = async (req, res) => {
 };
 
 module.exports = {
-  registerUser,
-  loginUser,
-  getAllUsers,
-  getAllSocieties,
-  deleteUser,
-  addMember,
-  updateMember,
-  getSocietyLimits
+  registerUser, loginUser, getAllUsers, getAllSocieties, deleteUser, addMember, updateMember, getSocietyLimits
 };
