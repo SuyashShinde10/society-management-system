@@ -12,15 +12,12 @@ const app = express();
 
 // --- CORS CONFIGURATION (FIXED) ---
 app.use(cors({
-  // ❌ REMOVED: origin: "*", (This crashes with credentials: true)
-  
-  // ✅ ADDED: Specific origins only
   origin: [
-    "http://localhost:5173", // Your Local Frontend
-    "http://127.0.0.1:5173"  // Backup for Localhost
+    "http://localhost:5173",                          // Local testing
+    "https://awaastech.vercel.app/"             // <--- ADD YOUR NEW FRONTEND URL HERE
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true, // This allows cookies/sessions to work
+  credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
