@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// ✅ FIX: Ensure this ends with '/api'
+// ✅ CORRECT: Pointing to your specific backend with '/api' at the end
 const PRODUCTION_URL = 'https://society-management-system-flame.vercel.app/api'; 
 
 const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
