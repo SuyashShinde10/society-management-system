@@ -12,6 +12,7 @@ const MaintenanceBills = () => {
   // Search & Filter state
   const [filterStatus, setFilterStatus] = useState('All'); // All, Pending, Paid, Overdue
   const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
   const limit = 10;
 
   useEffect(() => {
@@ -19,18 +20,21 @@ const MaintenanceBills = () => {
     
     // Vercel-compatible real-time fallback (Short Polling)
     const interval = setInterval(() => {
-      fetchBills();
+      fetchBills(false);
     }, 10000); // 10 seconds
 
     return () => clearInterval(interval);
   }, [user]);
 
-  const fetchBills = async () => {
+  const fetchBills = async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
     try {
       const { data } = await api.get('/bills');
       setBills(data);
     } catch (error) {
       console.error('// BILLS_FETCH_ERROR');
+    } finally {
+      if (showLoader) setIsLoading(false);
     }
   };
 
@@ -99,7 +103,11 @@ const MaintenanceBills = () => {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          {paginatedBills.length === 0 ? (
+          {isLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+              <span className="spinner"></span>
+            </div>
+          ) : paginatedBills.length === 0 ? (
             <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', textAlign: 'center', color: theme.textSec }}>// NO_BILLS_FOUND</p>
           ) : (
             paginatedBills.map(b => (

@@ -8,11 +8,18 @@ const {
 } = require('../controllers/authController');
 
 const { protect, admin } = require('../middleware/authMiddleware');
+const rateLimit = require('express-rate-limit');
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 requests per windowMs
+  message: { message: 'Too many requests from this IP, please try again after 15 minutes' }
+});
 
 // ── PUBLIC ──────────────────────────────────────────────────────────────────
-router.post('/register', registerUser);               // Admin creates society
-router.post('/member-register', memberSelfRegister);  // Member self-register (pending approval)
-router.post('/login', loginUser);
+router.post('/register', authLimiter, registerUser);               // Admin creates society
+router.post('/member-register', authLimiter, memberSelfRegister);  // Member self-register (pending approval)
+router.post('/login', authLimiter, loginUser);
 router.get('/societies', getAllSocieties);             // Public — needed for member registration dropdown
 
 // ── ANY LOGGED-IN USER ───────────────────────────────────────────────────────

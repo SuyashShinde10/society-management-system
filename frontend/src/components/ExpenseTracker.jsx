@@ -11,6 +11,7 @@ const ExpenseTracker = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
   const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
   const limit = 10;
 
   useEffect(() => {
@@ -18,18 +19,21 @@ const ExpenseTracker = () => {
     
     // Vercel-compatible real-time fallback (Short Polling)
     const interval = setInterval(() => {
-      fetchExpenses();
+      fetchExpenses(false);
     }, 10000); // 10 seconds
 
     return () => clearInterval(interval);
   }, []);
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
     try {
       const { data } = await api.get('/expenses');
       setExpenses(data);
     } catch (error) {
       console.error('// LEDGER_FETCH_ERROR');
+    } finally {
+      if (showLoader) setIsLoading(false);
     }
   };
 
@@ -161,7 +165,11 @@ const ExpenseTracker = () => {
 
         {/* LIST SECTION */}
         <div style={{ overflowY: 'auto', border: `1px solid ${theme.border}`, fontFamily: "'Space Mono', monospace" }}>
-          {paginatedExpenses.length === 0 ? (
+          {isLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+              <span className="spinner"></span>
+            </div>
+          ) : paginatedExpenses.length === 0 ? (
             <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', fontSize: '12px' }}>
               // NO_TRANSACTION_HISTORY_FOUND
             </div>

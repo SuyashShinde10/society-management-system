@@ -11,14 +11,18 @@ const ComplaintBox = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
   const limit = 10;
 
-  const fetchComplaints = useCallback(async () => {
+  const fetchComplaints = useCallback(async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
     try {
       const { data } = await api.get('/complaints');
       setComplaints(data);
     } catch (error) {
       console.error('// INCIDENT_FETCH_ERROR');
+    } finally {
+      if (showLoader) setIsLoading(false);
     }
   }, []);
 
@@ -27,7 +31,7 @@ const ComplaintBox = () => {
     
     // Vercel-compatible real-time fallback (Short Polling)
     const interval = setInterval(() => {
-      fetchComplaints();
+      fetchComplaints(false);
     }, 10000); // 10 seconds
 
     return () => clearInterval(interval);
@@ -141,7 +145,11 @@ const ComplaintBox = () => {
         </div>
 
         <div style={{ overflowY: 'auto', border: `1px solid ${theme.border}` }}>
-          {paginatedComplaints.length === 0 ? (
+          {isLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+              <span className="spinner"></span>
+            </div>
+          ) : paginatedComplaints.length === 0 ? (
             <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', fontFamily: "'Space Mono', monospace", fontSize: '12px' }}>
               // NO_INCIDENTS_ON_RECORD
             </div>

@@ -9,6 +9,7 @@ const VisitorLog = () => {
   const [visitors, setVisitors] = useState([]);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const limit = 10;
   
   // Admin form
@@ -19,18 +20,21 @@ const VisitorLog = () => {
     
     // Vercel-compatible real-time fallback (Short Polling)
     const interval = setInterval(() => {
-      fetchVisitors();
+      fetchVisitors(false);
     }, 10000); // 10 seconds
 
     return () => clearInterval(interval);
   }, [user]);
 
-  const fetchVisitors = async () => {
+  const fetchVisitors = async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
     try {
       const { data } = await api.get('/visitors');
       setVisitors(data);
     } catch (error) {
       console.error('// VISITOR_FETCH_ERROR');
+    } finally {
+      if (showLoader) setIsLoading(false);
     }
   };
 
@@ -115,7 +119,11 @@ const VisitorLog = () => {
         />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {paginatedVisitors.length === 0 ? (
+          {isLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+              <span className="spinner"></span>
+            </div>
+          ) : paginatedVisitors.length === 0 ? (
             <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', textAlign: 'center', color: theme.textSec }}>// NO_VISITORS_FOUND</p>
           ) : (
             paginatedVisitors.map(v => (

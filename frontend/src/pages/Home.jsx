@@ -74,9 +74,11 @@ const Home = () => {
         padding: '120px 60px', 
         borderBottom: `3px solid ${theme.border}`,
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        background: `linear-gradient(90deg, ${theme.bg} 21px, transparent 1%) center, linear-gradient(${theme.bg} 21px, transparent 1%) center, #e5e5e5`,
+        backgroundSize: '22px 22px'
       }}>
-        <div style={{ maxWidth: '900px', borderLeft: `12px solid ${theme.textMain}`, paddingLeft: '40px' }}>
+        <div style={{ maxWidth: '900px', borderLeft: `12px solid ${theme.textMain}`, paddingLeft: '40px', background: theme.bg, padding: '20px 40px', display: 'inline-block', border: `3px solid ${theme.border}`, boxShadow: `8px 8px 0px rgba(0,0,0,0.1)` }}>
           <p style={{ fontFamily: "'Space Mono', monospace", fontWeight: '700', fontSize: '14px', color: theme.accent, marginBottom: '20px' }}>
             // INFRASTRUCTURE_MANAGEMENT_V2.0
           </p>
@@ -164,7 +166,7 @@ const FeatureCard = ({ id, title, desc }) => (
   <div className="brutal-card" style={{ 
     padding: '50px', 
     border: '1px solid #1A1A1A', 
-    background: '#EAEAEA',
+    background: '#FFFFFF',
     transition: '0.3s'
   }}>
     <div style={{ 

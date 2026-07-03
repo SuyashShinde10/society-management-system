@@ -11,6 +11,7 @@ const NoticeBoard = () => {
   const [content, setContent] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
   const limit = 10;
 
   useEffect(() => {
@@ -18,18 +19,21 @@ const NoticeBoard = () => {
     
     // Vercel-compatible real-time fallback (Short Polling)
     const interval = setInterval(() => {
-      fetchNotices();
+      fetchNotices(false);
     }, 10000); // 10 seconds
 
     return () => clearInterval(interval);
   }, []);
 
-  const fetchNotices = async () => {
+  const fetchNotices = async (showLoader = true) => {
+    if (showLoader) setIsLoading(true);
     try {
       const { data } = await api.get('/notices');
       setNotices(data);
     } catch (error) {
       console.error('// DISPATCH_FETCH_ERROR');
+    } finally {
+      if (showLoader) setIsLoading(false);
     }
   };
 
@@ -127,7 +131,11 @@ const NoticeBoard = () => {
         />
 
         <div style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', border: `1px solid ${theme.border}` }}>
-          {paginatedNotices.length === 0 ? (
+          {isLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+              <span className="spinner"></span>
+            </div>
+          ) : paginatedNotices.length === 0 ? (
             <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', padding: '20px', textAlign: 'center' }}>
               // NO_DATA_AVAILABLE
             </p>
