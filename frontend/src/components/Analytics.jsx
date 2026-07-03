@@ -8,6 +8,7 @@ const Analytics = () => {
   const { user } = useContext(AuthContext);
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [timeframe, setTimeframe] = useState('monthly');
 
   useEffect(() => {
     fetchAnalytics();
@@ -61,18 +62,36 @@ const Analytics = () => {
               <StatBox title="Open Complaints" value={data.complaints.open} color="#fffaf0" />
             </div>
 
-            <h3 style={{ fontFamily: "'Space Mono', monospace", marginBottom: '15px', borderBottom: `2px dashed ${theme.border}`, paddingBottom: '10px' }}>REVENUE (BILLS PAID)</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-              <StatBox title="Weekly Revenue" value={`₹${data.revenue.weekly.toLocaleString()}`} />
-              <StatBox title="Monthly Revenue" value={`₹${data.revenue.monthly.toLocaleString()}`} />
-              <StatBox title="Annual Revenue" value={`₹${data.revenue.annual.toLocaleString()}`} />
+            <h3 style={{ fontFamily: "'Space Mono', monospace", marginBottom: '15px', borderBottom: `2px dashed ${theme.border}`, paddingBottom: '10px' }}>FINANCIALS</h3>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+              {['weekly', 'monthly', 'annual'].map(t => (
+                <button 
+                  key={t}
+                  onClick={() => setTimeframe(t)} 
+                  style={{
+                    border: `2px solid ${theme.textMain}`,
+                    background: timeframe === t ? theme.textMain : 'transparent',
+                    color: timeframe === t ? 'white' : theme.textMain,
+                    padding: '5px 15px',
+                    fontFamily: "'Space Mono', monospace",
+                    cursor: 'pointer',
+                    textTransform: 'uppercase',
+                    fontWeight: 'bold',
+                    fontSize: '12px'
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
             </div>
-
-            <h3 style={{ fontFamily: "'Space Mono', monospace", marginBottom: '15px', borderBottom: `2px dashed ${theme.border}`, paddingBottom: '10px' }}>EXPENSES</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-              <StatBox title="Weekly Expenses" value={`₹${data.expenses.weekly.toLocaleString()}`} />
-              <StatBox title="Monthly Expenses" value={`₹${data.expenses.monthly.toLocaleString()}`} />
-              <StatBox title="Annual Expenses" value={`₹${data.expenses.annual.toLocaleString()}`} />
+              <StatBox title={`${timeframe} Revenue`} value={`₹${data.revenue[timeframe].toLocaleString()}`} />
+              <StatBox title={`${timeframe} Expenses`} value={`₹${data.expenses[timeframe].toLocaleString()}`} />
+              <StatBox 
+                title="Net Profit/Loss" 
+                value={`₹${(data.revenue[timeframe] - data.expenses[timeframe]).toLocaleString()}`} 
+                color={(data.revenue[timeframe] - data.expenses[timeframe]) >= 0 ? '#f0fff0' : '#fff0f0'}
+              />
             </div>
           </>
         ) : (
@@ -84,10 +103,29 @@ const Analytics = () => {
             </div>
 
             <h3 style={{ fontFamily: "'Space Mono', monospace", marginBottom: '15px', borderBottom: `2px dashed ${theme.border}`, paddingBottom: '10px' }}>MY PAYMENT REPORTS</h3>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+              {['weekly', 'monthly', 'annual'].map(t => (
+                <button 
+                  key={t}
+                  onClick={() => setTimeframe(t)} 
+                  style={{
+                    border: `2px solid ${theme.textMain}`,
+                    background: timeframe === t ? theme.textMain : 'transparent',
+                    color: timeframe === t ? 'white' : theme.textMain,
+                    padding: '5px 15px',
+                    fontFamily: "'Space Mono', monospace",
+                    cursor: 'pointer',
+                    textTransform: 'uppercase',
+                    fontWeight: 'bold',
+                    fontSize: '12px'
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-              <StatBox title="Paid This Week" value={`₹${data.myPayments.weekly.toLocaleString()}`} />
-              <StatBox title="Paid This Month" value={`₹${data.myPayments.monthly.toLocaleString()}`} />
-              <StatBox title="Paid This Year" value={`₹${data.myPayments.annual.toLocaleString()}`} />
+              <StatBox title={`Paid This ${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)}`} value={`₹${data.myPayments[timeframe].toLocaleString()}`} />
             </div>
           </>
         )}
