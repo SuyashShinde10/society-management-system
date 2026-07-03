@@ -40,7 +40,7 @@ const Profile = () => {
   if (!user) return null;
 
   return (
-    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, padding: '40px', marginBottom: '40px' }}>
+    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, padding: 'clamp(15px, 5vw, 40px)', marginBottom: '40px' }}>
       <style>
         {`
           .profile-grid {

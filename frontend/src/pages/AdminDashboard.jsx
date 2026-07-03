@@ -180,7 +180,7 @@ const Dashboard = () => {
             {activeTab === 'profile' && <Profile />}
             {activeTab === 'registry' && (
               <section style={{
-                padding: '40px', background: theme.surface,
+                padding: 'clamp(15px, 5vw, 40px)', background: theme.surface,
                 border: `3px solid ${theme.border}`, boxShadow: '10px 10px 0px rgba(0,0,0,0.05)'
               }}>
                 <div style={{ marginBottom: '30px', borderBottom: `2px solid ${theme.textMain}`, paddingBottom: '15px' }}>
@@ -188,8 +188,8 @@ const Dashboard = () => {
                     MEMBER_OPERATIONS
                   </h2>
                 </div>
-                <div style={{ display: 'grid', gap: '40px' }}>
-                  <div style={{ background: '#f9f9f9', padding: '20px', border: `1px dashed ${theme.border}` }}>
+                <div style={{ display: 'grid', gap: 'clamp(20px, 5vw, 40px)' }}>
+                  <div style={{ background: '#f9f9f9', padding: 'clamp(15px, 4vw, 20px)', border: `1px dashed ${theme.border}` }}>
                     <span className="mono-label" style={{ display: 'block', marginBottom: '15px' }}>[01] INTAKE_FORM</span>
                     <AddMember />
                   </div>
