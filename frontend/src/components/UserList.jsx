@@ -7,7 +7,6 @@ import theme from '../theme';
 const UserList = () => {
   const { user } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
-  const [users, setUsers] = useState([]);
 
   const [editingId, setEditingId] = useState(null);
   const [editFormData, setEditFormData] = useState({
