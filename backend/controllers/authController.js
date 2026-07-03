@@ -372,7 +372,7 @@ const getSocietyLimits = async (req, res) => {
 };
 
 module.exports = {
-  registerUser, memberSelfRegister, loginUser, updateProfile,
-  getAllUsers, getPendingMembers, approveMember,
-  getAllSocieties, deleteUser, addMember, updateMember, getSocietyLimits
+  registerUser, loginUser, updateProfile,
+  getAllUsers,
+  deleteUser, addMember, updateMember, getSocietyLimits
 };

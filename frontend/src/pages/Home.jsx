@@ -113,17 +113,6 @@ const Home = () => {
         </h2>
         <div style={{ display: 'flex', gap: '30px', alignItems: 'center', fontFamily: "'Space Mono', monospace" }}>
           <Link to="/login" style={{ textDecoration: 'none', color: theme.textMain, fontWeight: '700', fontSize: '14px' }}>[ LOGIN ]</Link>
-          <Link to="/join" className="brutal-btn" style={{ 
-            textDecoration: 'none', 
-            background: theme.textMain, 
-            color: 'white', 
-            padding: '12px 24px', 
-            fontWeight: '700',
-            fontSize: '14px',
-            boxShadow: `4px 4px 0px ${theme.accent}`
-          }}>
-            JOIN_SOCIETY
-          </Link>
         </div>
       </nav>
 

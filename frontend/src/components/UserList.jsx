@@ -7,8 +7,7 @@ import theme from '../theme';
 const UserList = () => {
   const { user } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
-  const [pendingUsers, setPendingUsers] = useState([]);
-  const [activeTab, setActiveTab] = useState('active'); // 'active' or 'pending'
+  const [users, setUsers] = useState([]);
 
   const [editingId, setEditingId] = useState(null);
   const [editFormData, setEditFormData] = useState({
@@ -18,7 +17,6 @@ const UserList = () => {
   useEffect(() => {
     if (user && user.role === 'admin') {
       fetchUsers();
-      fetchPendingUsers();
     }
   }, [user]);
 
@@ -31,14 +29,7 @@ const UserList = () => {
     }
   };
 
-  const fetchPendingUsers = async () => {
-    try {
-      const { data } = await api.get('/auth/users/pending');
-      setPendingUsers(data);
-    } catch (error) {
-      console.error('// DATABASE_ACCESS_ERROR');
-    }
-  };
+
 
   const handleEditClick = (u) => {
     setEditingId(u._id);
@@ -68,18 +59,14 @@ const UserList = () => {
     }
   };
 
-  const handleDelete = async (id, isPending = false) => {
+  const handleDelete = async (id) => {
     toast('Permanently remove this resident?', {
       action: {
         label: 'Confirm',
         onClick: async () => {
           try {
             await api.delete(`/auth/user/${id}`);
-            if (isPending) {
-              setPendingUsers(pendingUsers.filter((u) => u._id !== id));
-            } else {
-              setUsers(users.filter((u) => u._id !== id));
-            }
+            setUsers(users.filter((u) => u._id !== id));
             toast.success('Resident removed from registry.');
           } catch (error) {
             toast.error('Failed to delete member.');
@@ -90,18 +77,7 @@ const UserList = () => {
     });
   };
 
-  const handleApprove = async (id) => {
-    try {
-      await api.put(`/auth/users/${id}/approve`);
-      toast.success('Member approved successfully.');
-      fetchPendingUsers();
-      fetchUsers();
-    } catch (error) {
-      toast.error('Failed to approve member.');
-    }
-  };
-
-  const displayedUsers = activeTab === 'active' ? users : pendingUsers;
+  const displayedUsers = users;
 
   return (
     <div style={{ marginTop: '40px', fontFamily: "'Space Mono', monospace" }}>
@@ -113,12 +89,9 @@ const UserList = () => {
           RESIDENT_REGISTRY
         </h3>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <button onClick={() => setActiveTab('active')} style={{ ...tabBtn, background: activeTab === 'active' ? theme.textMain : 'transparent', color: activeTab === 'active' ? 'white' : theme.textMain }}>
+          <div style={{ ...tabBtn, background: theme.textMain, color: 'white' }}>
             ACTIVE ({users.length})
-          </button>
-          <button onClick={() => setActiveTab('pending')} style={{ ...tabBtn, background: activeTab === 'pending' ? theme.textMain : 'transparent', color: activeTab === 'pending' ? 'white' : theme.textMain }}>
-            PENDING ({pendingUsers.length})
-          </button>
+          </div>
         </div>
       </div>
 
@@ -135,7 +108,7 @@ const UserList = () => {
                 transition: 'all 0.2s', position: 'relative'
               }}
             >
-              {editingId === u._id && activeTab === 'active' ? (
+              {editingId === u._id ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <span style={{ fontSize: '10px', fontWeight: '700' }}>// EDITING_RECORD: {u._id.substring(0, 8)}</span>
                   <input value={editFormData.name} onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })} placeholder="NAME" className="brutal-input" />
@@ -176,17 +149,8 @@ const UserList = () => {
                   </div>
 
                   <div style={{ display: 'flex', gap: '10px', marginTop: '10px', paddingTop: '15px', borderTop: `1px dashed ${theme.border}` }}>
-                    {activeTab === 'active' ? (
-                      <>
-                        <button onClick={() => handleEditClick(u)} style={smallBtn}>MODIFY</button>
-                        <button onClick={() => handleDelete(u._id)} style={{ ...smallBtn, color: '#ef4444' }}>TERMINATE</button>
-                      </>
-                    ) : (
-                      <>
-                        <button onClick={() => handleApprove(u._id)} style={{ ...smallBtn, color: theme.accent }}>APPROVE</button>
-                        <button onClick={() => handleDelete(u._id, true)} style={{ ...smallBtn, color: '#ef4444' }}>REJECT</button>
-                      </>
-                    )}
+                    <button onClick={() => handleEditClick(u)} style={smallBtn}>MODIFY</button>
+                    <button onClick={() => handleDelete(u._id)} style={{ ...smallBtn, color: '#ef4444' }}>TERMINATE</button>
                   </div>
                 </>
               )}

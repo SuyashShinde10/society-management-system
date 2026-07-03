@@ -7,7 +7,6 @@ import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import MemberRegister from './pages/MemberRegister';
 import AdminDashboard from './pages/AdminDashboard';
 import MemberDashboard from './pages/MemberDashboard';
 import Profile from './pages/Profile';
@@ -31,7 +30,6 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-            <Route path="/join" element={<PublicRoute><MemberRegister /></PublicRoute>} />
 
             {/* Protected: both roles */}
             <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
