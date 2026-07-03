@@ -77,6 +77,36 @@ const AddMember = () => {
 
   return (
     <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, padding: '40px', marginBottom: '40px' }}>
+      <style>
+        {`
+          .add-member-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+          }
+          .add-member-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            background: #F9F9F9;
+            border: 1px solid ${theme.border};
+          }
+          .add-member-creds {
+            display: flex;
+            gap: 20px;
+            align-items: stretch;
+          }
+          @media (max-width: 800px) {
+            .add-member-grid-2, .add-member-grid-3 {
+              grid-template-columns: 1fr !important;
+            }
+            .add-member-creds {
+              flex-direction: column !important;
+            }
+          }
+        `}
+      </style>
       <h3 style={{
         fontFamily: "'Cormorant Garamond', serif",
         fontSize: '28px', textTransform: 'uppercase', margin: '0 0 30px 0',
@@ -95,14 +125,14 @@ const AddMember = () => {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div className="add-member-grid-2">
           <div>
             <label className="registry-label">Legal_Name</label>
             <input placeholder="F_NAME L_NAME" value={name} onChange={(e) => setName(e.target.value)} required className="registry-input" />
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div className="add-member-grid-2">
           <div>
             <label className="registry-label">Communication_Email</label>
             <input type="email" placeholder="ADDR@DOMAIN.COM" value={email} onChange={(e) => setEmail(e.target.value)} required className="registry-input" />
@@ -123,7 +153,7 @@ const AddMember = () => {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', padding: '20px', background: '#F9F9F9', border: `1px solid ${theme.border}` }}>
+        <div className="add-member-grid-3">
           <div>
             <label className="registry-label">Structure_Wing</label>
             <select value={wing} onChange={(e) => setWing(e.target.value)} required className="registry-input">
@@ -174,7 +204,7 @@ const AddMember = () => {
           <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', marginBottom: '15px' }}>
             Please securely share these credentials with the resident. They are only displayed once.
           </p>
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'stretch' }}>
+          <div className="add-member-creds">
             <div style={{ background: 'white', padding: '15px', border: `2px solid ${theme.border}`, flex: 1, fontFamily: "'Space Mono', monospace", fontSize: '14px' }}>
               <div><strong style={{ opacity: 0.7 }}>EMAIL:</strong> {generatedCreds.email}</div>
               <div style={{ marginTop: '5px' }}><strong style={{ opacity: 0.7 }}>PASSWORD:</strong> <span style={{ color: theme.danger, fontWeight: 'bold' }}>{generatedCreds.password}</span></div>

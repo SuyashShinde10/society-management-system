@@ -41,7 +41,12 @@ const MaintenanceBills = () => {
   const handleGenerateBills = async () => {
     setLoading(true);
     try {
-      await api.post('/bills/generate');
+      const now = new Date();
+      await api.post('/bills/generate', {
+        month: now.getMonth() + 1,
+        year: now.getFullYear(),
+        dueDate: new Date(now.getFullYear(), now.getMonth() + 1, 15) // Next month 15th
+      });
       toast.success('Bills generated for all active residents.');
       fetchBills();
     } catch (error) {

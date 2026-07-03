@@ -41,6 +41,20 @@ const Profile = () => {
 
   return (
     <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, padding: '40px', marginBottom: '40px' }}>
+      <style>
+        {`
+          .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+          }
+          @media (max-width: 800px) {
+            .profile-grid {
+              grid-template-columns: 1fr;
+            }
+          }
+        `}
+      </style>
       <h3 style={{
         fontFamily: "'Cormorant Garamond', serif",
         fontSize: '28px', textTransform: 'uppercase', margin: '0 0 30px 0',
@@ -49,7 +63,7 @@ const Profile = () => {
         User_Profile
       </h3>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+      <div className="profile-grid">
         
         {/* User Info Read-Only */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
