@@ -298,8 +298,11 @@ const addMember = async (req, res) => {
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'USER_IDENT_ALREADY_EXISTS' });
 
-    // Generate random 8-character password
-    const generatedPassword = Math.random().toString(36).slice(-8);
+    // Generate password based on first name and 4 random digits
+    const firstName = name.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '');
+    const randomNums = Math.floor(1000 + Math.random() * 9000);
+    const generatedPassword = `${firstName}@${randomNums}`;
+    
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(generatedPassword, salt);
 
@@ -314,14 +317,10 @@ const addMember = async (req, res) => {
       flatDetails: { wing, floor: Number(floor), flatNumber, residentType: residentType || 'Owner' }
     });
 
-    // Notify User
-    sendEmail({
-      email: user.email,
-      subject: 'Welcome to the Society Portal',
-      message: `Hello ${user.name},\n\nYou have been added to the society management system.\n\nYour temporary login credentials are:\nEmail: ${user.email}\nPassword: ${generatedPassword}\n\nPlease log in and change your password immediately.\n\nThank you.`
+    res.status(201).json({ 
+      message: 'MEMBER_ADDED_TO_REGISTRY',
+      generatedPassword
     });
-
-    res.status(201).json({ message: 'MEMBER_ADDED_TO_REGISTRY' });
   } catch (error) {
     console.error('// ADD_MEMBER_FAULT:', error);
     res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });

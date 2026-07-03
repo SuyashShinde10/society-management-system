@@ -15,6 +15,7 @@ const AddMember = () => {
   const [flatNumber, setFlatNumber] = useState('');
   const [residentType, setResidentType] = useState('Owner');
   const [loading, setLoading] = useState(false);
+  const [generatedCreds, setGeneratedCreds] = useState(null);
 
   const [limits, setLimits] = useState({ wings: [], floors: 0, flatsPerFloor: 0 });
 
@@ -49,12 +50,14 @@ const AddMember = () => {
   const handleAddMember = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setGeneratedCreds(null);
     try {
-      await api.post('/auth/add-member', {
+      const response = await api.post('/auth/add-member', {
         name, email, phone,
         wing, floor, flatNumber, residentType,
       });
-      toast.success('Resident added to registry successfully. Password emailed.');
+      toast.success('Resident added to registry successfully.');
+      setGeneratedCreds({ email, password: response.data.generatedPassword });
       setName(''); setEmail(''); setPhone('');
       setFloor('0'); setFlatNumber(''); setResidentType('Owner');
     } catch (error) {
@@ -156,6 +159,34 @@ const AddMember = () => {
           {loading ? '[ PROCESSING... ]' : '[ AUTHORIZE_NEW_RESIDENT ]'}
         </button>
       </form>
+
+      {generatedCreds && (
+        <div style={{ marginTop: '30px', padding: '20px', background: theme.fieldBg, border: `2px dashed ${theme.textMain}` }}>
+          <h4 style={{ fontFamily: "'Space Mono', monospace", margin: '0 0 10px 0', color: theme.textMain }}>// TEMPORARY_CREDENTIALS_GENERATED</h4>
+          <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', marginBottom: '15px' }}>
+            Please securely share these credentials with the resident. They are only displayed once.
+          </p>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'stretch' }}>
+            <div style={{ background: 'white', padding: '15px', border: `2px solid ${theme.border}`, flex: 1, fontFamily: "'Space Mono', monospace", fontSize: '14px' }}>
+              <div><strong style={{ opacity: 0.7 }}>EMAIL:</strong> {generatedCreds.email}</div>
+              <div style={{ marginTop: '5px' }}><strong style={{ opacity: 0.7 }}>PASSWORD:</strong> <span style={{ color: theme.danger, fontWeight: 'bold' }}>{generatedCreds.password}</span></div>
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`Society Portal Access:\n\nEmail: ${generatedCreds.email}\nTemporary Password: ${generatedCreds.password}\n\nPlease login and you will be required to change this password immediately.`);
+                toast.success('Copied to clipboard!');
+              }}
+              style={{
+                padding: '0 20px', background: theme.accent, color: 'white', border: 'none',
+                cursor: 'pointer', fontFamily: "'Space Mono', monospace", fontWeight: '700',
+                boxShadow: `4px 4px 0px ${theme.border}`
+              }}
+            >
+              [ COPY_TO_CLIPBOARD ]
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
