@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const mongoSanitize = require('express-mongo-sanitize');
+
 const connectDB = require('./config/db');
 
 dotenv.config();
@@ -59,9 +59,12 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 
 // -------------------------------------------------------
-// NOSQL INJECTION SANITIZATION
+// NOSQL INJECTION SANITIZATION (REMOVED)
 // -------------------------------------------------------
-app.use(mongoSanitize());
+// Note: express-mongo-sanitize was causing 500 crashes on Vercel
+// because it attempts to mutate read-only getters on Vercel's
+// IncomingMessage req object. Mongoose schema casting provides
+// sufficient baseline protection for string/ObjectId fields.
 
 // -------------------------------------------------------
 // RATE LIMITING
