@@ -19,20 +19,66 @@ const MemberDashboard = () => {
   if (!user) return null;
 
   return (
-    <div style={{ backgroundColor: theme.bg, minHeight: '100vh', padding: '40px 20px', color: theme.textMain }}>
+    <div className="dashboard-container" style={{ backgroundColor: theme.bg, minHeight: '100vh', padding: '40px 20px', color: theme.textMain }}>
+      <style>
+        {`
+          @media (max-width: 900px) {
+            .dashboard-header {
+              flex-direction: column !important;
+              align-items: flex-start !important;
+              gap: 20px;
+              padding: 20px !important;
+            }
+            .dashboard-header-actions {
+              width: 100%;
+              display: flex;
+              flex-direction: column;
+              gap: 15px;
+            }
+            .dashboard-layout {
+              flex-direction: column !important;
+            }
+            .sidebar-nav {
+              width: 100% !important;
+              border-right: none !important;
+              border-bottom: 3px solid ${theme.border} !important;
+              padding: 20px !important;
+            }
+            .sidebar-menu {
+              width: 100% !important;
+              flex-direction: row !important;
+              flex-wrap: wrap;
+              gap: 10px !important;
+            }
+            .sidebar-menu button {
+              flex: 1 1 calc(50% - 10px);
+              justify-content: center;
+              padding: 10px !important;
+              font-size: 12px !important;
+            }
+            .main-content {
+              padding-left: 0 !important;
+              padding-top: 20px !important;
+            }
+            .dashboard-container {
+              padding: 20px 10px !important;
+            }
+          }
+        `}
+      </style>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
 
         {/* --- HEADER --- */}
-        <header style={{
+        <header className="dashboard-header" style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           marginBottom: '50px', background: theme.surface, padding: '40px',
           border: `3px solid ${theme.border}`, boxShadow: '10px 10px 0px rgba(0,0,0,0.05)'
         }}>
-          <div style={{ borderLeft: `10px solid ${theme.textMain}`, paddingLeft: '25px' }}>
+          <div style={{ borderLeft: `10px solid ${theme.textMain}`, paddingLeft: '25px', wordBreak: 'break-word' }}>
             <span className="mono-label" style={{ color: theme.accent }}>// MEMBER_SESSION_ACTIVE</span>
             <h1 style={{
               fontFamily: "'Cormorant Garamond', serif", margin: '5px 0',
-              fontSize: '2.8rem', fontWeight: '600', textTransform: 'uppercase', lineHeight: 1
+              fontSize: 'clamp(24px, 5vw, 2.8rem)', fontWeight: '600', textTransform: 'uppercase', lineHeight: 1
             }}>
               {user.societyName || 'SYSTEM_CORE'}
             </h1>
@@ -46,21 +92,21 @@ const MemberDashboard = () => {
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <div className="dashboard-header-actions" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <Link to="/profile" className="brutal-btn" style={{
               background: theme.textMain, color: 'white', padding: '12px 24px', textDecoration: 'none',
               fontFamily: "'Space Mono', monospace", fontWeight: '700', fontSize: '14px',
-              boxShadow: `4px 4px 0px ${theme.accent}`
+              boxShadow: `4px 4px 0px ${theme.accent}`, textAlign: 'center', width: '100%', boxSizing: 'border-box'
             }}>
               PROFILE
             </Link>
             <button
               onClick={() => { logout(); navigate('/'); }}
-              className="logout-btn"
+              className="logout-btn brutal-btn"
               style={{
                 background: 'transparent', color: theme.textMain, border: `2px solid ${theme.textMain}`,
                 padding: '12px 24px', fontFamily: "'Space Mono', monospace", fontWeight: '700',
-                cursor: 'pointer'
+                cursor: 'pointer', textAlign: 'center', width: '100%', boxSizing: 'border-box'
               }}
             >
               [ DISCONNECT ]
@@ -69,10 +115,10 @@ const MemberDashboard = () => {
         </header>
 
         {/* SIDEBAR NAVIGATION */}
-        <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+        <div className="dashboard-layout" style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         
         {/* Navigation Panel */}
-        <div style={{
+        <div className="sidebar-nav" style={{
           width: '280px', background: theme.surface, borderRight: `3px solid ${theme.border}`,
           padding: '30px 20px', display: 'flex', flexDirection: 'column', gap: '40px',
           boxShadow: '5px 0 15px rgba(0,0,0,0.02)'
@@ -84,8 +130,8 @@ const MemberDashboard = () => {
             </div>
           )}
 
-          <div style={{ width: '250px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.5 }}>// NAVIGATION</span>
+          <div className="sidebar-menu" style={{ width: '250px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.5, width: '100%' }}>// NAVIGATION</span>
             {[
               { id: 'overview', label: 'Overview', icon: '📊' },
               { id: 'profile', label: 'My Profile', icon: '👤' },
@@ -132,7 +178,7 @@ const MemberDashboard = () => {
           </div>
 
           {/* MAIN CONTENT PORTAL */}
-          <div style={{ flex: 1, minWidth: 0, paddingLeft: '40px' }}>
+          <div className="main-content" style={{ flex: 1, minWidth: 0, paddingLeft: '40px' }}>
             {activeTab === 'overview' && <DashboardOverview />}
             {activeTab === 'profile' && <Profile />}
             {activeTab === 'notices' && <NoticeBoard />}
