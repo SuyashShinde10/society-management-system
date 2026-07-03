@@ -105,14 +105,14 @@ const UserList = () => {
 
   return (
     <div style={{ marginTop: '40px', fontFamily: "'Space Mono', monospace" }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', borderBottom: `4px solid ${theme.textMain}` }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', marginBottom: '25px', borderBottom: `4px solid ${theme.textMain}`, paddingBottom: '10px' }}>
         <h3 style={{
           fontFamily: "'Cormorant Garamond', serif",
-          fontSize: '32px', textTransform: 'uppercase', margin: 0,
+          fontSize: 'clamp(22px, 6vw, 32px)', textTransform: 'uppercase', margin: 0, wordBreak: 'break-all'
         }}>
           RESIDENT_REGISTRY
         </h3>
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button onClick={() => setActiveTab('active')} style={{ ...tabBtn, background: activeTab === 'active' ? theme.textMain : 'transparent', color: activeTab === 'active' ? 'white' : theme.textMain }}>
             ACTIVE ({users.length})
           </button>
