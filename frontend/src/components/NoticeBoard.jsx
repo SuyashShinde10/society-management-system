@@ -3,7 +3,6 @@ import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
-import { socket } from '../socket';
 
 const NoticeBoard = () => {
   const { user } = useContext(AuthContext);
@@ -16,22 +15,13 @@ const NoticeBoard = () => {
 
   useEffect(() => {
     fetchNotices();
+    
+    // Vercel-compatible real-time fallback (Short Polling)
+    const interval = setInterval(() => {
+      fetchNotices();
+    }, 10000); // 10 seconds
 
-    const handleNewNotice = (notice) => {
-      setNotices((prev) => [notice, ...prev]);
-    };
-
-    const handleDeleteNotice = (id) => {
-      setNotices((prev) => prev.filter(n => n._id !== id));
-    };
-
-    socket.on('new_notice', handleNewNotice);
-    socket.on('delete_notice', handleDeleteNotice);
-
-    return () => {
-      socket.off('new_notice', handleNewNotice);
-      socket.off('delete_notice', handleDeleteNotice);
-    };
+    return () => clearInterval(interval);
   }, []);
 
   const fetchNotices = async () => {

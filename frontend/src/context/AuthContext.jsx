@@ -1,6 +1,5 @@
 import { createContext, useState, useEffect } from "react";
 import api from "../api"; 
-import { socket } from '../socket'; 
 
 const AuthContext = createContext();
 
@@ -17,12 +16,6 @@ export const AuthProvider = ({ children }) => {
       try {
         const parsedUser = JSON.parse(userInfo);
         setUser(parsedUser);
-        
-        // Connect socket for restored user
-        socket.connect();
-        if (parsedUser.societyId) {
-          socket.emit('join_society', parsedUser.societyId);
-        }
       } catch (e) {
         localStorage.removeItem("userInfo");
       }
@@ -38,12 +31,6 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       localStorage.setItem("userInfo", JSON.stringify(data.user));
       localStorage.setItem("token", data.token);
-
-      // Connect socket
-      socket.connect();
-      if (data.user.societyId) {
-        socket.emit('join_society', data.user.societyId);
-      }
 
       return { success: true, role: data.user.role };
     } catch (error) {
@@ -67,7 +54,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userInfo");
     localStorage.removeItem("token");
     setUser(null);
-    socket.disconnect();
   };
 
   return (

@@ -34,9 +34,6 @@ const addNotice = async (req, res) => {
       createdBy: req.user._id
     });
 
-    const io = req.app.get('io');
-    if (io) io.to(req.user.societyId.toString()).emit('new_notice', notice);
-
     res.status(201).json(notice);
   } catch (error) {
     console.error('Add Notice Error:', error);
@@ -60,9 +57,6 @@ const deleteNotice = async (req, res) => {
 
     await notice.deleteOne();
     
-    const io = req.app.get('io');
-    if (io) io.to(req.user.societyId.toString()).emit('delete_notice', req.params.id);
-
     res.json({ message: 'NOTICE_REMOVED' });
   } catch (error) {
     console.error('Error deleting notice:', error);

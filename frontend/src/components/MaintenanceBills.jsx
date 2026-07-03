@@ -3,7 +3,6 @@ import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
-import { socket } from '../socket';
 
 const MaintenanceBills = () => {
   const { user } = useContext(AuthContext);
@@ -17,28 +16,13 @@ const MaintenanceBills = () => {
 
   useEffect(() => {
     fetchBills();
-
-    const handleRefreshBills = () => {
+    
+    // Vercel-compatible real-time fallback (Short Polling)
+    const interval = setInterval(() => {
       fetchBills();
-    };
+    }, 10000); // 10 seconds
 
-    const handleUpdateBill = (updatedBill) => {
-      setBills((prev) => prev.map(b => b._id === updatedBill._id ? { ...b, ...updatedBill } : b));
-    };
-
-    const handleDeleteBill = (id) => {
-      setBills((prev) => prev.filter(b => b._id !== id));
-    };
-
-    socket.on('refresh_bills', handleRefreshBills);
-    socket.on('update_bill', handleUpdateBill);
-    socket.on('delete_bill', handleDeleteBill);
-
-    return () => {
-      socket.off('refresh_bills', handleRefreshBills);
-      socket.off('update_bill', handleUpdateBill);
-      socket.off('delete_bill', handleDeleteBill);
-    };
+    return () => clearInterval(interval);
   }, [user]);
 
   const fetchBills = async () => {

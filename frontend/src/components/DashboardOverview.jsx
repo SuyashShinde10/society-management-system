@@ -42,6 +42,12 @@ const DashboardOverview = () => {
     };
 
     fetchStats();
+
+    const interval = setInterval(() => {
+      fetchStats();
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {

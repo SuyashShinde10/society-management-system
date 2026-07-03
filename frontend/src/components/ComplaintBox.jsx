@@ -3,7 +3,6 @@ import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
-import { socket } from '../socket';
 
 const ComplaintBox = () => {
   const { user } = useContext(AuthContext);
@@ -25,28 +24,13 @@ const ComplaintBox = () => {
 
   useEffect(() => {
     fetchComplaints();
+    
+    // Vercel-compatible real-time fallback (Short Polling)
+    const interval = setInterval(() => {
+      fetchComplaints();
+    }, 10000); // 10 seconds
 
-    const handleNewComplaint = (complaint) => {
-      setComplaints((prev) => [complaint, ...prev]);
-    };
-
-    const handleUpdateComplaint = (updatedComplaint) => {
-      setComplaints((prev) => prev.map(c => c._id === updatedComplaint._id ? updatedComplaint : c));
-    };
-
-    const handleDeleteComplaint = (id) => {
-      setComplaints((prev) => prev.filter(c => c._id !== id));
-    };
-
-    socket.on('new_complaint', handleNewComplaint);
-    socket.on('update_complaint', handleUpdateComplaint);
-    socket.on('delete_complaint', handleDeleteComplaint);
-
-    return () => {
-      socket.off('new_complaint', handleNewComplaint);
-      socket.off('update_complaint', handleUpdateComplaint);
-      socket.off('delete_complaint', handleDeleteComplaint);
-    };
+    return () => clearInterval(interval);
   }, [fetchComplaints]);
 
   const handlePost = async (e) => {

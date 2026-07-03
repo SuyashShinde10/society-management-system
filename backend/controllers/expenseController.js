@@ -41,9 +41,6 @@ const addExpense = async (req, res) => {
       recordedBy: req.user._id
     });
 
-    const io = req.app.get('io');
-    if (io) io.to(req.user.societyId.toString()).emit('new_expense', expense);
-
     res.status(201).json(expense);
   } catch (error) {
     console.error('Error adding expense:', error);
@@ -66,9 +63,6 @@ const deleteExpense = async (req, res) => {
     }
 
     await expense.deleteOne();
-    
-    const io = req.app.get('io');
-    if (io) io.to(req.user.societyId.toString()).emit('delete_expense', req.params.id);
     
     res.json({ message: 'EXPENSE_REMOVED' });
   } catch (error) {
