@@ -137,7 +137,6 @@ const MemberDashboard = () => {
               { id: 'profile', label: 'My Profile', icon: '👤' },
               { id: 'notices', label: 'Notice Board', icon: '📢' },
               { id: 'bills', label: 'My Bills', icon: '🧾' },
-              { id: 'visitors', label: 'Visitor Logs', icon: '🛡️' },
               { id: 'complaints', label: 'Complaints', icon: '🗳️' },
               { id: 'expenses', label: 'Society Expenses', icon: '💰' },
             ].map((tab) => {
@@ -183,7 +182,6 @@ const MemberDashboard = () => {
             {activeTab === 'profile' && <Profile />}
             {activeTab === 'notices' && <NoticeBoard />}
             {activeTab === 'bills' && <MaintenanceBills />}
-            {activeTab === 'visitors' && <VisitorLog />}
             {activeTab === 'complaints' && <ComplaintBox />}
             {activeTab === 'expenses' && <ExpenseTracker />}
           </div>

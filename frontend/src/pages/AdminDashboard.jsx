@@ -134,7 +134,6 @@ const Dashboard = () => {
               { id: 'registry', label: 'Member Registry', icon: '👥' },
               { id: 'notices', label: 'Notice Board', icon: '📢' },
               { id: 'bills', label: 'Billing System', icon: '🧾' },
-              { id: 'visitors', label: 'Visitor Logs', icon: '🛡️' },
               { id: 'complaints', label: 'Complaints', icon: '🗳️' },
               { id: 'expenses', label: 'Society Expenses', icon: '💰' },
             ].map((tab) => {
@@ -203,7 +202,6 @@ const Dashboard = () => {
 
             {activeTab === 'notices' && <NoticeBoard />}
             {activeTab === 'bills' && <MaintenanceBills />}
-            {activeTab === 'visitors' && <VisitorLog />}
             {activeTab === 'complaints' && <ComplaintBox />}
             {activeTab === 'expenses' && <ExpenseTracker />}
           </div>
