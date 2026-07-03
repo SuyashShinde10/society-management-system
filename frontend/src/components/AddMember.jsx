@@ -109,7 +109,7 @@ const AddMember = () => {
       </style>
       <h3 style={{
         fontFamily: "'Cormorant Garamond', serif",
-        fontSize: '28px', textTransform: 'uppercase', margin: '0 0 30px 0',
+        fontSize: 'clamp(18px, 6vw, 28px)', textTransform: 'uppercase', margin: '0 0 30px 0',
         borderBottom: `2px solid ${theme.border}`, paddingBottom: '15px'
       }}>
         Resident_Intake_Form

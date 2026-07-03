@@ -184,7 +184,7 @@ const Dashboard = () => {
                 border: `3px solid ${theme.border}`, boxShadow: '10px 10px 0px rgba(0,0,0,0.05)'
               }}>
                 <div style={{ marginBottom: '30px', borderBottom: `2px solid ${theme.textMain}`, paddingBottom: '15px' }}>
-                  <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', textTransform: 'uppercase' }}>
+                  <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(20px, 6vw, 1.8rem)', textTransform: 'uppercase' }}>
                     MEMBER_OPERATIONS
                   </h2>
                 </div>
