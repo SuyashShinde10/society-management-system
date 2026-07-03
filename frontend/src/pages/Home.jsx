@@ -60,6 +60,19 @@ const Home = () => {
               width: 100%;
               box-sizing: border-box;
             }
+            .nav-section {
+              flex-direction: column;
+              gap: 20px;
+              padding: 20px !important;
+            }
+            .footer-links {
+              flex-direction: column !important;
+              gap: 15px !important;
+              text-align: center;
+            }
+            .features-grid {
+              grid-template-columns: 1fr !important;
+            }
           }
         `}
       </style>
@@ -196,7 +209,7 @@ const Home = () => {
 
       {/* --- FEATURES SECTION --- */}
       <section className="features-section" style={{ padding: '100px 60px' }}>
-        <div style={{ 
+        <div className="features-grid" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
           gap: '0px', // No gap, borders will touch
@@ -242,7 +255,7 @@ const Home = () => {
         }}>
           AwaasTech.
         </h2>
-        <div style={{ display: 'flex', gap: '30px', fontFamily: "'Space Mono', monospace", fontSize: '12px' }}>
+        <div className="footer-links" style={{ display: 'flex', gap: '30px', fontFamily: "'Space Mono', monospace", fontSize: '12px' }}>
           <a href="#" style={{ color: 'white', textDecoration: 'none' }}>[ DOCUMENTATION ]</a>
           <a href="#" style={{ color: 'white', textDecoration: 'none' }}>[ SYSTEM_STATUS ]</a>
           <a href="#" style={{ color: 'white', textDecoration: 'none' }}>[ TERMS_OF_SERVICE ]</a>
