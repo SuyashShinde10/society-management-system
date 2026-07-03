@@ -13,6 +13,8 @@ const MaintenanceBills = () => {
   const [filterStatus, setFilterStatus] = useState('All'); // All, Pending, Paid, Overdue
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [showGenerateForm, setShowGenerateForm] = useState(false);
+  const [generateData, setGenerateData] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear(), dueDate: '' });
   const limit = 10;
 
   useEffect(() => {
@@ -38,16 +40,21 @@ const MaintenanceBills = () => {
     }
   };
 
-  const handleGenerateBills = async () => {
+  const handleGenerateBills = async (e) => {
+    e.preventDefault();
+    if (!generateData.month || !generateData.year || !generateData.dueDate) {
+      toast.error('Please select month, year, and due date.');
+      return;
+    }
     setLoading(true);
     try {
-      const now = new Date();
       await api.post('/bills/generate', {
-        month: now.getMonth() + 1,
-        year: now.getFullYear(),
-        dueDate: new Date(now.getFullYear(), now.getMonth() + 1, 15) // Next month 15th
+        month: generateData.month,
+        year: generateData.year,
+        dueDate: generateData.dueDate
       });
       toast.success('Bills generated for all active residents.');
+      setShowGenerateForm(false);
       fetchBills();
     } catch (error) {
       toast.error('Failed to generate bills.');
@@ -59,7 +66,7 @@ const MaintenanceBills = () => {
   const handleMarkPaid = async (id) => {
     try {
       setBills(prev => prev.map(b => b._id === id ? { ...b, status: 'Paid' } : b));
-      await api.put(`/bills/${id}/pay`, { paymentMode: 'Online' });
+      await api.put(`/bills/${id}/pay`, { paymentMode: 'UPI' });
       toast.success('Payment recorded successfully.');
       fetchBills();
     } catch (error) {
@@ -88,14 +95,37 @@ const MaintenanceBills = () => {
           </h3>
         </div>
         {user?.role === 'admin' && (
-          <button onClick={handleGenerateBills} disabled={loading} style={{
+          <button onClick={() => setShowGenerateForm(!showGenerateForm)} style={{
             background: theme.accent, color: 'white', border: 'none', padding: '6px 12px',
             fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
           }}>
-            {loading ? 'GENERATING...' : '[+] GEN_ALL_BILLS'}
+            {showGenerateForm ? '[-] CANCEL' : '[+] GEN_ALL_BILLS'}
           </button>
         )}
       </div>
+
+      {showGenerateForm && (
+        <form onSubmit={handleGenerateBills} style={{ padding: '20px', background: theme.fieldBg, borderBottom: `2px dashed ${theme.border}`, display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div>
+            <label className="registry-label">Month (1-12)</label>
+            <input type="number" min="1" max="12" value={generateData.month} onChange={e => setGenerateData({...generateData, month: e.target.value})} className="registry-input" required />
+          </div>
+          <div>
+            <label className="registry-label">Year</label>
+            <input type="number" value={generateData.year} onChange={e => setGenerateData({...generateData, year: e.target.value})} className="registry-input" required />
+          </div>
+          <div>
+            <label className="registry-label">Due Date</label>
+            <input type="date" value={generateData.dueDate} onChange={e => setGenerateData({...generateData, dueDate: e.target.value})} className="registry-input" required />
+          </div>
+          <button type="submit" disabled={loading} style={{
+            background: theme.textMain, color: 'white', padding: '12px 20px', border: 'none', height: '42px',
+            fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px', boxShadow: `4px 4px 0px ${theme.border}`
+          }}>
+            {loading ? 'GENERATING...' : 'CONFIRM GENERATION'}
+          </button>
+        </form>
+      )}
 
       <div style={{ padding: '20px', flex: 1, overflowY: 'auto' }}>
         <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
