@@ -2,32 +2,32 @@ const mongoose = require('mongoose');
 
 const ComplaintSchema = new mongoose.Schema({
   user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true
   },
   societyId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Society',
-    required: true
+    type: mongoose.Schema.Types.ObjectId, ref: 'Society', required: true
   },
   title: {
-    type: String,
-    required: true,
-    trim: true,
-    maxlength: [200, 'Title cannot exceed 200 characters']
+    type: String, required: true, trim: true, maxlength: [200, 'Title too long']
   },
   description: {
-    type: String,
-    required: true,
-    trim: true,
-    maxlength: [2000, 'Description cannot exceed 2000 characters']
+    type: String, required: true, trim: true, maxlength: [2000, 'Description too long']
   },
   status: {
+    type: String, enum: ['Pending', 'In Progress', 'Resolved', 'Declined'], default: 'Pending'
+  },
+
+  // ── New fields ─────────────────────────────────────────
+  priority: {
+    type: String, enum: ['Low', 'Medium', 'High', 'Urgent'], default: 'Low'
+  },
+  category: {
     type: String,
-    enum: ['Pending', 'Resolved', 'Declined'],
-    default: 'Pending'
-  }
+    enum: ['Water', 'Electricity', 'Lift', 'Security', 'Cleanliness', 'Noise', 'Parking', 'Other'],
+    default: 'Other'
+  },
+  adminComment: { type: String, trim: true, maxlength: [500, 'Comment too long'] },
+  resolvedAt: { type: Date },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Complaint', ComplaintSchema);

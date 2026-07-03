@@ -10,6 +10,7 @@ const AddMember = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [wing, setWing] = useState('');
   const [floor, setFloor] = useState('0');
   const [flatNumber, setFlatNumber] = useState('');
@@ -51,11 +52,11 @@ const AddMember = () => {
     setLoading(true);
     try {
       await api.post('/auth/add-member', {
-        name, email, password,
+        name, email, password, phone,
         wing, floor, flatNumber, residentType,
       });
       toast.success('Resident added to registry successfully.');
-      setName(''); setEmail(''); setPassword('');
+      setName(''); setEmail(''); setPassword(''); setPhone('');
       setFloor('0'); setFlatNumber(''); setResidentType('Owner');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to add member. Please try again.');
@@ -89,9 +90,16 @@ const AddMember = () => {
             <label className="registry-label">Legal_Name</label>
             <input placeholder="F_NAME L_NAME" value={name} onChange={(e) => setName(e.target.value)} required className="registry-input" />
           </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
           <div>
             <label className="registry-label">Communication_Email</label>
             <input type="email" placeholder="ADDR@DOMAIN.COM" value={email} onChange={(e) => setEmail(e.target.value)} required className="registry-input" />
+          </div>
+          <div>
+            <label className="registry-label">Phone_Number</label>
+            <input type="text" placeholder="1234567890" value={phone} onChange={(e) => setPhone(e.target.value)} className="registry-input" />
           </div>
         </div>
 

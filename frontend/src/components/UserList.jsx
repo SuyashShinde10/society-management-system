@@ -7,24 +7,36 @@ import theme from '../theme';
 const UserList = () => {
   const { user } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
+  const [pendingUsers, setPendingUsers] = useState([]);
+  const [activeTab, setActiveTab] = useState('active'); // 'active' or 'pending'
 
   const [editingId, setEditingId] = useState(null);
   const [editFormData, setEditFormData] = useState({
-    name: '', email: '', wing: '', floor: '', flatNumber: '', residentType: 'Owner'
+    name: '', email: '', wing: '', floor: '', flatNumber: '', residentType: 'Owner', phone: '', parkingSlot: '', vehicleNumber: ''
   });
 
   useEffect(() => {
-    fetchUsers();
+    if (user && user.role === 'admin') {
+      fetchUsers();
+      fetchPendingUsers();
+    }
   }, [user]);
 
   const fetchUsers = async () => {
-    if (user && user.role === 'admin') {
-      try {
-        const { data } = await api.get('/auth/users');
-        setUsers(data);
-      } catch (error) {
-        console.error('// DATABASE_ACCESS_ERROR');
-      }
+    try {
+      const { data } = await api.get('/auth/users');
+      setUsers(data);
+    } catch (error) {
+      console.error('// DATABASE_ACCESS_ERROR');
+    }
+  };
+
+  const fetchPendingUsers = async () => {
+    try {
+      const { data } = await api.get('/auth/users/pending');
+      setPendingUsers(data);
+    } catch (error) {
+      console.error('// DATABASE_ACCESS_ERROR');
     }
   };
 
@@ -33,6 +45,9 @@ const UserList = () => {
     setEditFormData({
       name: u.name,
       email: u.email,
+      phone: u.phone || '',
+      parkingSlot: u.parkingSlot || '',
+      vehicleNumber: u.vehicleNumber || '',
       wing: u.flatDetails?.wing || '',
       floor: u.flatDetails?.floor || '',
       flatNumber: u.flatDetails?.flatNumber || '',
@@ -53,14 +68,18 @@ const UserList = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, isPending = false) => {
     toast('Permanently remove this resident?', {
       action: {
         label: 'Confirm',
         onClick: async () => {
           try {
             await api.delete(`/auth/user/${id}`);
-            setUsers(users.filter((u) => u._id !== id));
+            if (isPending) {
+              setPendingUsers(pendingUsers.filter((u) => u._id !== id));
+            } else {
+              setUsers(users.filter((u) => u._id !== id));
+            }
             toast.success('Resident removed from registry.');
           } catch (error) {
             toast.error('Failed to delete member.');
@@ -71,21 +90,43 @@ const UserList = () => {
     });
   };
 
+  const handleApprove = async (id) => {
+    try {
+      await api.put(`/auth/users/${id}/approve`);
+      toast.success('Member approved successfully.');
+      fetchPendingUsers();
+      fetchUsers();
+    } catch (error) {
+      toast.error('Failed to approve member.');
+    }
+  };
+
+  const displayedUsers = activeTab === 'active' ? users : pendingUsers;
+
   return (
     <div style={{ marginTop: '40px', fontFamily: "'Space Mono', monospace" }}>
-      <h3 style={{
-        fontFamily: "'Cormorant Garamond', serif",
-        fontSize: '32px', textTransform: 'uppercase', marginBottom: '25px',
-        borderBottom: `4px solid ${theme.textMain}`, display: 'inline-block'
-      }}>
-        RESIDENT_REGISTRY
-      </h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', borderBottom: `4px solid ${theme.textMain}` }}>
+        <h3 style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: '32px', textTransform: 'uppercase', margin: 0,
+        }}>
+          RESIDENT_REGISTRY
+        </h3>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+          <button onClick={() => setActiveTab('active')} style={{ ...tabBtn, background: activeTab === 'active' ? theme.textMain : 'transparent', color: activeTab === 'active' ? 'white' : theme.textMain }}>
+            ACTIVE ({users.length})
+          </button>
+          <button onClick={() => setActiveTab('pending')} style={{ ...tabBtn, background: activeTab === 'pending' ? theme.textMain : 'transparent', color: activeTab === 'pending' ? 'white' : theme.textMain }}>
+            PENDING ({pendingUsers.length})
+          </button>
+        </div>
+      </div>
 
-      {users.length === 0 ? (
+      {displayedUsers.length === 0 ? (
         <p style={{ color: theme.textSec }}>// NO_RECORDS_FOUND</p>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-          {users.map((u) => (
+          {displayedUsers.map((u) => (
             <div
               key={u._id}
               style={{
@@ -94,11 +135,12 @@ const UserList = () => {
                 transition: 'all 0.2s', position: 'relative'
               }}
             >
-              {editingId === u._id ? (
+              {editingId === u._id && activeTab === 'active' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <span style={{ fontSize: '10px', fontWeight: '700' }}>// EDITING_RECORD: {u._id.substring(0, 8)}</span>
                   <input value={editFormData.name} onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })} placeholder="NAME" className="brutal-input" />
                   <input value={editFormData.email} onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })} placeholder="EMAIL" className="brutal-input" />
+                  <input value={editFormData.phone} onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })} placeholder="PHONE" className="brutal-input" />
                   <div style={{ display: 'flex', gap: '5px' }}>
                     <input value={editFormData.wing} onChange={(e) => setEditFormData({ ...editFormData, wing: e.target.value })} placeholder="WNG" className="brutal-input" style={{ width: '50px' }} />
                     <input value={editFormData.floor} onChange={(e) => setEditFormData({ ...editFormData, floor: e.target.value })} placeholder="FLR" className="brutal-input" style={{ width: '50px' }} />
@@ -130,11 +172,21 @@ const UserList = () => {
                       LOC: {u.flatDetails ? `WING_${u.flatDetails.wing} // UNIT_${u.flatDetails.flatNumber}` : 'UNASSIGNED'}
                     </p>
                     <p style={{ margin: 0, fontSize: '11px', color: theme.textSec, opacity: 0.7 }}>{u.email.toUpperCase()}</p>
+                    {u.phone && <p style={{ margin: 0, fontSize: '11px', color: theme.textSec, opacity: 0.7 }}>PH: {u.phone}</p>}
                   </div>
 
                   <div style={{ display: 'flex', gap: '10px', marginTop: '10px', paddingTop: '15px', borderTop: `1px dashed ${theme.border}` }}>
-                    <button onClick={() => handleEditClick(u)} style={smallBtn}>MODIFY</button>
-                    <button onClick={() => handleDelete(u._id)} style={{ ...smallBtn, color: '#ef4444' }}>TERMINATE</button>
+                    {activeTab === 'active' ? (
+                      <>
+                        <button onClick={() => handleEditClick(u)} style={smallBtn}>MODIFY</button>
+                        <button onClick={() => handleDelete(u._id)} style={{ ...smallBtn, color: '#ef4444' }}>TERMINATE</button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => handleApprove(u._id)} style={{ ...smallBtn, color: theme.accent }}>APPROVE</button>
+                        <button onClick={() => handleDelete(u._id, true)} style={{ ...smallBtn, color: '#ef4444' }}>REJECT</button>
+                      </>
+                    )}
                   </div>
                 </>
               )}
@@ -144,6 +196,12 @@ const UserList = () => {
       )}
     </div>
   );
+};
+
+const tabBtn = {
+  border: `2px solid ${theme.textMain}`, padding: '8px 16px',
+  fontFamily: "'Space Mono', monospace", fontWeight: '700', fontSize: '12px',
+  cursor: 'pointer'
 };
 
 const actionBtn = (bg, color) => ({

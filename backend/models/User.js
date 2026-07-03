@@ -2,35 +2,29 @@ const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
   name: {
-    type: String,
-    required: true,
-    trim: true,
-    maxlength: [100, 'Name cannot exceed 100 characters']
+    type: String, required: true, trim: true, maxlength: [100, 'Name too long']
   },
   email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    maxlength: [150, 'Email cannot exceed 150 characters']
+    type: String, required: true, unique: true, trim: true,
+    lowercase: true, maxlength: [150, 'Email too long']
   },
   password: {
-    type: String,
-    required: true,
-    minlength: 6
+    type: String, required: true, minlength: 6
   },
   role: {
-    type: String,
-    enum: ['admin', 'member'],
-    default: 'member'
+    type: String, enum: ['admin', 'member'], default: 'member'
   },
 
-  // Link every user to a specific Society
+  // ── New fields ─────────────────────────────────────────
+  phone: { type: String, trim: true, maxlength: 15 },
+  isActive: { type: Boolean, default: true },
+  parkingSlot: { type: String, trim: true, maxlength: 20 },
+  vehicleNumber: { type: String, trim: true, maxlength: 20 },
+  profilePicture: { type: String }, // URL
+
+  // Society link
   societyId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Society',
-    required: true
+    type: mongoose.Schema.Types.ObjectId, ref: 'Society', required: true
   },
 
   flatDetails: {
@@ -38,10 +32,9 @@ const UserSchema = new mongoose.Schema({
     floor: { type: String, trim: true },
     flatNumber: { type: String, trim: true, maxlength: 20 },
     residentType: {
-      type: String,
-      enum: ['Owner', 'Tenant'],
-      default: 'Owner'
-    }
+      type: String, enum: ['Owner', 'Tenant'], default: 'Owner'
+    },
+    moveInDate: { type: Date },
   }
 }, { timestamps: true });
 

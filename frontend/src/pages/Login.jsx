@@ -21,7 +21,11 @@ const Login = () => {
     const result = await login(email, password);
     setLoading(false);
     if (result.success) {
-      navigate('/dashboard');
+      if (result.role === 'admin') {
+        navigate('/dashboard');
+      } else {
+        navigate('/resident');
+      }
     } else {
       toast.error(`Access denied: ${result.message}`);
     }

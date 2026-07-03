@@ -55,7 +55,7 @@ const Home = () => {
         </h2>
         <div style={{ display: 'flex', gap: '30px', alignItems: 'center', fontFamily: "'Space Mono', monospace" }}>
           <Link to="/login" style={{ textDecoration: 'none', color: theme.textMain, fontWeight: '700', fontSize: '14px' }}>[ LOGIN ]</Link>
-          <Link to="/register" className="brutal-btn" style={{ 
+          <Link to="/join" className="brutal-btn" style={{ 
             textDecoration: 'none', 
             background: theme.textMain, 
             color: 'white', 
@@ -64,7 +64,7 @@ const Home = () => {
             fontSize: '14px',
             boxShadow: `4px 4px 0px ${theme.accent}`
           }}>
-            INITIALIZE_SYSTEM
+            JOIN_SOCIETY
           </Link>
         </div>
       </nav>
@@ -110,7 +110,7 @@ const Home = () => {
               fontFamily: "'Space Mono', monospace",
               boxShadow: `6px 6px 0px ${theme.textMain}`
             }}>
-              CREATE_ADMIN_ID
+              CREATE_SOCIETY
             </Link>
             <Link to="/login" className="brutal-btn" style={{ 
               textDecoration: 'none', 

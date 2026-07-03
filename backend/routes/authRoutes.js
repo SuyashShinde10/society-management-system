@@ -2,33 +2,29 @@ const express = require('express');
 const router = express.Router();
 
 const {
-  registerUser,
-  loginUser,
-  getAllUsers,
-  getAllSocieties,
-  deleteUser,
-  addMember,
-  updateMember,
-  getSocietyLimits
+  registerUser, memberSelfRegister, loginUser, updateProfile,
+  getAllUsers, getPendingMembers, approveMember,
+  getAllSocieties, deleteUser, addMember, updateMember, getSocietyLimits
 } = require('../controllers/authController');
 
 const { protect, admin } = require('../middleware/authMiddleware');
 
-// --- PUBLIC ---
-router.post('/register', registerUser);
+// ── PUBLIC ──────────────────────────────────────────────────────────────────
+router.post('/register', registerUser);               // Admin creates society
+router.post('/member-register', memberSelfRegister);  // Member self-register (pending approval)
 router.post('/login', loginUser);
-// getAllSocieties is intentionally public — needed for the member registration
-// dropdown (users must pick a society before they have an account).
-// Only returns society name, not addresses or sensitive data.
-router.get('/societies', getAllSocieties);
+router.get('/societies', getAllSocieties);             // Public — needed for member registration dropdown
 
-// --- ADMIN ONLY ---
+// ── ANY LOGGED-IN USER ───────────────────────────────────────────────────────
+router.put('/profile', protect, updateProfile);
+router.get('/society-limits', protect, getSocietyLimits);
+
+// ── ADMIN ONLY ───────────────────────────────────────────────────────────────
 router.get('/users', protect, admin, getAllUsers);
+router.get('/users/pending', protect, admin, getPendingMembers);
+router.put('/users/:id/approve', protect, admin, approveMember);
 router.post('/add-member', protect, admin, addMember);
 router.delete('/user/:id', protect, admin, deleteUser);
 router.put('/user/:id', protect, admin, updateMember);
-
-// --- ALL LOGGED IN USERS ---
-router.get('/society-limits', protect, getSocietyLimits);
 
 module.exports = router;
