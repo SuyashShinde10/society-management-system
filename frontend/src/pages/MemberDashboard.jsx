@@ -9,11 +9,12 @@ import ExpenseTracker from '../components/ExpenseTracker';
 import MaintenanceBills from '../components/MaintenanceBills';
 import VisitorLog from '../components/VisitorLog';
 import DashboardOverview from '../components/DashboardOverview';
+import Profile from '../components/Profile';
 
 const MemberDashboard = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(user?.mustChangePassword ? 'profile' : 'overview');
 
   if (!user) return null;
 
@@ -67,45 +68,73 @@ const MemberDashboard = () => {
           </div>
         </header>
 
-        </header>
-
-        {/* --- MAIN CONTENT AREA WITH SIDEBAR --- */}
-        <div style={{ display: 'flex', gap: '40px', minHeight: '600px', marginBottom: '60px' }}>
+        {/* SIDEBAR NAVIGATION */}
+        <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+        
+        {/* Navigation Panel */}
+        <div style={{
+          width: '280px', background: theme.surface, borderRight: `3px solid ${theme.border}`,
+          padding: '30px 20px', display: 'flex', flexDirection: 'column', gap: '40px',
+          boxShadow: '5px 0 15px rgba(0,0,0,0.02)'
+        }}>
           
-          {/* SIDEBAR */}
+          {user?.mustChangePassword && (
+            <div style={{ background: theme.danger, color: 'white', padding: '10px', fontSize: '12px', fontFamily: "'Space Mono', monospace", fontWeight: 'bold' }}>
+              ⚠️ YOU MUST CHANGE YOUR GENERATED PASSWORD TO CONTINUE.
+            </div>
+          )}
+
           <div style={{ width: '250px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.5 }}>// NAVIGATION</span>
             {[
               { id: 'overview', label: 'Overview', icon: '📊' },
+              { id: 'profile', label: 'My Profile', icon: '👤' },
               { id: 'notices', label: 'Notice Board', icon: '📢' },
               { id: 'bills', label: 'My Bills', icon: '🧾' },
               { id: 'visitors', label: 'Visitor Logs', icon: '🛡️' },
               { id: 'complaints', label: 'Complaints', icon: '🗳️' },
               { id: 'expenses', label: 'Society Expenses', icon: '💰' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '10px', padding: '15px 20px',
-                  background: activeTab === tab.id ? theme.textMain : theme.surface,
-                  color: activeTab === tab.id ? 'white' : theme.textMain,
-                  border: `3px solid ${theme.border}`,
-                  fontFamily: "'Space Mono', monospace", fontWeight: '700', fontSize: '14px',
-                  cursor: 'pointer', textAlign: 'left',
-                  boxShadow: activeTab === tab.id ? `4px 4px 0px ${theme.accent}` : 'none',
-                  transition: 'all 0.1s'
-                }}
-              >
-                <span>{tab.icon}</span>
-                {tab.label.toUpperCase()}
-              </button>
-            ))}
+            ].map((tab) => {
+              const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => !isDisabled && setActiveTab(tab.id)}
+                  disabled={isDisabled}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '15px', padding: '15px 20px',
+                    background: activeTab === tab.id ? theme.textMain : 'transparent',
+                    color: activeTab === tab.id ? 'white' : theme.textMain,
+                    border: `2px solid ${activeTab === tab.id ? theme.textMain : 'transparent'}`,
+                    fontFamily: "'Space Mono', monospace", fontSize: '14px', fontWeight: '700',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer', textAlign: 'left', transition: 'all 0.2s',
+                    opacity: isDisabled ? 0.4 : 1
+                  }}
+                  onMouseOver={(e) => {
+                    if (activeTab !== tab.id && !isDisabled) {
+                      e.currentTarget.style.border = `2px dashed ${theme.textMain}`;
+                      e.currentTarget.style.background = '#f5f5f5';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (activeTab !== tab.id && !isDisabled) {
+                      e.currentTarget.style.border = '2px solid transparent';
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  <span style={{ fontSize: '18px' }}>{tab.icon}</span>
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
           </div>
 
           {/* MAIN CONTENT PORTAL */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ flex: 1, minWidth: 0, paddingLeft: '40px' }}>
             {activeTab === 'overview' && <DashboardOverview />}
+            {activeTab === 'profile' && <Profile />}
             {activeTab === 'notices' && <NoticeBoard />}
             {activeTab === 'bills' && <MaintenanceBills />}
             {activeTab === 'visitors' && <VisitorLog />}

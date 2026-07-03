@@ -165,6 +165,7 @@ const loginUser = async (req, res) => {
         flatDetails: user.flatDetails,
         parkingSlot: user.parkingSlot,
         vehicleNumber: user.vehicleNumber,
+        mustChangePassword: user.mustChangePassword,
       }
     });
   } catch (error) {
@@ -195,6 +196,7 @@ const updateProfile = async (req, res) => {
       if (!isMatch) return res.status(400).json({ message: 'CURRENT_PASSWORD_INCORRECT' });
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
+      user.mustChangePassword = false;
     }
 
     await user.save();
@@ -291,26 +293,36 @@ const deleteUser = async (req, res) => {
 // ─── 10. ADD MEMBER (Admin) ───────────────────────────────────────────────────
 const addMember = async (req, res) => {
   try {
-    const { name, email, password, wing, floor, flatNumber, residentType, phone } = req.body;
+    const { name, email, wing, floor, flatNumber, residentType, phone } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'NAME_EMAIL_PASSWORD_REQUIRED' });
+    if (!name || !email) {
+      return res.status(400).json({ message: 'NAME_AND_EMAIL_REQUIRED' });
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'USER_IDENT_ALREADY_EXISTS' });
 
+    // Generate random 8-character password
+    const generatedPassword = Math.random().toString(36).slice(-8);
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(generatedPassword, salt);
 
-    await User.create({
+    const user = await User.create({
       name, email,
       password: hashedPassword,
       role: 'member',
       societyId: req.user.societyId,
       phone,
       isActive: true,
+      mustChangePassword: true,
       flatDetails: { wing, floor: Number(floor), flatNumber, residentType: residentType || 'Owner' }
+    });
+
+    // Notify User
+    sendEmail({
+      email: user.email,
+      subject: 'Welcome to the Society Portal',
+      message: `Hello ${user.name},\n\nYou have been added to the society management system.\n\nYour temporary login credentials are:\nEmail: ${user.email}\nPassword: ${generatedPassword}\n\nPlease log in and change your password immediately.\n\nThank you.`
     });
 
     res.status(201).json({ message: 'MEMBER_ADDED_TO_REGISTRY' });

@@ -18,6 +18,7 @@ const UserSchema = new mongoose.Schema({
   // ── New fields ─────────────────────────────────────────
   phone: { type: String, trim: true, maxlength: 15 },
   isActive: { type: Boolean, default: true },
+  mustChangePassword: { type: Boolean, default: false },
   parkingSlot: { type: String, trim: true, maxlength: 20 },
   vehicleNumber: { type: String, trim: true, maxlength: 20 },
   profilePicture: { type: String }, // URL
