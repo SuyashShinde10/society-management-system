@@ -178,7 +178,7 @@ const ComplaintBox = () => {
 
                 <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', marginBottom: '15px' }}>
                   <div style={{ color: theme.textMain, fontWeight: '700' }}>
-                    [ ORIGIN: {c.user ? c.user.name.toUpperCase() : 'UNKNOWN'} ]
+                    [ ORIGIN: {c.user?.name?.toUpperCase() || 'UNKNOWN'} ]
                   </div>
                   {c.user?.flatDetails && (
                     <div style={{ color: theme.textSec, marginTop: '4px' }}>

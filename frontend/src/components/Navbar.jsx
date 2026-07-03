@@ -105,7 +105,7 @@ const Navbar = () => {
               <span style={{ 
                 height: '8px', width: '8px', background: theme.accent, borderRadius: '0' 
               }}></span>
-              <span>STATE: <span style={{fontWeight: '700'}}>{user.role.toUpperCase()}</span></span>
+              <span>STATE: <span style={{fontWeight: '700'}}>{user.role?.toUpperCase() || 'USER'}</span></span>
             </div>
             
             <span style={{ 
@@ -115,7 +115,7 @@ const Navbar = () => {
               borderLeft: `1px solid ${theme.border}`,
               paddingLeft: '24px'
             }}>
-              ID: <span style={{fontWeight: '700'}}>{user.name.toUpperCase()}</span>
+              ID: <span style={{fontWeight: '700'}}>{user.name?.toUpperCase() || 'UNKNOWN'}</span>
             </span>
 
             <button onClick={handleLogout} className="logout-trigger">

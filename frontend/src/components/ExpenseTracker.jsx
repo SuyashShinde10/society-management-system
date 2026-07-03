@@ -183,7 +183,7 @@ const ExpenseTracker = () => {
                   <div style={{ fontWeight: '700', fontSize: '14px', textTransform: 'uppercase' }}>{exp.title}</div>
                   <div style={{ fontSize: '10px', color: theme.textSec, marginTop: '4px' }}>
                     {/* ✅ BUG FIX (Q4): was exp.date — Expense model has no `date` field, only createdAt */}
-                    CAT: {exp.category.toUpperCase()} // DATE: {new Date(exp.createdAt).toLocaleDateString()}
+                    CAT: {exp.category?.toUpperCase() || 'UNKNOWN'} // DATE: {new Date(exp.createdAt).toLocaleDateString()}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '15px' }}>

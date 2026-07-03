@@ -141,7 +141,7 @@ const MaintenanceBills = () => {
                       background: b.status === 'Paid' ? theme.resolved : b.status === 'Pending' ? theme.pending : theme.declined,
                       color: 'white'
                     }}>
-                      {b.status.toUpperCase()}
+                      {b.status?.toUpperCase() || 'UNKNOWN'}
                     </span>
                   </div>
                 </div>

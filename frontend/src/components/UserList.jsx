@@ -159,7 +159,7 @@ const UserList = () => {
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div style={{ width: '50px', height: '50px', background: theme.textMain, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '20px' }}>
-                      {u.name.charAt(0).toUpperCase()}
+                      {u.name ? u.name.charAt(0).toUpperCase() : '?'}
                     </div>
                     <span style={{ fontSize: '10px', fontWeight: '700', color: theme.accent }}>
                       {u.flatDetails?.residentType?.toUpperCase() || 'OWNER'}
@@ -171,7 +171,7 @@ const UserList = () => {
                     <p style={{ margin: '5px 0', fontSize: '12px', color: theme.textSec }}>
                       LOC: {u.flatDetails ? `WING_${u.flatDetails.wing} // UNIT_${u.flatDetails.flatNumber}` : 'UNASSIGNED'}
                     </p>
-                    <p style={{ margin: 0, fontSize: '11px', color: theme.textSec, opacity: 0.7 }}>{u.email.toUpperCase()}</p>
+                    <p style={{ margin: 0, fontSize: '11px', color: theme.textSec, opacity: 0.7 }}>{u.email?.toUpperCase() || 'NO_EMAIL'}</p>
                     {u.phone && <p style={{ margin: 0, fontSize: '11px', color: theme.textSec, opacity: 0.7 }}>PH: {u.phone}</p>}
                   </div>
 
