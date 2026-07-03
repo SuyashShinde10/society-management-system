@@ -5,7 +5,15 @@ const Meeting = require('../models/Meeting');
 // @access  Private (Admin & Member)
 exports.getMeetings = async (req, res) => {
   try {
-    const meetings = await Meeting.find({ societyId: req.user.societyId })
+    const filter = { societyId: req.user.societyId };
+    if (req.user.role === 'member') {
+      filter.$or = [
+        { targetType: 'All' },
+        { targetType: 'Specific', targetUserId: req.user._id }
+      ];
+    }
+
+    const meetings = await Meeting.find(filter)
       .sort({ date: 1 })
       .populate('createdBy', 'name');
     res.status(200).json(meetings);
@@ -19,7 +27,7 @@ exports.getMeetings = async (req, res) => {
 // @access  Private (Admin)
 exports.createMeeting = async (req, res) => {
   try {
-    const { title, description, date, location } = req.body;
+    const { title, description, date, location, targetType, targetUserId } = req.body;
 
     if (!title || !description || !date || !location) {
       return res.status(400).json({ message: 'Please provide all required fields' });
@@ -32,6 +40,8 @@ exports.createMeeting = async (req, res) => {
       location,
       societyId: req.user.societyId,
       createdBy: req.user._id,
+      targetType: targetType || 'All',
+      targetUserId: targetType === 'Specific' ? targetUserId : undefined,
     });
 
     res.status(201).json(meeting);

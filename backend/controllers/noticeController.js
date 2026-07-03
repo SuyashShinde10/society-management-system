@@ -4,7 +4,15 @@ const getNotices = async (req, res) => {
   try {
     if (!req.user.societyId) return res.json([]);
 
-    const notices = await Notice.find({ societyId: req.user.societyId })
+    const filter = { societyId: req.user.societyId };
+    if (req.user.role === 'member') {
+      filter.$or = [
+        { targetType: 'All' },
+        { targetType: 'Specific', targetUserId: req.user._id }
+      ];
+    }
+
+    const notices = await Notice.find(filter)
       .sort({ createdAt: -1 })
       .limit(100); // Safety cap
 
@@ -17,7 +25,7 @@ const getNotices = async (req, res) => {
 
 const addNotice = async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { title, content, targetType, targetUserId } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({ message: 'TITLE_AND_CONTENT_REQUIRED' });
@@ -31,7 +39,9 @@ const addNotice = async (req, res) => {
       title,
       content,
       societyId: req.user.societyId,
-      createdBy: req.user._id
+      createdBy: req.user._id,
+      targetType: targetType || 'All',
+      targetUserId: targetType === 'Specific' ? targetUserId : undefined,
     });
 
     res.status(201).json(notice);

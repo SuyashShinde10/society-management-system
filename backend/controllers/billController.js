@@ -2,22 +2,29 @@ const MaintenanceBill = require('../models/MaintenanceBill');
 const User = require('../models/User');
 const Society = require('../models/Society');
 
-// @desc  Generate bills for ALL members of the society for a given month/year
+// @desc  Generate bills based on target selection
 // @route POST /api/bills/generate
 // @access Admin
 const generateBills = async (req, res) => {
   try {
-    const { month, year, dueDate } = req.body;
+    const { title, description, amount, dueDate, targetType, targetUserId } = req.body;
 
-    if (!month || !year) {
-      return res.status(400).json({ message: 'MONTH_AND_YEAR_REQUIRED' });
+    if (!title || !amount) {
+      return res.status(400).json({ message: 'TITLE_AND_AMOUNT_REQUIRED' });
     }
 
     const society = await Society.findById(req.user.societyId);
     if (!society) return res.status(404).json({ message: 'SOCIETY_NOT_FOUND' });
 
-    const amount = society.maintenanceAmount || 0;
-    const members = await User.find({ societyId: req.user.societyId, role: 'member', isActive: true });
+    let members = [];
+    if (targetType === 'Specific') {
+      if (!targetUserId) return res.status(400).json({ message: 'TARGET_USER_REQUIRED' });
+      const user = await User.findOne({ _id: targetUserId, societyId: req.user.societyId, role: 'member' });
+      if (!user) return res.status(404).json({ message: 'MEMBER_NOT_FOUND' });
+      members.push(user);
+    } else {
+      members = await User.find({ societyId: req.user.societyId, role: 'member', isActive: true });
+    }
 
     const bills = [];
     const errors = [];
@@ -27,19 +34,14 @@ const generateBills = async (req, res) => {
         const bill = await MaintenanceBill.create({
           societyId: req.user.societyId,
           userId: member._id,
-          month: parseInt(month),
-          year: parseInt(year),
-          amount,
+          title,
+          description,
+          amount: Number(amount),
           dueDate: dueDate ? new Date(dueDate) : null,
         });
         bills.push(bill);
       } catch (err) {
-        // Skip if bill already exists (duplicate index)
-        if (err.code === 11000) {
-          errors.push(`Bill already exists for ${member.name}`);
-        } else {
-          errors.push(`Failed for ${member.name}: ${err.message}`);
-        }
+        errors.push(`Failed for ${member.name}: ${err.message}`);
       }
     }
 

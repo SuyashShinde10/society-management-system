@@ -28,6 +28,8 @@ const MeetingSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  targetType: { type: String, enum: ['All', 'Specific'], default: 'All' },
+  targetUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Meeting', MeetingSchema);

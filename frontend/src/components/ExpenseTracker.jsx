@@ -93,12 +93,12 @@ const ExpenseTracker = () => {
       {/* HEADER */}
       <div style={{
         background: theme.textMain, color: 'white', padding: '20px',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+        display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', alignItems: 'center'
       }}>
-        <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px' }}>
+        <h3 style={{ flex: '1 1 100px', margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px', wordBreak: 'break-all' }}>
           Financial_Ledger
         </h3>
-        <div style={{ fontFamily: "'Space Mono', monospace", textAlign: 'right' }}>
+        <div style={{ flex: '0 0 auto', fontFamily: "'Space Mono', monospace", textAlign: 'right' }}>
           <span style={{ fontSize: '10px', opacity: 0.7, display: 'block' }}>TOTAL_OUTFLOW</span>
           <span style={{ fontSize: '18px', fontWeight: '700', color: '#fb7185' }}>₹{totalExpense.toLocaleString()}</span>
         </div>
@@ -144,16 +144,16 @@ const ExpenseTracker = () => {
           </form>
         )}
 
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
           <input 
             type="text" 
             placeholder="SEARCH TRANSACTIONS..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="brutal-input" 
-            style={{ flex: 1, padding: '10px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}
+            style={{ flex: '1 1 200px', padding: '10px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}
           />
-          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="brutal-input" style={{ padding: '10px', fontFamily: "'Space Mono', monospace" }}>
+          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="brutal-input" style={{ flex: '1 1 150px', padding: '10px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}>
             <option value="All">ALL_CATEGORIES</option>
             <option value="Maintenance">Maintenance</option>
             <option value="Repairs">Repairs</option>

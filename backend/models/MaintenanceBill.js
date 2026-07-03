@@ -8,8 +8,8 @@ const MaintenanceBillSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true
   },
 
-  month: { type: Number, required: true, min: 1, max: 12 },
-  year: { type: Number, required: true },
+  title: { type: String, required: true },
+  description: { type: String },
 
   amount: { type: Number, required: true, min: 0 },
   isPaid: { type: Boolean, default: false },
@@ -25,8 +25,5 @@ const MaintenanceBillSchema = new mongoose.Schema({
   // Who marked it as paid
   markedPaidBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
-
-// Prevent duplicate bills for same user/month/year
-MaintenanceBillSchema.index({ userId: 1, month: 1, year: 1 }, { unique: true });
 
 module.exports = mongoose.model('MaintenanceBill', MaintenanceBillSchema);

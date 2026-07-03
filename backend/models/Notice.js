@@ -21,6 +21,8 @@ const NoticeSchema = new mongoose.Schema({
   isPinned: { type: Boolean, default: false },
   expiryDate: { type: Date }, // Auto-hide after this date
   targetWing: { type: String, default: 'All' }, // 'All', 'A', 'B', etc.
+  targetType: { type: String, enum: ['All', 'Specific'], default: 'All' },
+  targetUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Notice', NoticeSchema);

@@ -7,8 +7,11 @@ import theme from '../theme';
 const NoticeBoard = () => {
   const { user } = useContext(AuthContext);
   const [notices, setNotices] = useState([]);
+  const [users, setUsers] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [targetType, setTargetType] = useState('All');
+  const [targetUserId, setTargetUserId] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,6 +19,9 @@ const NoticeBoard = () => {
 
   useEffect(() => {
     fetchNotices();
+    if (user?.role === 'admin') {
+      fetchUsers();
+    }
     
     // Vercel-compatible real-time fallback (Short Polling)
     const interval = setInterval(() => {
@@ -23,7 +29,16 @@ const NoticeBoard = () => {
     }, 10000); // 10 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [user]);
+
+  const fetchUsers = async () => {
+    try {
+      const { data } = await api.get('/auth/users');
+      setUsers(data);
+    } catch (error) {
+      console.error('Failed to fetch users');
+    }
+  };
 
   const fetchNotices = async (showLoader = true) => {
     if (showLoader) setIsLoading(true);
@@ -47,10 +62,16 @@ const NoticeBoard = () => {
       toast.error('Title must be at least 5 characters long.');
       return;
     }
+    if (targetType === 'Specific' && !targetUserId) {
+      toast.error('Please select a specific member.');
+      return;
+    }
     try {
-      await api.post('/notices', { title, content });
+      await api.post('/notices', { title, content, targetType, targetUserId });
       setTitle('');
       setContent('');
+      setTargetType('All');
+      setTargetUserId('');
       fetchNotices();
       toast.success('Notice posted successfully.');
     } catch (error) {
@@ -98,12 +119,40 @@ const NoticeBoard = () => {
         {user && user.role === 'admin' && (
           <form onSubmit={handlePost} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '30px', borderBottom: `4px double ${theme.border}`, paddingBottom: '30px' }}>
             <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700' }}>// COMPOSE_NEW_BROADCAST</span>
+            
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <select 
+                value={targetType} 
+                onChange={e => setTargetType(e.target.value)} 
+                className="dispatch-input"
+                style={{ flex: 1, fontFamily: "'Space Mono', monospace", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px' }}
+              >
+                <option value="All">TARGET: ALL MEMBERS</option>
+                <option value="Specific">TARGET: SPECIFIC MEMBER</option>
+              </select>
+
+              {targetType === 'Specific' && (
+                <select 
+                  value={targetUserId} 
+                  onChange={e => setTargetUserId(e.target.value)} 
+                  className="dispatch-input"
+                  style={{ flex: 1, fontFamily: "'Space Mono', monospace", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px' }}
+                  required
+                >
+                  <option value="">-- Choose Member --</option>
+                  {users.map(u => (
+                    <option key={u._id} value={u._id}>{u.name} (Flat {u.flatDetails?.wing}-{u.flatDetails?.flatNumber})</option>
+                  ))}
+                </select>
+              )}
+            </div>
+
             <input
               placeholder="TITLE"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="dispatch-input"
-              style={{ fontFamily: "'Space Mono', monospace", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px', width: '100%' }}
+              style={{ fontFamily: "'Space Mono', monospace", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
             />
             <textarea
               placeholder="BODY_CONTENT"

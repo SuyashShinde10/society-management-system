@@ -7,12 +7,25 @@ import theme from '../theme';
 const Meetings = () => {
   const { user } = useContext(AuthContext);
   const [meetings, setMeetings] = useState([]);
-  const [form, setForm] = useState({ title: '', description: '', date: '', location: '' });
+  const [users, setUsers] = useState([]);
+  const [form, setForm] = useState({ title: '', description: '', date: '', location: '', targetType: 'All', targetUserId: '' });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchMeetings();
+    if (user?.role === 'admin') {
+      fetchUsers();
+    }
   }, [user]);
+
+  const fetchUsers = async () => {
+    try {
+      const { data } = await api.get('/auth/users');
+      setUsers(data);
+    } catch (error) {
+      console.error('Failed to fetch users');
+    }
+  };
 
   const fetchMeetings = async () => {
     setIsLoading(true);
@@ -28,10 +41,14 @@ const Meetings = () => {
 
   const handleCreateMeeting = async (e) => {
     e.preventDefault();
+    if (form.targetType === 'Specific' && !form.targetUserId) {
+      toast.error('Please select a specific member.');
+      return;
+    }
     try {
       await api.post('/meetings', form);
       toast.success('Meeting scheduled successfully.');
-      setForm({ title: '', description: '', date: '', location: '' });
+      setForm({ title: '', description: '', date: '', location: '', targetType: 'All', targetUserId: '' });
       fetchMeetings();
     } catch (error) {
       toast.error('Failed to schedule meeting.');
@@ -71,6 +88,33 @@ const Meetings = () => {
           <form onSubmit={handleCreateMeeting} style={{ background: '#F9F9F9', padding: '15px', border: `1px dashed ${theme.border}`, marginBottom: '30px', display: 'grid', gap: '15px' }}>
             <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', opacity: 0.8 }}>// SCHEDULE_NEW_MEETING</span>
             <div style={{ display: 'grid', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <select 
+                  value={form.targetType} 
+                  onChange={e => setForm({...form, targetType: e.target.value})} 
+                  className="brutal-input"
+                  style={{ flex: 1 }}
+                >
+                  <option value="All">TARGET: ALL MEMBERS</option>
+                  <option value="Specific">TARGET: SPECIFIC MEMBER</option>
+                </select>
+
+                {form.targetType === 'Specific' && (
+                  <select 
+                    value={form.targetUserId} 
+                    onChange={e => setForm({...form, targetUserId: e.target.value})} 
+                    className="brutal-input"
+                    style={{ flex: 1 }}
+                    required
+                  >
+                    <option value="">-- Choose Member --</option>
+                    {users.map(u => (
+                      <option key={u._id} value={u._id}>{u.name} (Flat {u.flatDetails?.wing}-{u.flatDetails?.flatNumber})</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
               <input placeholder="MEETING_TITLE" value={form.title} onChange={e => setForm({...form, title: e.target.value})} required className="brutal-input" />
               <textarea placeholder="DESCRIPTION_AGENDA" value={form.description} onChange={e => setForm({...form, description: e.target.value})} required className="brutal-input" style={{ minHeight: '80px', resize: 'vertical' }} />
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
@@ -79,7 +123,7 @@ const Meetings = () => {
               </div>
             </div>
             <button type="submit" style={{ background: theme.textMain, color: 'white', border: 'none', padding: '12px', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}>
-              SCHEDULE_GLOBAL_MEET
+              SCHEDULE_MEETING
             </button>
           </form>
         )}

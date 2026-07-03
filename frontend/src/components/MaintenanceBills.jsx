@@ -14,11 +14,15 @@ const MaintenanceBills = () => {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [showGenerateForm, setShowGenerateForm] = useState(false);
-  const [generateData, setGenerateData] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear(), dueDate: '' });
+  const [users, setUsers] = useState([]);
+  const [generateData, setGenerateData] = useState({ title: '', description: '', amount: '', dueDate: '', targetType: 'All', targetUserId: '' });
   const limit = 10;
 
   useEffect(() => {
     fetchBills();
+    if (user?.role === 'admin') {
+      fetchUsers();
+    }
     
     // Vercel-compatible real-time fallback (Short Polling)
     const interval = setInterval(() => {
@@ -27,6 +31,15 @@ const MaintenanceBills = () => {
 
     return () => clearInterval(interval);
   }, [user]);
+
+  const fetchUsers = async () => {
+    try {
+      const { data } = await api.get('/auth/users');
+      setUsers(data);
+    } catch (error) {
+      console.error('Failed to fetch users');
+    }
+  };
 
   const fetchBills = async (showLoader = true) => {
     if (showLoader) setIsLoading(true);
@@ -42,18 +55,26 @@ const MaintenanceBills = () => {
 
   const handleGenerateBills = async (e) => {
     e.preventDefault();
-    if (!generateData.month || !generateData.year || !generateData.dueDate) {
-      toast.error('Please select month, year, and due date.');
+    if (!generateData.title || !generateData.amount || !generateData.dueDate) {
+      toast.error('Please enter title, amount, and due date.');
       return;
     }
+    if (generateData.targetType === 'Specific' && !generateData.targetUserId) {
+      toast.error('Please select a specific member.');
+      return;
+    }
+
     setLoading(true);
     try {
       await api.post('/bills/generate', {
-        month: generateData.month,
-        year: generateData.year,
-        dueDate: generateData.dueDate
+        title: generateData.title,
+        description: generateData.description,
+        amount: generateData.amount,
+        dueDate: generateData.dueDate,
+        targetType: generateData.targetType,
+        targetUserId: generateData.targetUserId
       });
-      toast.success('Bills generated for all active residents.');
+      toast.success(generateData.targetType === 'All' ? 'Bills generated for all residents.' : 'Bill generated successfully.');
       setShowGenerateForm(false);
       fetchBills();
     } catch (error) {
@@ -87,16 +108,16 @@ const MaintenanceBills = () => {
 
   return (
     <div style={{ background: theme.surface, height: '100%', border: `3px solid ${theme.border}`, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: theme.textMain, color: 'white', padding: '15px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ background: theme.textMain, color: 'white', padding: '15px 20px', display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ flex: '1 1 100px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '20px' }}>🧾</span>
-          <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px' }}>
+          <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px', wordBreak: 'break-all' }}>
             Maintenance_Dues
           </h3>
         </div>
         {user?.role === 'admin' && (
           <button onClick={() => setShowGenerateForm(!showGenerateForm)} style={{
-            background: theme.accent, color: 'white', border: 'none', padding: '6px 12px',
+            flex: '0 0 auto', background: theme.accent, color: 'white', border: 'none', padding: '6px 12px',
             fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
           }}>
             {showGenerateForm ? '[-] CANCEL' : '[+] GEN_ALL_BILLS'}
@@ -105,14 +126,32 @@ const MaintenanceBills = () => {
       </div>
 
       {showGenerateForm && (
-        <form onSubmit={handleGenerateBills} style={{ padding: '20px', background: theme.fieldBg, borderBottom: `2px dashed ${theme.border}`, display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <form onSubmit={handleGenerateBills} style={{ padding: '20px', background: theme.fieldBg, borderBottom: `2px dashed ${theme.border}`, display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div>
-            <label className="registry-label">Month (1-12)</label>
-            <input type="number" min="1" max="12" value={generateData.month} onChange={e => setGenerateData({...generateData, month: e.target.value})} className="registry-input" required />
+            <label className="registry-label">Target Audience</label>
+            <select value={generateData.targetType} onChange={e => setGenerateData({...generateData, targetType: e.target.value})} className="registry-input">
+              <option value="All">All Members</option>
+              <option value="Specific">Particular Member</option>
+            </select>
+          </div>
+          {generateData.targetType === 'Specific' && (
+            <div>
+              <label className="registry-label">Select Member</label>
+              <select value={generateData.targetUserId} onChange={e => setGenerateData({...generateData, targetUserId: e.target.value})} className="registry-input" required>
+                <option value="">-- Choose Member --</option>
+                {users.map(u => (
+                  <option key={u._id} value={u._id}>{u.name} (Flat {u.flatDetails?.wing}-{u.flatDetails?.flatNumber})</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div>
+            <label className="registry-label">Reason / Title</label>
+            <input type="text" placeholder="e.g. Monthly Maintenance" value={generateData.title} onChange={e => setGenerateData({...generateData, title: e.target.value})} className="registry-input" required />
           </div>
           <div>
-            <label className="registry-label">Year</label>
-            <input type="number" value={generateData.year} onChange={e => setGenerateData({...generateData, year: e.target.value})} className="registry-input" required />
+            <label className="registry-label">Amount (₹)</label>
+            <input type="number" min="0" value={generateData.amount} onChange={e => setGenerateData({...generateData, amount: e.target.value})} className="registry-input" required />
           </div>
           <div>
             <label className="registry-label">Due Date</label>
@@ -152,10 +191,10 @@ const MaintenanceBills = () => {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Space Mono', monospace", fontSize: '16px' }}>{b.month} {b.year}</h4>
+                    <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Space Mono', monospace", fontSize: '16px' }}>{b.title}</h4>
                     {user?.role === 'admin' && (
                       <p style={{ margin: '0 0 5px 0', fontSize: '12px', fontFamily: "'Space Mono', monospace" }}>
-                        TO: {b.user?.name} (W_{b.user?.flatDetails?.wing} F_{b.user?.flatDetails?.flatNumber})
+                        TO: {b.userId?.name} (W_{b.userId?.flatDetails?.wing} F_{b.userId?.flatDetails?.flatNumber})
                       </p>
                     )}
                     <span style={{ fontSize: '12px', fontFamily: "'Space Mono', monospace", color: theme.textSec }}>
@@ -177,7 +216,7 @@ const MaintenanceBills = () => {
                 </div>
 
                 {/* Member Payment Actions */}
-                {b.status !== 'Paid' && (
+                {b.status !== 'Paid' && user?.role === 'admin' && (
                   <div style={{ marginTop: '15px', borderTop: `1px dashed ${theme.border}`, paddingTop: '10px' }}>
                     <button onClick={() => handleMarkPaid(b._id)} style={{
                       background: theme.textMain, color: 'white', padding: '8px 16px', border: 'none',

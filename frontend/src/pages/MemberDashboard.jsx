@@ -46,15 +46,14 @@ const MemberDashboard = () => {
             }
             .sidebar-menu {
               width: 100% !important;
-              flex-direction: row !important;
-              flex-wrap: wrap;
+              flex-direction: column !important;
               gap: 10px !important;
             }
             .sidebar-menu button {
-              flex: 1 1 calc(50% - 10px);
-              justify-content: center;
-              padding: 10px !important;
-              font-size: 12px !important;
+              width: 100% !important;
+              justify-content: flex-start !important;
+              padding: 12px 20px !important;
+              font-size: 14px !important;
             }
             .main-content {
               padding-left: 0 !important;
