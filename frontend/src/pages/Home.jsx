@@ -61,6 +61,7 @@ const Home = () => {
               box-sizing: border-box;
             }
           }
+        `}
       </style>
 
       {/* --- NAVIGATION --- */}
