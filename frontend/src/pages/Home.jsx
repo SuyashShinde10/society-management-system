@@ -32,11 +32,39 @@ const Home = () => {
             transform: translateY(-5px);
             box-shadow: 12px 12px 0px rgba(0,0,0,0.1);
           }
-        `}
+
+          @media (max-width: 900px) {
+            .hero-section {
+              flex-direction: column !important;
+              padding: 60px 30px !important;
+            }
+            .nav-section {
+              padding: 20px 30px !important;
+            }
+            .hero-content {
+              padding: 20px !important;
+              border-left: 6px solid #1A1A1A !important;
+            }
+            h1 {
+              font-size: clamp(40px, 10vw, 60px) !important;
+            }
+            .features-section {
+              padding: 60px 30px !important;
+            }
+            .hero-buttons {
+              flex-direction: column !important;
+              width: 100%;
+            }
+            .hero-buttons a {
+              text-align: center;
+              width: 100%;
+              box-sizing: border-box;
+            }
+          }
       </style>
 
       {/* --- NAVIGATION --- */}
-      <nav style={{ 
+      <nav className="nav-section" style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
@@ -70,15 +98,19 @@ const Home = () => {
       </nav>
 
       {/* --- HERO SECTION --- */}
-      <header style={{ 
+      <header className="hero-section" style={{ 
         padding: '120px 60px', 
         borderBottom: `3px solid ${theme.border}`,
         position: 'relative',
         overflow: 'hidden',
         background: `linear-gradient(90deg, ${theme.bg} 21px, transparent 1%) center, linear-gradient(${theme.bg} 21px, transparent 1%) center, #e5e5e5`,
-        backgroundSize: '22px 22px'
+        backgroundSize: '22px 22px',
+        display: 'flex',
+        gap: '40px',
+        alignItems: 'center'
       }}>
-        <div style={{ maxWidth: '900px', borderLeft: `12px solid ${theme.textMain}`, paddingLeft: '40px', background: theme.bg, padding: '20px 40px', display: 'inline-block', border: `3px solid ${theme.border}`, boxShadow: `8px 8px 0px rgba(0,0,0,0.1)` }}>
+        {/* Left Side: Hero Text */}
+        <div className="hero-content" style={{ flex: '1', maxWidth: '800px', borderLeft: `12px solid ${theme.textMain}`, background: theme.bg, padding: '30px 40px', border: `3px solid ${theme.border}`, boxShadow: `8px 8px 0px rgba(0,0,0,0.1)` }}>
           <p style={{ fontFamily: "'Space Mono', monospace", fontWeight: '700', fontSize: '14px', color: theme.accent, marginBottom: '20px' }}>
             // INFRASTRUCTURE_MANAGEMENT_V2.0
           </p>
@@ -96,18 +128,17 @@ const Home = () => {
             fontFamily: "'Space Mono', monospace", 
             fontSize: '16px', 
             color: theme.textSec, 
-            maxWidth: '550px', 
             lineHeight: '1.5',
-            marginBottom: '50px'
+            marginBottom: '40px'
           }}>
             Unified protocol for managing housing assets. Digital notice dissemination, financial auditing, and resident verification. Strictly optimized for efficiency.
           </p>
-          <div style={{ display: 'flex', gap: '20px' }}>
+          <div className="hero-buttons" style={{ display: 'flex', gap: '20px' }}>
             <Link to="/register" className="brutal-btn" style={{ 
               textDecoration: 'none', 
               background: theme.accent, 
               color: 'white', 
-              padding: '20px 40px', 
+              padding: '16px 30px', 
               fontWeight: '700',
               fontFamily: "'Space Mono', monospace",
               boxShadow: `6px 6px 0px ${theme.textMain}`
@@ -119,7 +150,7 @@ const Home = () => {
               background: 'transparent', 
               color: theme.textMain, 
               border: `3px solid ${theme.border}`,
-              padding: '20px 40px', 
+              padding: '16px 30px', 
               fontWeight: '700',
               fontFamily: "'Space Mono', monospace"
             }}>
@@ -127,10 +158,43 @@ const Home = () => {
             </Link>
           </div>
         </div>
+
+        {/* Right Side: Walkthrough Guide */}
+        <div style={{ flex: '1', display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
+            <div style={{ background: theme.accent, color: 'white', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", borderRadius: '50%', flexShrink: 0 }}>
+              01
+            </div>
+            <div>
+              <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>Initialize Society</h4>
+              <p style={{ margin: 0, fontSize: '12px', color: theme.textSec, fontFamily: "'Space Mono', monospace" }}>Admin registers the society and defines infrastructure (Wings & Flats).</p>
+            </div>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
+            <div style={{ background: theme.textMain, color: 'white', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", borderRadius: '50%', flexShrink: 0 }}>
+              02
+            </div>
+            <div>
+              <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>Onboard Members</h4>
+              <p style={{ margin: 0, fontSize: '12px', color: theme.textSec, fontFamily: "'Space Mono', monospace" }}>Admin securely adds residents and provides them with one-time credentials.</p>
+            </div>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
+            <div style={{ background: theme.accent, color: 'white', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", borderRadius: '50%', flexShrink: 0 }}>
+              03
+            </div>
+            <div>
+              <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>Manage Operations</h4>
+              <p style={{ margin: 0, fontSize: '12px', color: theme.textSec, fontFamily: "'Space Mono', monospace" }}>Track visitors, generate maintenance bills, and resolve resident complaints.</p>
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* --- FEATURES SECTION --- */}
-      <section style={{ padding: '100px 60px' }}>
+      <section className="features-section" style={{ padding: '100px 60px' }}>
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
