@@ -10,6 +10,7 @@ const Meetings = () => {
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState({ title: '', description: '', date: '', location: '', targetType: 'All', targetUserId: '' });
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchMeetings();
@@ -128,13 +129,25 @@ const Meetings = () => {
           </form>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+        <input 
+          type="text" 
+          placeholder="SEARCH MEETINGS..." 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="brutal-input" 
+          style={{ width: '100%', padding: '10px', marginBottom: '20px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}
+        />
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', maxHeight: '60vh', overflowY: 'auto', paddingRight: '5px' }}>
           {isLoading ? (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}><span className="spinner"></span></div>
           ) : meetings.length === 0 ? (
             <div style={{ gridColumn: '1 / -1', fontFamily: "'Space Mono', monospace", fontSize: '12px', color: theme.textSec, textAlign: 'center' }}>// NO_UPCOMING_MEETINGS</div>
           ) : (
-            meetings.map(meet => {
+            meetings.filter(m => 
+              (m.title || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+              (m.description || '').toLowerCase().includes(searchQuery.toLowerCase())
+            ).map(meet => {
               const meetingDate = new Date(meet.date);
               const isPast = meetingDate < new Date();
               return (

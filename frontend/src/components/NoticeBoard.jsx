@@ -179,7 +179,7 @@ const NoticeBoard = () => {
           style={{ width: '100%', padding: '10px', marginBottom: '20px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}
         />
 
-        <div style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', border: `1px solid ${theme.border}` }}>
+        <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '60vh', overflowY: 'auto', border: `1px solid ${theme.border}`, paddingRight: '5px' }}>
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
               <span className="spinner"></span>

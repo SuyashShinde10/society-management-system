@@ -164,7 +164,7 @@ const ExpenseTracker = () => {
         </div>
 
         {/* LIST SECTION */}
-        <div style={{ overflowY: 'auto', border: `1px solid ${theme.border}`, fontFamily: "'Space Mono', monospace" }}>
+        <div style={{ overflowY: 'auto', maxHeight: '60vh', border: `1px solid ${theme.border}`, fontFamily: "'Space Mono', monospace" }}>
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
               <span className="spinner"></span>

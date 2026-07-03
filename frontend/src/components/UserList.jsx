@@ -8,6 +8,7 @@ const UserList = () => {
   const { user } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
 
+  const [searchQuery, setSearchQuery] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editFormData, setEditFormData] = useState({
     name: '', email: '', wing: '', floor: '', flatNumber: '', residentType: 'Owner', phone: '', parkingSlot: '', vehicleNumber: ''
@@ -76,7 +77,11 @@ const UserList = () => {
     });
   };
 
-  const displayedUsers = users;
+  const displayedUsers = users.filter(u => 
+    (u.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (u.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (u.flatDetails?.flatNumber || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div style={{ marginTop: '40px', fontFamily: "'Space Mono', monospace" }}>
@@ -87,7 +92,15 @@ const UserList = () => {
         }}>
           RESIDENT_REGISTRY
         </h3>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <input 
+            type="text" 
+            placeholder="SEARCH..." 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            className="brutal-input" 
+            style={{ width: '200px', padding: '5px 10px', height: '100%' }} 
+          />
           <div style={{ ...tabBtn, background: theme.textMain, color: 'white' }}>
             ACTIVE ({users.length})
           </div>
@@ -97,7 +110,7 @@ const UserList = () => {
       {displayedUsers.length === 0 ? (
         <p style={{ color: theme.textSec }}>// NO_RECORDS_FOUND</p>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px', maxHeight: '60vh', overflowY: 'auto', padding: '5px', paddingRight: '15px' }}>
           {displayedUsers.map((u) => (
             <div
               key={u._id}

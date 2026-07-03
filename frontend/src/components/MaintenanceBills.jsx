@@ -11,6 +11,7 @@ const MaintenanceBills = () => {
   
   // Search & Filter state
   const [filterStatus, setFilterStatus] = useState('All'); // All, Pending, Paid, Overdue
+  const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [showGenerateForm, setShowGenerateForm] = useState(false);
@@ -104,8 +105,12 @@ const MaintenanceBills = () => {
 
   // Filter Logic
   const filteredBills = bills.filter(b => {
-    if (filterStatus === 'All') return true;
-    return b.status === filterStatus;
+    if (filterStatus !== 'All' && b.status !== filterStatus) return false;
+    if (searchQuery) {
+      return (b.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+             (b.userId?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+    }
+    return true;
   });
 
   // Pagination Logic
@@ -172,9 +177,17 @@ const MaintenanceBills = () => {
         </form>
       )}
 
-      <div style={{ padding: '20px', flex: 1, overflowY: 'auto' }}>
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="brutal-input" style={{ flex: 1, padding: '10px', fontFamily: "'Space Mono', monospace" }}>
+      <div style={{ padding: '20px', flex: 1, overflowY: 'auto', maxHeight: '60vh', paddingRight: '5px' }}>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <input 
+            type="text" 
+            placeholder="SEARCH BILLS..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="brutal-input" 
+            style={{ flex: 2, padding: '10px', fontFamily: "'Space Mono', monospace", minWidth: '200px' }}
+          />
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="brutal-input" style={{ flex: 1, padding: '10px', fontFamily: "'Space Mono', monospace", minWidth: '150px' }}>
             <option value="All">STATUS: ALL</option>
             <option value="Pending">STATUS: PENDING</option>
             <option value="Paid">STATUS: PAID</option>
