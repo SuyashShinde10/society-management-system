@@ -8,6 +8,10 @@ const ExpenseTracker = () => {
   const { user } = useContext(AuthContext);
   const [expenses, setExpenses] = useState([]);
   const [form, setForm] = useState({ title: '', amount: '', category: 'Maintenance' });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('All');
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   useEffect(() => {
     fetchExpenses();
@@ -59,6 +63,15 @@ const ExpenseTracker = () => {
       cancel: { label: 'Cancel', onClick: () => {} },
     });
   };
+
+  const filteredExpenses = expenses.filter(e => {
+    const matchesSearch = e.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === 'All' || e.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const paginatedExpenses = filteredExpenses.slice(0, page * limit);
+  const hasMore = paginatedExpenses.length < filteredExpenses.length;
 
   const totalExpense = expenses.reduce((acc, curr) => acc + Number(curr.amount), 0);
 
@@ -118,14 +131,33 @@ const ExpenseTracker = () => {
           </form>
         )}
 
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+          <input 
+            type="text" 
+            placeholder="SEARCH TRANSACTIONS..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="brutal-input" 
+            style={{ flex: 1, padding: '10px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}
+          />
+          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="brutal-input" style={{ padding: '10px', fontFamily: "'Space Mono', monospace" }}>
+            <option value="All">ALL_CATEGORIES</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Repairs">Repairs</option>
+            <option value="Salary">Salary</option>
+            <option value="Event">Event</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
         {/* LIST SECTION */}
-        <div style={{ maxHeight: '400px', overflowY: 'auto', border: `1px solid ${theme.border}`, fontFamily: "'Space Mono', monospace" }}>
-          {expenses.length === 0 ? (
+        <div style={{ overflowY: 'auto', border: `1px solid ${theme.border}`, fontFamily: "'Space Mono', monospace" }}>
+          {paginatedExpenses.length === 0 ? (
             <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', fontSize: '12px' }}>
               // NO_TRANSACTION_HISTORY_FOUND
             </div>
           ) : (
-            expenses.map((exp) => (
+            paginatedExpenses.map((exp) => (
               <div key={exp._id} style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '15px 20px', borderBottom: `1px dashed ${theme.textMain}`
@@ -152,6 +184,12 @@ const ExpenseTracker = () => {
             ))
           )}
         </div>
+
+        {hasMore && (
+          <button onClick={() => setPage(page + 1)} style={{ width: '100%', marginTop: '20px', padding: '10px', background: 'transparent', border: `2px dashed ${theme.border}`, fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer' }}>
+            LOAD_MORE_RECORDS
+          </button>
+        )}
 
         <div style={{ marginTop: '15px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textAlign: 'center', opacity: 0.5 }}>
           END_OF_REPORT // GENERATED_ON_{new Date().toLocaleDateString().replace(/\//g, '_')}

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import theme from '../theme';
@@ -7,10 +7,13 @@ import theme from '../theme';
 import NoticeBoard from '../components/NoticeBoard';
 import ComplaintBox from '../components/ComplaintBox';
 import ExpenseTracker from '../components/ExpenseTracker';
+import MaintenanceBills from '../components/MaintenanceBills';
+import VisitorLog from '../components/VisitorLog';
 
 const MemberDashboard = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('notices');
 
   if (!user) return null;
 
@@ -64,11 +67,50 @@ const MemberDashboard = () => {
           </div>
         </header>
 
-        {/* --- MAIN GRID --- */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '40px', marginBottom: '60px' }}>
-          <div className="brutal-card" style={{ padding: '30px' }}><NoticeBoard /></div>
-          <div className="brutal-card" style={{ padding: '30px' }}><ComplaintBox /></div>
-          <div className="brutal-card" style={{ padding: '30px' }}><ExpenseTracker /></div>
+        </header>
+
+        {/* --- MAIN CONTENT AREA WITH SIDEBAR --- */}
+        <div style={{ display: 'flex', gap: '40px', minHeight: '600px', marginBottom: '60px' }}>
+          
+          {/* SIDEBAR */}
+          <div style={{ width: '250px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.5 }}>// NAVIGATION</span>
+            {[
+              { id: 'notices', label: 'Notice Board', icon: '📢' },
+              { id: 'bills', label: 'My Bills', icon: '🧾' },
+              { id: 'visitors', label: 'Visitor Logs', icon: '🛡️' },
+              { id: 'complaints', label: 'Complaints', icon: '🗳️' },
+              { id: 'expenses', label: 'Society Expenses', icon: '💰' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '10px', padding: '15px 20px',
+                  background: activeTab === tab.id ? theme.textMain : theme.surface,
+                  color: activeTab === tab.id ? 'white' : theme.textMain,
+                  border: `3px solid ${theme.border}`,
+                  fontFamily: "'Space Mono', monospace", fontWeight: '700', fontSize: '14px',
+                  cursor: 'pointer', textAlign: 'left',
+                  boxShadow: activeTab === tab.id ? `4px 4px 0px ${theme.accent}` : 'none',
+                  transition: 'all 0.1s'
+                }}
+              >
+                <span>{tab.icon}</span>
+                {tab.label.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          {/* MAIN CONTENT PORTAL */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {activeTab === 'notices' && <NoticeBoard />}
+            {activeTab === 'bills' && <MaintenanceBills />}
+            {activeTab === 'visitors' && <VisitorLog />}
+            {activeTab === 'complaints' && <ComplaintBox />}
+            {activeTab === 'expenses' && <ExpenseTracker />}
+          </div>
+
         </div>
 
       </div>

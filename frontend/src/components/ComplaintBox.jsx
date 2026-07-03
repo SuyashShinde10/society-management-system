@@ -8,6 +8,10 @@ const ComplaintBox = () => {
   const { user } = useContext(AuthContext);
   const [complaints, setComplaints] = useState([]);
   const [form, setForm] = useState({ title: '', description: '' });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('All');
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const fetchComplaints = useCallback(async () => {
     try {
@@ -55,6 +59,15 @@ const ComplaintBox = () => {
     }).replace(',', ' //');
   };
 
+  const filteredComplaints = complaints.filter(c => {
+    const matchesSearch = c.title.toLowerCase().includes(searchTerm.toLowerCase()) || c.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'All' || c.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
+  const paginatedComplaints = filteredComplaints.slice(0, page * limit);
+  const hasMore = paginatedComplaints.length < filteredComplaints.length;
+
   return (
     <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, height: '100%', position: 'relative' }}>
       {/* HEADER */}
@@ -93,13 +106,30 @@ const ComplaintBox = () => {
           </form>
         )}
 
-        <div style={{ maxHeight: '600px', overflowY: 'auto', border: `1px solid ${theme.border}` }}>
-          {complaints.length === 0 ? (
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+          <input 
+            type="text" 
+            placeholder="SEARCH INCIDENTS..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="brutal-input" 
+            style={{ flex: 1, padding: '10px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}
+          />
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="brutal-input" style={{ padding: '10px', fontFamily: "'Space Mono', monospace" }}>
+            <option value="All">STATUS: ALL</option>
+            <option value="Pending">STATUS: PENDING</option>
+            <option value="Resolved">STATUS: RESOLVED</option>
+            <option value="Declined">STATUS: DECLINED</option>
+          </select>
+        </div>
+
+        <div style={{ overflowY: 'auto', border: `1px solid ${theme.border}` }}>
+          {paginatedComplaints.length === 0 ? (
             <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', fontFamily: "'Space Mono', monospace", fontSize: '12px' }}>
               // NO_INCIDENTS_ON_RECORD
             </div>
           ) : (
-            complaints.map((c) => (
+            paginatedComplaints.map((c) => (
               <div
                 key={c._id}
                 style={{
@@ -163,6 +193,12 @@ const ComplaintBox = () => {
             ))
           )}
         </div>
+
+        {hasMore && (
+          <button onClick={() => setPage(page + 1)} style={{ width: '100%', marginTop: '20px', padding: '10px', background: 'transparent', border: `2px dashed ${theme.border}`, fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer' }}>
+            LOAD_MORE_RECORDS
+          </button>
+        )}
       </div>
     </div>
   );

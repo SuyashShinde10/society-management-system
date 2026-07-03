@@ -9,6 +9,9 @@ const NoticeBoard = () => {
   const [notices, setNotices] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   useEffect(() => {
     fetchNotices();
@@ -58,6 +61,14 @@ const NoticeBoard = () => {
     });
   };
 
+  const filteredNotices = notices.filter(n => 
+    n.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    n.content.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+  const paginatedNotices = filteredNotices.slice(0, page * limit);
+  const hasMore = paginatedNotices.length < filteredNotices.length;
+
   return (
     <div style={{ background: theme.surface, height: '100%', border: `3px solid ${theme.border}`, padding: '0' }}>
       {/* HEADER */}
@@ -95,13 +106,22 @@ const NoticeBoard = () => {
           </form>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '500px', overflowY: 'auto', border: `1px solid ${theme.border}` }}>
-          {notices.length === 0 ? (
+        <input 
+          type="text" 
+          placeholder="SEARCH NOTICES..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="brutal-input" 
+          style={{ width: '100%', padding: '10px', marginBottom: '20px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}
+        />
+
+        <div style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', border: `1px solid ${theme.border}` }}>
+          {paginatedNotices.length === 0 ? (
             <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', padding: '20px', textAlign: 'center' }}>
               // NO_DATA_AVAILABLE
             </p>
           ) : (
-            notices.map((n) => (
+            paginatedNotices.map((n) => (
               <div key={n._id} style={{ borderBottom: `1px solid ${theme.textMain}`, padding: '20px', transition: 'background 0.2s' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <h4 style={{ margin: '0 0 10px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', textTransform: 'uppercase', color: theme.textMain }}>
@@ -128,6 +148,12 @@ const NoticeBoard = () => {
             ))
           )}
         </div>
+        
+        {hasMore && (
+          <button onClick={() => setPage(page + 1)} style={{ width: '100%', marginTop: '20px', padding: '10px', background: 'transparent', border: `2px dashed ${theme.border}`, fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer' }}>
+            LOAD_MORE_RECORDS
+          </button>
+        )}
       </div>
     </div>
   );
