@@ -10,6 +10,7 @@ import MaintenanceBills from '../components/MaintenanceBills';
 import DashboardOverview from '../components/DashboardOverview';
 import Profile from '../components/Profile';
 import Meetings from '../components/Meetings';
+import Analytics from '../components/Analytics';
 
 const MemberDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -139,6 +140,7 @@ const MemberDashboard = () => {
               { id: 'bills', label: 'My Bills', icon: '🧾' },
               { id: 'complaints', label: 'Complaints', icon: '🗳️' },
               { id: 'expenses', label: 'Society Expenses', icon: '💰' },
+              { id: 'analytics', label: 'Analytics', icon: '📈' },
             ].map((tab) => {
               const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
               return (
@@ -185,6 +187,7 @@ const MemberDashboard = () => {
             {activeTab === 'bills' && <MaintenanceBills />}
             {activeTab === 'complaints' && <ComplaintBox />}
             {activeTab === 'expenses' && <ExpenseTracker />}
+            {activeTab === 'analytics' && <Analytics />}
           </div>
 
         </div>
