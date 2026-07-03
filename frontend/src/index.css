@@ -1,26 +1,166 @@
+/* ============================================================
+   GLOBAL STYLES — Awaastech Society Management System
+   All shared CSS classes consolidated here to avoid duplicate
+   <style> tags injected on every component render.
+   ============================================================ */
+
 :root {
-  --primary: #2563eb;    /* Professional Blue */
-  --secondary: #475569;  /* Grey */
-  --accent: #22c55e;     /* Green for success */
-  --danger: #ef4444;     /* Red for logout/delete */
-  --bg: #f8fafc;         /* Light Grey Background */
-  --card-bg: #ffffff;    /* White Card */
-  --text: #1e293b;       /* Dark Blue-Grey Text */
+  --primary: #2563eb;
+  --secondary: #475569;
+  --accent: #22c55e;
+  --danger: #ef4444;
+  --bg: #F2F2F2;
+  --card-bg: #ffffff;
+  --text: #1A1A1A;
+  --text-sec: #4A4A4A;
+  --border: #1A1A1A;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Space Mono', 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
 }
 
-/* --- NAVBAR --- */
+/* ============================================================
+   BRUTALIST INPUT SYSTEM
+   Shared across Login, Register, AddMember, UserList, etc.
+   ============================================================ */
+
+.brutal-input {
+  font-family: 'Space Mono', monospace;
+  transition: all 0.2s;
+  border: 1px solid #1A1A1A;
+  outline: none;
+  width: 100%;
+  padding: 14px;
+  background: #E8E8E8;
+  box-sizing: border-box;
+}
+
+.brutal-input:focus {
+  background: #fff;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0px #1A1A1A;
+}
+
+/* Registry-style inputs (AddMember / UserList) */
+.registry-input {
+  font-family: 'Space Mono', monospace;
+  border: 1px solid #1A1A1A;
+  background: #F2F2F2;
+  padding: 12px;
+  outline: none;
+  font-size: 13px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.registry-input:focus {
+  background: #fff;
+  box-shadow: 4px 4px 0px #1A1A1A;
+}
+
+.registry-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1A1A1A;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Ledger-style inputs (ExpenseTracker) */
+.ledger-input {
+  font-family: 'Space Mono', monospace;
+  border: 1px solid #1A1A1A;
+  background: #F2F2F2;
+  padding: 10px;
+  outline: none;
+  font-size: 13px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ledger-input:focus {
+  background: #fff;
+  box-shadow: 4px 4px 0px #1A1A1A;
+}
+
+/* Incident/complaint inputs */
+.incident-input {
+  font-family: 'Space Mono', monospace;
+  border: 1px solid #1A1A1A;
+  background: #F2F2F2;
+  padding: 12px;
+  outline: none;
+  font-size: 13px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.incident-input:focus {
+  background: #fff;
+  box-shadow: 4px 4px 0px #1A1A1A;
+}
+
+/* ============================================================
+   BRUTALIST CARDS
+   ============================================================ */
+
+.brutal-card {
+  background: #fff;
+  border: 3px solid #1A1A1A;
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.brutal-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 12px 12px 0px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================
+   SHARED TYPOGRAPHY UTILITIES
+   ============================================================ */
+
+.mono-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ============================================================
+   BUTTON STATES
+   ============================================================ */
+
+.logout-btn:hover {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+.auth-link:hover {
+  color: #1A1A1A !important;
+  text-decoration: underline !important;
+}
+
+/* ============================================================
+   NAVBAR (legacy)
+   ============================================================ */
+
 nav {
   background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 1rem 2rem !important; /* Force padding */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -30,78 +170,4 @@ nav h2 {
   margin: 0;
   color: var(--primary);
   font-size: 1.5rem;
-}
-
-nav button {
-  padding: 0.5rem 1rem !important;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-/* --- DASHBOARD & CARDS --- */
-h1 {
-  text-align: center;
-  margin-top: 2rem;
-  color: var(--secondary);
-}
-
-/* The card that was invisible before */
-div[style*="background: #f4f4f4"] {
-  background: var(--card-bg) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border-radius: 12px !important;
-  padding: 2rem !important;
-  max-width: 500px;
-  margin: 2rem auto; /* Centers the card */
-  border: 1px solid #e2e8f0;
-}
-
-/* Fix text inside the card */
-div[style*="background: #f4f4f4"] h3 {
-  color: var(--primary);
-  margin-top: 0;
-}
-
-div[style*="background: #f4f4f4"] p {
-  color: var(--secondary);
-  font-size: 1.1rem;
-  margin: 0.5rem 0;
-}
-
-/* --- FORMS (Login/Register) --- */
-form {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  max-width: 400px;
-  margin: 3rem auto;
-}
-
-input, select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 1rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  box-sizing: border-box;
-  font-size: 1rem;
-}
-
-button[type="submit"] {
-  width: 100%;
-  padding: 12px !important;
-  background-color: var(--primary) !important;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-button[type="submit"]:hover {
-  background-color: #1d4ed8 !important;
 }

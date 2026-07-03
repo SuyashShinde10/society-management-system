@@ -1,19 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  getComplaints, 
-  addComplaint, 
-  updateComplaintStatus, 
-  deleteComplaint // <--- Ensure this is imported
+const {
+  getComplaints,
+  addComplaint,
+  updateComplaintStatus,
+  deleteComplaint
 } = require('../controllers/complaintController');
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 router.get('/', protect, getComplaints);
 router.post('/', protect, addComplaint);
-router.put('/status/:id', protect, updateComplaintStatus);
 
-// This is the line that was crashing because deleteComplaint was undefined
-router.delete('/:id', protect, deleteComplaint); 
+// ✅ SECURITY FIX (H5): Status updates must be admin-only.
+// The frontend hides this for members but the API must enforce it too.
+router.put('/status/:id', protect, admin, updateComplaintStatus);
+
+router.delete('/:id', protect, deleteComplaint);
 
 module.exports = router;

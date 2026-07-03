@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { AuthProvider } from './context/AuthContext';
 
 // Pages
@@ -17,6 +18,8 @@ const App = () => {
   return (
     <AuthProvider>
       <Router>
+        {/* Global toast notification container */}
+        <Toaster position="top-right" richColors closeButton />
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Routes>
             <Route path="/" element={<Home />} />

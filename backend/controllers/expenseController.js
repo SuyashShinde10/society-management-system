@@ -4,22 +4,33 @@ const Expense = require('../models/Expense');
 const getExpenses = async (req, res) => {
   try {
     if (!req.user.societyId) return res.json([]);
-    
+
     const expenses = await Expense.find({ societyId: req.user.societyId })
-                                  .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .limit(200); // Safety cap
+
     res.json(expenses);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching expenses:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
   }
 };
 
-// @desc    Add a new expense
+// @desc    Add a new expense (Admin only)
 const addExpense = async (req, res) => {
   try {
     const { title, amount, category } = req.body;
 
+    if (!title || !amount || !category) {
+      return res.status(400).json({ message: 'TITLE_AMOUNT_CATEGORY_REQUIRED' });
+    }
+
     if (!req.user.societyId) {
-      return res.status(400).json({ message: "Error: Your account is not linked to a Society." });
+      return res.status(400).json({ message: 'ACCOUNT_NOT_LINKED_TO_SOCIETY' });
+    }
+
+    if (Number(amount) <= 0) {
+      return res.status(400).json({ message: 'AMOUNT_MUST_BE_POSITIVE' });
     }
 
     const expense = await Expense.create({
@@ -32,34 +43,31 @@ const addExpense = async (req, res) => {
 
     res.status(201).json(expense);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error adding expense:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
   }
 };
 
-// @desc    Delete an expense
+// @desc    Delete an expense (Admin only)
 const deleteExpense = async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
 
     if (!expense) {
-      return res.status(404).json({ message: 'Expense not found' });
+      return res.status(404).json({ message: 'EXPENSE_NOT_FOUND' });
     }
 
-    // Optional: Check if user is authorized (Admin only)
-    if (req.user.role !== 'admin') {
-      return res.status(401).json({ message: 'Not authorized' });
+    // Ensure expense belongs to admin's own society
+    if (expense.societyId.toString() !== req.user.societyId.toString()) {
+      return res.status(403).json({ message: 'FORBIDDEN' });
     }
 
     await expense.deleteOne();
-    res.json({ message: 'Expense removed' });
+    res.json({ message: 'EXPENSE_REMOVED' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error deleting expense:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
   }
 };
 
-// --- EXPORT ALL FUNCTIONS ---
-module.exports = {
-  getExpenses,
-  addExpense,
-  deleteExpense // <--- This was missing
-};
+module.exports = { getExpenses, addExpense, deleteExpense };
