@@ -12,11 +12,15 @@ const Home = () => {
   };
 
   return (
-    <div style={{ backgroundColor: theme.bg, minHeight: '100vh', color: theme.textMain }}>
+    <div style={{ backgroundColor: theme.bg, minHeight: '100vh', color: theme.textMain, maxWidth: '100vw', overflowX: 'hidden' }}>
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Space+Mono:wght@400;700&display=swap');
           
+          * {
+            box-sizing: border-box;
+          }
+
           .brutal-btn {
             font-family: 'Space Mono', monospace;
             transition: all 0.2s ease;
@@ -72,6 +76,18 @@ const Home = () => {
             }
             .features-grid {
               grid-template-columns: 1fr !important;
+            }
+            .feature-card {
+              padding: 30px !important;
+            }
+            .walkthrough-container {
+              padding: 0 !important;
+              margin-top: 20px;
+            }
+            .walkthrough-step {
+              padding: 15px !important;
+              flex-direction: column;
+              text-align: center;
             }
           }
         `}
@@ -174,8 +190,8 @@ const Home = () => {
         </div>
 
         {/* Right Side: Walkthrough Guide */}
-        <div style={{ flex: '1', display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
+        <div className="walkthrough-container" style={{ flex: '1', display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px', width: '100%' }}>
+          <div className="walkthrough-step" style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
             <div style={{ background: theme.accent, color: 'white', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", borderRadius: '50%', flexShrink: 0 }}>
               01
             </div>
@@ -185,7 +201,7 @@ const Home = () => {
             </div>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
+          <div className="walkthrough-step" style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
             <div style={{ background: theme.textMain, color: 'white', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", borderRadius: '50%', flexShrink: 0 }}>
               02
             </div>
@@ -195,7 +211,7 @@ const Home = () => {
             </div>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
+          <div className="walkthrough-step" style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
             <div style={{ background: theme.accent, color: 'white', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", borderRadius: '50%', flexShrink: 0 }}>
               03
             </div>
@@ -271,7 +287,7 @@ const Home = () => {
 // --- SUB-COMPONENTS ---
 
 const FeatureCard = ({ id, title, desc }) => (
-  <div className="brutal-card" style={{ 
+  <div className="brutal-card feature-card" style={{ 
     padding: '50px', 
     border: '1px solid #1A1A1A', 
     background: '#FFFFFF',
