@@ -94,15 +94,17 @@ const markBillPaid = async (req, res) => {
       return res.status(403).json({ message: 'FORBIDDEN' });
     }
 
-    bill.isPaid = true;
-    bill.paidOn = new Date();
-    bill.paymentMode = paymentMode || 'Cash';
-    bill.markedPaidBy = req.user._id;
-    if (notes) bill.notes = notes;
+    const updateData = {
+      isPaid: true,
+      paidOn: new Date(),
+      paymentMode: paymentMode || 'Cash',
+      markedPaidBy: req.user._id,
+    };
+    if (notes) updateData.notes = notes;
 
-    await bill.save();
+    const updatedBill = await MaintenanceBill.findByIdAndUpdate(req.params.id, updateData, { new: true });
     
-    res.json(bill);
+    res.json(updatedBill);
   } catch (error) {
     console.error('Error marking bill paid:', error);
     res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
