@@ -12,7 +12,7 @@ const Home = () => {
   };
 
   return (
-    <div style={{ backgroundColor: theme.bg, minHeight: '100vh', color: theme.textMain, maxWidth: '100vw', overflowX: 'hidden' }}>
+    <div style={{ backgroundColor: theme.bg, minHeight: '100vh', color: theme.textMain, width: '100%', overflowX: 'hidden' }}>
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Space+Mono:wght@400;700&display=swap');
@@ -224,8 +224,10 @@ const Home = () => {
       </header>
 
       {/* --- FEATURES SECTION --- */}
-      <section className="features-section" style={{ padding: '80px 60px' }}>
+      <section className="features-section" style={{ padding: '80px 60px', display: 'flex', justifyContent: 'center' }}>
         <div className="features-grid" style={{ 
+          width: '100%',
+          maxWidth: '1200px',
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
           gap: '30px'
@@ -291,22 +293,26 @@ const FeatureCard = ({ id, title, desc }) => (
     border: '3px solid #1A1A1A', 
     background: '#FFFFFF',
     boxShadow: '8px 8px 0px rgba(0,0,0,0.1)',
-    transition: '0.3s'
+    transition: '0.3s',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center'
   }}>
     <div style={{ 
       fontFamily: "'Space Mono', monospace", 
       fontSize: '14px', 
       fontWeight: '700', 
       color: '#2563EB',
-      marginBottom: '40px' 
+      marginBottom: '20px' 
     }}>
       [{id}]
     </div>
     <h3 style={{ 
       fontFamily: "'Cormorant Garamond', serif", 
-      fontSize: '32px', 
+      fontSize: '28px', 
       textTransform: 'uppercase',
-      marginBottom: '20px' 
+      marginBottom: '15px' 
     }}>
       {title}
     </h3>
@@ -314,7 +320,8 @@ const FeatureCard = ({ id, title, desc }) => (
       fontFamily: "'Space Mono', monospace", 
       fontSize: '14px', 
       lineHeight: '1.6', 
-      color: '#4A4A4A' 
+      color: '#4A4A4A',
+      margin: 0
     }}>
       {desc}
     </p>
