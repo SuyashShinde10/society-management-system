@@ -36,16 +36,7 @@ const AddMember = () => {
     if (user?.role === 'admin') fetchLimits();
   }, [user]);
 
-  const getFlatOptions = () => {
-    const options = [];
-    const count = limits.flatsPerFloor;
-    const currentFloor = parseInt(floor);
-    for (let i = 1; i <= count; i++) {
-      const flatNo = currentFloor === 0 ? i : currentFloor * 100 + i;
-      options.push(flatNo.toString());
-    }
-    return options;
-  };
+
 
   const handleAddMember = async (e) => {
     e.preventDefault();
@@ -175,12 +166,14 @@ const AddMember = () => {
 
           <div>
             <label className="registry-label">Unit_Number</label>
-            <select value={flatNumber} onChange={(e) => setFlatNumber(e.target.value)} required className="registry-input">
-              <option value="">SELECT</option>
-              {getFlatOptions().map((flat) => (
-                <option key={flat} value={flat}>{flat}</option>
-              ))}
-            </select>
+            <input 
+              type="text" 
+              placeholder="E.g. 101A, G-4" 
+              value={flatNumber} 
+              onChange={(e) => setFlatNumber(e.target.value)} 
+              required 
+              className="registry-input" 
+            />
           </div>
         </div>
 
