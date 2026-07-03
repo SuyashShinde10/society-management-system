@@ -189,11 +189,11 @@ const Dashboard = () => {
                   </h2>
                 </div>
                 <div style={{ display: 'grid', gap: 'clamp(20px, 5vw, 40px)' }}>
-                  <div style={{ background: '#f9f9f9', padding: 'clamp(15px, 4vw, 20px)', border: `1px dashed ${theme.border}` }}>
+                  <div style={{ background: '#f9f9f9', padding: 'clamp(15px, 4vw, 20px)', border: `1px dashed ${theme.border}`, minWidth: 0 }}>
                     <span className="mono-label" style={{ display: 'block', marginBottom: '15px' }}>[01] INTAKE_FORM</span>
                     <AddMember />
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <span className="mono-label" style={{ display: 'block', marginBottom: '15px' }}>[02] REGISTRY_DATABASE</span>
                     <UserList />
                   </div>
