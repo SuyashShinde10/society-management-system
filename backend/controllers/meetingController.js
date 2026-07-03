@@ -31,7 +31,7 @@ exports.createMeeting = async (req, res) => {
       date,
       location,
       societyId: req.user.societyId,
-      createdBy: req.user.userId,
+      createdBy: req.user._id,
     });
 
     res.status(201).json(meeting);
