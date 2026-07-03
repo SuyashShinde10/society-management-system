@@ -47,12 +47,12 @@ const MemberRegister = () => {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.bg, padding: '40px 20px' }}>
-      <div style={{ background: theme.surface, padding: '50px', border: `3px solid ${theme.border}`, boxShadow: '12px 12px 0px rgba(0,0,0,0.1)', width: '100%', maxWidth: '600px' }}>
+      <div style={{ background: theme.surface, padding: 'clamp(20px, 5vw, 50px)', border: `3px solid ${theme.border}`, boxShadow: '12px 12px 0px rgba(0,0,0,0.1)', width: '100%', maxWidth: '600px' }}>
         <Link to="/" style={{ display: 'inline-block', marginBottom: '20px', fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', textDecoration: 'none', color: theme.textMain }}>
           ← BACK_TO_HOME
         </Link>
         <header style={{ marginBottom: '40px', borderLeft: `8px solid ${theme.textMain}`, paddingLeft: '20px' }}>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '36px', textTransform: 'uppercase', margin: 0, lineHeight: '1' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(28px, 8vw, 36px)', textTransform: 'uppercase', margin: 0, lineHeight: '1' }}>
             Resident<br/>Intake.
           </h2>
           <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', marginTop: '10px', color: theme.textSec }}>
@@ -60,7 +60,21 @@ const MemberRegister = () => {
           </p>
         </header>
 
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <style>
+          {`
+            .register-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+            }
+            @media (max-width: 800px) {
+              .register-grid {
+                grid-template-columns: 1fr;
+              }
+            }
+          `}
+        </style>
+        <form onSubmit={handleSubmit} className="register-grid">
           
           <div style={{ gridColumn: '1 / -1' }}>
             <label className="mono-label">SELECT_SOCIETY</label>
