@@ -1,4 +1,6 @@
 const Complaint = require('../models/Complaint');
+const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
 
 const getComplaints = async (req, res) => {
   try {
@@ -32,6 +34,16 @@ const addComplaint = async (req, res) => {
       title,
       description,
       status: 'Pending',
+    });
+
+    // Notify Admins
+    const admins = await User.find({ societyId: req.user.societyId, role: 'admin' });
+    admins.forEach(admin => {
+      sendEmail({
+        email: admin.email,
+        subject: `New Complaint Logged: ${title}`,
+        message: `A new complaint has been filed by a resident.\n\nTitle: ${title}\nDescription: ${description}\n\nPlease review it in the admin dashboard.`
+      });
     });
 
     res.status(201).json(complaint);

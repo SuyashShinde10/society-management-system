@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Society = require('../models/Society');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const sendEmail = require('../utils/sendEmail');
 
 // ─── 1. REGISTER (Admin creates society) ─────────────────────────────────────
 const registerUser = async (req, res) => {
@@ -104,6 +105,16 @@ const memberSelfRegister = async (req, res) => {
       phone,
       flatDetails: { wing, floor, flatNumber, residentType: residentType || 'Owner' },
       isActive: false, // Pending admin approval
+    });
+
+    // Notify Admins
+    const admins = await User.find({ societyId, role: 'admin' });
+    admins.forEach(admin => {
+      sendEmail({
+        email: admin.email,
+        subject: 'New Member Registration Request',
+        message: `A new member (${name}) has registered for Flat ${wing}-${flatNumber}. Please log in to the admin dashboard to approve or decline their request.`
+      });
     });
 
     res.status(201).json({ message: 'REGISTRATION_PENDING_ADMIN_APPROVAL' });
@@ -233,6 +244,14 @@ const approveMember = async (req, res) => {
 
     user.isActive = true;
     await user.save();
+
+    // Notify User
+    sendEmail({
+      email: user.email,
+      subject: 'Society Registration Approved',
+      message: `Hello ${user.name},\n\nYour registration has been approved by the society admin. You can now log in to the portal.`
+    });
+
     res.json({ message: 'MEMBER_APPROVED' });
   } catch (error) {
     console.error('// APPROVE_MEMBER_FAULT:', error);

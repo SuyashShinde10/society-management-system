@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import theme from '../theme';
-
 // Components
 import NoticeBoard from '../components/NoticeBoard';
 import ComplaintBox from '../components/ComplaintBox';
@@ -11,11 +10,12 @@ import UserList from '../components/UserList';
 import AddMember from '../components/AddMember';
 import MaintenanceBills from '../components/MaintenanceBills';
 import VisitorLog from '../components/VisitorLog';
+import DashboardOverview from '../components/DashboardOverview';
 
 const Dashboard = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('registry');
+  const [activeTab, setActiveTab] = useState('overview');
 
   if (!user) {
     return (
@@ -70,6 +70,7 @@ const Dashboard = () => {
           <div style={{ width: '250px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.5 }}>// NAVIGATION</span>
             {[
+              { id: 'overview', label: 'Overview', icon: '📊' },
               { id: 'registry', label: 'Member Registry', icon: '👥' },
               { id: 'notices', label: 'Notice Board', icon: '📢' },
               { id: 'bills', label: 'Billing System', icon: '🧾' },
@@ -99,7 +100,7 @@ const Dashboard = () => {
 
           {/* MAIN CONTENT PORTAL */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            
+            {activeTab === 'overview' && <DashboardOverview />}
             {activeTab === 'registry' && (
               <section style={{
                 padding: '40px', background: theme.surface,
