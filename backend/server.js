@@ -20,12 +20,20 @@ REQUIRED_ENV.forEach((key) => {
   }
 });
 
-// Connect to Database (cached for serverless)
-connectDB().catch((err) => {
-  console.error('[DB_CONNECT_FAILED]', err.message);
-});
-
 const app = express();
+
+// -------------------------------------------------------
+// DB CONNECTION MIDDLEWARE (Serverless specific)
+// -------------------------------------------------------
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('[DB_CONNECT_FAILED]', error.message);
+    res.status(500).json({ message: 'Database connection failed' });
+  }
+});
 
 // -------------------------------------------------------
 // SECURITY HEADERS
