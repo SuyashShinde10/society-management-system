@@ -21,11 +21,7 @@ const registerUser = async (req, res) => {
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'EMAIL_ALREADY_IN_USE' });
 
-    if (role === 'admin') {
-      if (!secretCode || secretCode !== process.env.ADMIN_SECRET) {
-        return res.status(403).json({ message: 'INVALID_ADMIN_SECRET_KEY' });
-      }
-    }
+    // Admin secret code check removed as requested
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);

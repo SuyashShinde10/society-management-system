@@ -10,7 +10,6 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [secretCode, setSecretCode] = useState('');
   const [societyName, setSocietyName] = useState('');
   const [address, setAddress] = useState('');
   const [regNumber, setRegNumber] = useState('');
@@ -34,7 +33,6 @@ const Register = () => {
       name,
       email,
       password,
-      secretCode,
       role: 'admin',
       societyName,
       address,
@@ -79,9 +77,8 @@ const Register = () => {
             <div style={{ display: 'grid', gap: '10px' }}>
               <input placeholder="FULL_NAME" value={name} onChange={(e) => setName(e.target.value)} required className="brutal-input" />
               <input type="email" placeholder="EMAIL_ADDRESS" value={email} onChange={(e) => setEmail(e.target.value)} required className="brutal-input" />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
                 <input type="password" placeholder="PASSWORD" value={password} onChange={(e) => setPassword(e.target.value)} required className="brutal-input" />
-                <input type="password" placeholder="SECRET_CODE" value={secretCode} onChange={(e) => setSecretCode(e.target.value)} required className="brutal-input" />
               </div>
             </div>
           </div>
