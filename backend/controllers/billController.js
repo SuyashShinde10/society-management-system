@@ -70,7 +70,7 @@ const getBills = async (req, res) => {
 
     const bills = await MaintenanceBill.find(filter)
       .populate('userId', 'name flatDetails')
-      .sort({ year: -1, month: -1 })
+      .sort({ createdAt: -1 })
       .limit(200);
 
     res.json(bills);

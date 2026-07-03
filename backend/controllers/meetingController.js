@@ -14,7 +14,7 @@ exports.getMeetings = async (req, res) => {
     }
 
     const meetings = await Meeting.find(filter)
-      .sort({ date: 1 })
+      .sort({ date: -1 })
       .populate('createdBy', 'name');
     res.status(200).json(meetings);
   } catch (error) {
