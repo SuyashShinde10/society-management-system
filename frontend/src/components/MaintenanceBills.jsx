@@ -45,7 +45,13 @@ const MaintenanceBills = () => {
     if (showLoader) setIsLoading(true);
     try {
       const { data } = await api.get('/bills');
-      setBills(data);
+      const mappedData = data.map(b => {
+        let status = 'Pending';
+        if (b.isPaid) status = 'Paid';
+        else if (new Date(b.dueDate) < new Date()) status = 'Overdue';
+        return { ...b, status };
+      });
+      setBills(mappedData);
     } catch (error) {
       console.error('// BILLS_FETCH_ERROR');
     } finally {
