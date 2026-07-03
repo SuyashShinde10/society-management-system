@@ -5,15 +5,28 @@ const Visitor = require('../models/Visitor');
 // @access Protected (member logs their own visitor)
 const logVisitor = async (req, res) => {
   try {
-    const { visitorName, visitorPhone, vehicleNumber, purpose, notes } = req.body;
+    const { visitorName, visitorPhone, vehicleNumber, purpose, notes, hostWing, hostFlatNumber } = req.body;
 
     if (!visitorName) {
       return res.status(400).json({ message: 'VISITOR_NAME_REQUIRED' });
     }
 
+    let hostUserId = req.user._id;
+
+    // If admin is logging the visitor, look up the target member
+    if (req.user.role === 'admin' && hostWing && hostFlatNumber) {
+      const User = require('../models/User');
+      const host = await User.findOne({
+        societyId: req.user.societyId,
+        'flatDetails.wing': hostWing,
+        'flatDetails.flatNumber': hostFlatNumber
+      });
+      if (host) hostUserId = host._id;
+    }
+
     const visitor = await Visitor.create({
       societyId: req.user.societyId,
-      hostUserId: req.user._id,
+      hostUserId,
       visitorName,
       visitorPhone,
       vehicleNumber,

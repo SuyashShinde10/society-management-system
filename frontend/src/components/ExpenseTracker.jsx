@@ -59,10 +59,12 @@ const ExpenseTracker = () => {
         label: 'Delete',
         onClick: async () => {
           try {
+            setExpenses(prev => prev.filter(e => e._id !== id));
             await api.delete(`/expenses/${id}`);
             fetchExpenses();
             toast.success('Expense removed.');
           } catch (error) {
+            fetchExpenses();
             toast.error('Failed to remove expense.');
           }
         },

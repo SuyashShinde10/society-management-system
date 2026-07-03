@@ -37,7 +37,7 @@ const MaintenanceBills = () => {
   const handleGenerateBills = async () => {
     setLoading(true);
     try {
-      await api.post('/bills/generate-all');
+      await api.post('/bills/generate');
       toast.success('Bills generated for all active residents.');
       fetchBills();
     } catch (error) {
@@ -49,10 +49,12 @@ const MaintenanceBills = () => {
 
   const handleMarkPaid = async (id) => {
     try {
+      setBills(prev => prev.map(b => b._id === id ? { ...b, status: 'Paid' } : b));
       await api.put(`/bills/${id}/pay`, { paymentMode: 'Online' });
       toast.success('Payment recorded successfully.');
       fetchBills();
     } catch (error) {
+      fetchBills();
       toast.error('Payment update failed.');
     }
   };

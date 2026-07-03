@@ -37,7 +37,13 @@ const VisitorLog = () => {
   const handleAddVisitor = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/visitors', form);
+      await api.post('/visitors', {
+        visitorName: form.name,
+        visitorPhone: form.phone,
+        vehicleNumber: form.vehicleNumber,
+        hostWing: form.hostWing,
+        hostFlatNumber: form.hostFlatNumber
+      });
       toast.success('Visitor entry logged.');
       setForm({ name: '', phone: '', vehicleNumber: '', hostWing: '', hostFlatNumber: '' });
       fetchVisitors();
@@ -48,16 +54,18 @@ const VisitorLog = () => {
 
   const handleCheckOut = async (id) => {
     try {
-      await api.put(`/visitors/${id}/checkout`);
+      setVisitors(prev => prev.map(v => v._id === id ? { ...v, exitTime: new Date() } : v));
+      await api.put(`/visitors/${id}/exit`);
       toast.success('Visitor checked out.');
       fetchVisitors();
     } catch (error) {
+      fetchVisitors();
       toast.error('Checkout failed.');
     }
   };
 
   const filteredVisitors = visitors.filter(v => 
-    v.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (v.visitorName && v.visitorName.toLowerCase().includes(searchTerm.toLowerCase())) || 
     (v.vehicleNumber && v.vehicleNumber.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
@@ -111,17 +119,17 @@ const VisitorLog = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
                     <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Space Mono', monospace", fontSize: '14px', textTransform: 'uppercase' }}>
-                      {v.name} <span style={{ opacity: 0.5, fontSize: '10px' }}>{v.phone}</span>
+                      {v.visitorName} <span style={{ opacity: 0.5, fontSize: '10px' }}>{v.visitorPhone}</span>
                     </h4>
                     <p style={{ margin: 0, fontFamily: "'Space Mono', monospace", fontSize: '12px', color: theme.textSec }}>
-                      VISITING: W_{v.hostWing} F_{v.hostFlatNumber}
+                      VISITING: W_{v.hostUserId?.flatDetails?.wing || 'N/A'} F_{v.hostUserId?.flatDetails?.flatNumber || 'N/A'}
                     </p>
                     {v.vehicleNumber && <p style={{ margin: 0, fontFamily: "'Space Mono', monospace", fontSize: '10px', color: theme.accent }}>VEHICLE: {v.vehicleNumber}</p>}
                   </div>
                   <div style={{ textAlign: 'right', fontFamily: "'Space Mono', monospace", fontSize: '10px' }}>
-                    <div style={{ color: theme.pending, fontWeight: '700' }}>IN: {new Date(v.checkInTime).toLocaleTimeString()}</div>
-                    {v.checkOutTime ? (
-                      <div style={{ color: theme.textSec }}>OUT: {new Date(v.checkOutTime).toLocaleTimeString()}</div>
+                    <div style={{ color: theme.pending, fontWeight: '700' }}>IN: {new Date(v.entryTime).toLocaleTimeString()}</div>
+                    {v.exitTime ? (
+                      <div style={{ color: theme.textSec }}>OUT: {new Date(v.exitTime).toLocaleTimeString()}</div>
                     ) : (
                       user?.role === 'admin' && (
                         <button onClick={() => handleCheckOut(v._id)} style={{ marginTop: '5px', background: theme.textMain, color: 'white', border: 'none', padding: '4px 8px', cursor: 'pointer', fontWeight: '700' }}>

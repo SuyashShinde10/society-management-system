@@ -51,10 +51,12 @@ const ComplaintBox = () => {
 
   const handleStatusUpdate = async (id, newStatus) => {
     try {
+      setComplaints(prev => prev.map(c => c._id === id ? { ...c, status: newStatus } : c));
       await api.put(`/complaints/status/${id}`, { status: newStatus });
       fetchComplaints();
       toast.success(`Complaint marked as ${newStatus}.`);
     } catch (error) {
+      fetchComplaints();
       toast.error('Failed to update status.');
     }
   };
