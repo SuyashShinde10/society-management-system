@@ -12,6 +12,10 @@ const Profile = () => {
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
+    if (newPassword.length < 6) {
+      toast.error('New password must be at least 6 characters long.');
+      return;
+    }
     setLoading(true);
     try {
       const res = await api.put('/auth/profile', {

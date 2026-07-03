@@ -35,8 +35,16 @@ const ComplaintBox = () => {
 
   const handlePost = async (e) => {
     e.preventDefault();
-    if (!form.title || !form.description) {
+    if (!form.title.trim() || !form.description.trim()) {
       toast.error('Please fill in all required fields.');
+      return;
+    }
+    if (form.title.trim().length < 5) {
+      toast.error('Title must be at least 5 characters long.');
+      return;
+    }
+    if (form.description.trim().length < 10) {
+      toast.error('Description must be at least 10 characters long.');
       return;
     }
     try {

@@ -36,6 +36,10 @@ const VisitorLog = () => {
 
   const handleAddVisitor = async (e) => {
     e.preventDefault();
+    if (form.phone && !/^\d{10}$/.test(form.phone)) {
+      toast.error('Phone number must be exactly 10 digits.');
+      return;
+    }
     try {
       await api.post('/visitors', {
         visitorName: form.name,

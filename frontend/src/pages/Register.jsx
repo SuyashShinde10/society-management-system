@@ -28,6 +28,14 @@ const Register = () => {
       toast.error('Please select at least one Wing.');
       return;
     }
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters.');
+      return;
+    }
+    if (Number(floors) <= 0 || Number(flatsPerFloor) <= 0) {
+      toast.error('Floors and Flats/Floor must be greater than zero.');
+      return;
+    }
 
     const payload = {
       name,

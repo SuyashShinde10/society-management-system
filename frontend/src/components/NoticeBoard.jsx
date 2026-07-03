@@ -35,8 +35,12 @@ const NoticeBoard = () => {
 
   const handlePost = async (e) => {
     e.preventDefault();
-    if (!title || !content) {
+    if (!title.trim() || !content.trim()) {
       toast.error('Please fill in all fields.');
+      return;
+    }
+    if (title.trim().length < 5) {
+      toast.error('Title must be at least 5 characters long.');
       return;
     }
     try {

@@ -49,6 +49,14 @@ const AddMember = () => {
 
   const handleAddMember = async (e) => {
     e.preventDefault();
+    if (!name || !email || !wing || !floor || !flatNumber) {
+      toast.error('Please fill all required fields.');
+      return;
+    }
+    if (phone && !/^\d{10}$/.test(phone)) {
+      toast.error('Phone number must be exactly 10 digits.');
+      return;
+    }
     setLoading(true);
     setGeneratedCreds(null);
     try {
