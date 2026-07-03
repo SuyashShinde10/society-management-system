@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
+import { socket } from '../socket';
 
 const ExpenseTracker = () => {
   const { user } = useContext(AuthContext);
@@ -15,6 +16,22 @@ const ExpenseTracker = () => {
 
   useEffect(() => {
     fetchExpenses();
+
+    const handleNewExpense = (expense) => {
+      setExpenses((prev) => [expense, ...prev]);
+    };
+
+    const handleDeleteExpense = (id) => {
+      setExpenses((prev) => prev.filter(e => e._id !== id));
+    };
+
+    socket.on('new_expense', handleNewExpense);
+    socket.on('delete_expense', handleDeleteExpense);
+
+    return () => {
+      socket.off('new_expense', handleNewExpense);
+      socket.off('delete_expense', handleDeleteExpense);
+    };
   }, []);
 
   const fetchExpenses = async () => {

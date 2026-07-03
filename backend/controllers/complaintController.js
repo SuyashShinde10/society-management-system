@@ -46,6 +46,10 @@ const addComplaint = async (req, res) => {
       });
     });
 
+    await complaint.populate('user', 'name flatDetails');
+    const io = req.app.get('io');
+    if (io) io.to(req.user.societyId.toString()).emit('new_complaint', complaint);
+
     res.status(201).json(complaint);
   } catch (error) {
     console.error('Error creating complaint:', error);
@@ -73,6 +77,11 @@ const updateComplaintStatus = async (req, res) => {
 
     complaint.status = status;
     const updatedComplaint = await complaint.save();
+    await updatedComplaint.populate('user', 'name flatDetails');
+
+    const io = req.app.get('io');
+    if (io) io.to(req.user.societyId.toString()).emit('update_complaint', updatedComplaint);
+
     res.status(200).json(updatedComplaint);
   } catch (error) {
     console.error('Error updating status:', error);
@@ -95,6 +104,10 @@ const deleteComplaint = async (req, res) => {
     }
 
     await complaint.deleteOne();
+    
+    const io = req.app.get('io');
+    if (io) io.to(req.user.societyId.toString()).emit('delete_complaint', req.params.id);
+    
     res.status(200).json({ id: req.params.id });
   } catch (error) {
     console.error('Error deleting complaint:', error);

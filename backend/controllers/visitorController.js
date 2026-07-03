@@ -21,6 +21,9 @@ const logVisitor = async (req, res) => {
       notes,
     });
 
+    const io = req.app.get('io');
+    if (io) io.to(req.user.societyId.toString()).emit('new_visitor', visitor);
+
     res.status(201).json(visitor);
   } catch (error) {
     console.error('Error logging visitor:', error);
@@ -66,6 +69,10 @@ const markExit = async (req, res) => {
     visitor.status = 'Exited';
     visitor.exitTime = new Date();
     await visitor.save();
+    
+    const io = req.app.get('io');
+    if (io) io.to(req.user.societyId.toString()).emit('update_visitor', visitor);
+
     res.json(visitor);
   } catch (error) {
     console.error('Error marking exit:', error);
@@ -86,6 +93,10 @@ const deleteVisitor = async (req, res) => {
     }
 
     await visitor.deleteOne();
+    
+    const io = req.app.get('io');
+    if (io) io.to(req.user.societyId.toString()).emit('delete_visitor', req.params.id);
+
     res.json({ message: 'VISITOR_LOG_DELETED' });
   } catch (error) {
     console.error('Error deleting visitor:', error);

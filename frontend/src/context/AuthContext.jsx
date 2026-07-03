@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
-// 1. CHANGE: Import the central 'api' instance instead of 'axios' directly
 import api from "../api"; 
+import { socket } from '../socket'; 
 
 const AuthContext = createContext();
 
@@ -15,7 +15,14 @@ export const AuthProvider = ({ children }) => {
     const userInfo = localStorage.getItem("userInfo");
     if (userInfo && userInfo !== "undefined") {
       try {
-        setUser(JSON.parse(userInfo));
+        const parsedUser = JSON.parse(userInfo);
+        setUser(parsedUser);
+        
+        // Connect socket for restored user
+        socket.connect();
+        if (parsedUser.societyId) {
+          socket.emit('join_society', parsedUser.societyId);
+        }
       } catch (e) {
         localStorage.removeItem("userInfo");
       }
@@ -31,6 +38,13 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       localStorage.setItem("userInfo", JSON.stringify(data.user));
       localStorage.setItem("token", data.token);
+
+      // Connect socket
+      socket.connect();
+      if (data.user.societyId) {
+        socket.emit('join_society', data.user.societyId);
+      }
+
       return { success: true, role: data.user.role };
     } catch (error) {
       console.error("Login Error:", error); // Added for debugging
@@ -53,8 +67,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userInfo");
     localStorage.removeItem("token");
     setUser(null);
-    // Optional: Reload page to clear any memory states
-    // window.location.reload(); 
+    socket.disconnect();
   };
 
   return (

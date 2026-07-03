@@ -3,6 +3,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const connectDB = require('./config/db');
 
@@ -59,6 +61,33 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+
+// -------------------------------------------------------
+// SOCKET.IO SETUP
+// -------------------------------------------------------
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  }
+});
+
+app.set('io', io); // make io accessible in controllers
+
+io.on('connection', (socket) => {
+  console.log('// SOCKET_CONNECTED:', socket.id);
+  
+  socket.on('join_society', (societyId) => {
+    socket.join(societyId);
+    console.log(`// SOCKET ${socket.id} JOINED SOCIETY ${societyId}`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('// SOCKET_DISCONNECTED:', socket.id);
+  });
+});
 
 // -------------------------------------------------------
 // BODY PARSING
@@ -134,7 +163,7 @@ app.use((err, req, res, next) => {
 // -------------------------------------------------------
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`// LOCAL_DEV_ACTIVE_ON_${PORT}`));
+  server.listen(PORT, () => console.log(`// LOCAL_DEV_ACTIVE_ON_${PORT}`));
 }
 
-module.exports = app;
+module.exports = server;

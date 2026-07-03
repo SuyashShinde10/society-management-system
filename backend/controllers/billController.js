@@ -43,6 +43,9 @@ const generateBills = async (req, res) => {
       }
     }
 
+    const io = req.app.get('io');
+    if (io) io.to(req.user.societyId.toString()).emit('refresh_bills');
+
     res.status(201).json({
       message: `Generated ${bills.length} bills. ${errors.length} skipped.`,
       bills,
@@ -99,6 +102,10 @@ const markBillPaid = async (req, res) => {
     if (notes) bill.notes = notes;
 
     await bill.save();
+    
+    const io = req.app.get('io');
+    if (io) io.to(req.user.societyId.toString()).emit('update_bill', bill);
+
     res.json(bill);
   } catch (error) {
     console.error('Error marking bill paid:', error);
@@ -119,6 +126,10 @@ const deleteBill = async (req, res) => {
     }
 
     await bill.deleteOne();
+    
+    const io = req.app.get('io');
+    if (io) io.to(req.user.societyId.toString()).emit('delete_bill', req.params.id);
+
     res.json({ message: 'BILL_DELETED' });
   } catch (error) {
     console.error('Error deleting bill:', error);

@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
+import { socket } from '../socket';
 
 const VisitorLog = () => {
   const { user } = useContext(AuthContext);
@@ -16,6 +17,28 @@ const VisitorLog = () => {
 
   useEffect(() => {
     fetchVisitors();
+
+    const handleNewVisitor = (visitor) => {
+      setVisitors((prev) => [visitor, ...prev]);
+    };
+
+    const handleUpdateVisitor = (updatedVisitor) => {
+      setVisitors((prev) => prev.map(v => v._id === updatedVisitor._id ? updatedVisitor : v));
+    };
+
+    const handleDeleteVisitor = (id) => {
+      setVisitors((prev) => prev.filter(v => v._id !== id));
+    };
+
+    socket.on('new_visitor', handleNewVisitor);
+    socket.on('update_visitor', handleUpdateVisitor);
+    socket.on('delete_visitor', handleDeleteVisitor);
+
+    return () => {
+      socket.off('new_visitor', handleNewVisitor);
+      socket.off('update_visitor', handleUpdateVisitor);
+      socket.off('delete_visitor', handleDeleteVisitor);
+    };
   }, [user]);
 
   const fetchVisitors = async () => {
