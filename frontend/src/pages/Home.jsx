@@ -156,6 +156,36 @@ const Home = () => {
 
         </div>
       </section>
+
+      {/* --- FOOTER --- */}
+      <footer style={{ 
+        borderTop: `3px solid ${theme.border}`, 
+        padding: '60px', 
+        background: theme.textMain, 
+        color: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '20px'
+      }}>
+        <h2 style={{ 
+          margin: 0, 
+          fontFamily: "'Cormorant Garamond', serif", 
+          fontSize: '28px', 
+          fontWeight: '600', 
+          textTransform: 'uppercase' 
+        }}>
+          AwaasTech.
+        </h2>
+        <div style={{ display: 'flex', gap: '30px', fontFamily: "'Space Mono', monospace", fontSize: '12px' }}>
+          <a href="#" style={{ color: 'white', textDecoration: 'none' }}>[ DOCUMENTATION ]</a>
+          <a href="#" style={{ color: 'white', textDecoration: 'none' }}>[ SYSTEM_STATUS ]</a>
+          <a href="#" style={{ color: 'white', textDecoration: 'none' }}>[ TERMS_OF_SERVICE ]</a>
+        </div>
+        <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', color: theme.textSec, marginTop: '20px' }}>
+          © {new Date().getFullYear()} AwaasTech Inc. All Rights Reserved. // SYSTEM_V2.0.26
+        </p>
+      </footer>
     </div>
   );
 };
