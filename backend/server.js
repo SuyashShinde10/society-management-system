@@ -106,6 +106,7 @@ app.use('/api/notices', require('./routes/noticeRoutes'));
 app.use('/api/expenses', require('./routes/expenseRoutes'));
 app.use('/api/bills', require('./routes/billRoutes'));
 app.use('/api/visitors', require('./routes/visitorRoutes'));
+app.use('/api/meetings', require('./routes/meetingRoutes'));
 
 // -------------------------------------------------------
 // HEALTH CHECK

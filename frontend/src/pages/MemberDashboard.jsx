@@ -7,9 +7,9 @@ import NoticeBoard from '../components/NoticeBoard';
 import ComplaintBox from '../components/ComplaintBox';
 import ExpenseTracker from '../components/ExpenseTracker';
 import MaintenanceBills from '../components/MaintenanceBills';
-import VisitorLog from '../components/VisitorLog';
 import DashboardOverview from '../components/DashboardOverview';
 import Profile from '../components/Profile';
+import Meetings from '../components/Meetings';
 
 const MemberDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -136,6 +136,7 @@ const MemberDashboard = () => {
               { id: 'overview', label: 'Overview', icon: '📊' },
               { id: 'profile', label: 'My Profile', icon: '👤' },
               { id: 'notices', label: 'Notice Board', icon: '📢' },
+              { id: 'meetings', label: 'Global Meetings', icon: '🗓️' },
               { id: 'bills', label: 'My Bills', icon: '🧾' },
               { id: 'complaints', label: 'Complaints', icon: '🗳️' },
               { id: 'expenses', label: 'Society Expenses', icon: '💰' },
@@ -181,6 +182,7 @@ const MemberDashboard = () => {
             {activeTab === 'overview' && <DashboardOverview />}
             {activeTab === 'profile' && <Profile />}
             {activeTab === 'notices' && <NoticeBoard />}
+            {activeTab === 'meetings' && <Meetings />}
             {activeTab === 'bills' && <MaintenanceBills />}
             {activeTab === 'complaints' && <ComplaintBox />}
             {activeTab === 'expenses' && <ExpenseTracker />}
