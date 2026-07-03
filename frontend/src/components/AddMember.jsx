@@ -17,7 +17,7 @@ const AddMember = () => {
   const [loading, setLoading] = useState(false);
   const [generatedCreds, setGeneratedCreds] = useState(null);
 
-  const [limits, setLimits] = useState({ wings: [], floors: 0, flatsPerFloor: 0 });
+  const [limits, setLimits] = useState({ wings: [], floors: 0 });
 
   useEffect(() => {
     const fetchLimits = async () => {
@@ -26,7 +26,6 @@ const AddMember = () => {
         setLimits({
           wings: data.wings || [],
           floors: parseInt(data.floors) || 0,
-          flatsPerFloor: parseInt(data.flatsPerFloor) || 0,
         });
         if (data.wings && data.wings.length > 0) setWing(data.wings[0]);
       } catch (error) {

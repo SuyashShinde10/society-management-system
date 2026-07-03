@@ -15,7 +15,6 @@ const Register = () => {
   const [regNumber, setRegNumber] = useState('');
   const [wings, setWings] = useState([]);
   const [floors, setFloors] = useState('');
-  const [flatsPerFloor, setFlatsPerFloor] = useState('');
 
   const WING_OPTIONS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
@@ -32,8 +31,8 @@ const Register = () => {
       toast.error('Password must be at least 6 characters.');
       return;
     }
-    if (Number(floors) <= 0 || Number(flatsPerFloor) <= 0) {
-      toast.error('Floors and Flats/Floor must be greater than zero.');
+    if (Number(floors) <= 0) {
+      toast.error('Floors must be greater than zero.');
       return;
     }
 
@@ -47,7 +46,6 @@ const Register = () => {
       regNumber,
       wings,
       floors: Number(floors),
-      flatsPerFloor: Number(flatsPerFloor),
     };
 
     setLoading(true);
@@ -127,9 +125,8 @@ const Register = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
                 <input type="number" placeholder="TOTAL_FLOORS" value={floors} onChange={(e) => setFloors(e.target.value)} required className="brutal-input" min="1" />
-                <input type="number" placeholder="FLATS/FLOOR" value={flatsPerFloor} onChange={(e) => setFlatsPerFloor(e.target.value)} required className="brutal-input" min="1" />
               </div>
             </div>
           </div>

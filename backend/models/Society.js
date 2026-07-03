@@ -13,7 +13,6 @@ const societySchema = new mongoose.Schema({
 
   wings: [{ type: String, trim: true }],
   floors: { type: Number, required: true, min: 0, max: 200 },
-  flatsPerFloor: { type: Number, required: true, min: 1, max: 100 },
 
   // ── New fields ─────────────────────────────────────────
   city: { type: String, trim: true, maxlength: 100 },

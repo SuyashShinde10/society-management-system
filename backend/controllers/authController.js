@@ -41,7 +41,6 @@ const registerUser = async (req, res) => {
         regNumber,
         wings: Array.isArray(wings) ? wings : (typeof wings === 'string' ? wings.split(',') : []),
         floors: Number(floors),
-        flatsPerFloor: Number(flatsPerFloor),
         city: city || '',
         state: state || '',
         pincode: pincode || '',
@@ -365,7 +364,7 @@ const getSocietyLimits = async (req, res) => {
   try {
     const society = await Society.findById(req.user.societyId);
     if (!society) return res.status(404).json({ message: 'DOMAIN_NOT_FOUND' });
-    res.json({ wings: society.wings, floors: society.floors, flatsPerFloor: society.flatsPerFloor });
+    res.json({ wings: society.wings, floors: society.floors });
   } catch (error) {
     console.error('// GET_LIMITS_FAULT:', error);
     res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
