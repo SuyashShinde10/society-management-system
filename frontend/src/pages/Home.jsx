@@ -224,12 +224,11 @@ const Home = () => {
       </header>
 
       {/* --- FEATURES SECTION --- */}
-      <section className="features-section" style={{ padding: '100px 60px' }}>
+      <section className="features-section" style={{ padding: '80px 60px' }}>
         <div className="features-grid" style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-          gap: '0px', // No gap, borders will touch
-          border: `3px solid ${theme.border}`
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: '30px'
         }}>
           
           <FeatureCard 
@@ -288,9 +287,10 @@ const Home = () => {
 
 const FeatureCard = ({ id, title, desc }) => (
   <div className="brutal-card feature-card" style={{ 
-    padding: '50px', 
-    border: '1px solid #1A1A1A', 
+    padding: '40px', 
+    border: '3px solid #1A1A1A', 
     background: '#FFFFFF',
+    boxShadow: '8px 8px 0px rgba(0,0,0,0.1)',
     transition: '0.3s'
   }}>
     <div style={{ 
