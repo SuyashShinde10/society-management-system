@@ -21,7 +21,7 @@ const UserList = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data } = await api.get('/auth/users');
+      const { data } = await api.get(`/auth/users?_t=${Date.now()}`);
       setUsers(data);
     } catch (error) {
       console.error('// DATABASE_ACCESS_ERROR');
