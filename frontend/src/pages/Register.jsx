@@ -59,6 +59,9 @@ const Register = () => {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.bg, padding: '40px 20px' }}>
       <div style={{ background: theme.surface, padding: '60px', border: `3px solid ${theme.border}`, boxShadow: '12px 12px 0px rgba(0,0,0,0.1)', width: '100%', maxWidth: '580px' }}>
+        <Link to="/" style={{ display: 'inline-block', marginBottom: '20px', fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', textDecoration: 'none', color: theme.textMain }}>
+          ← BACK_TO_HOME
+        </Link>
         <header style={{ marginBottom: '40px', borderLeft: `8px solid ${theme.textMain}`, paddingLeft: '20px' }}>
           <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', margin: 0, lineHeight: '0.9', textTransform: 'uppercase' }}>
             Society <br /> Deployment.
