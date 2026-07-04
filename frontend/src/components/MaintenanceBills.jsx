@@ -259,7 +259,6 @@ const MaintenanceBills = () => {
             LOAD_MORE_RECORDS
           </button>
         )}
-        </div>
       </div>
     </div>
   );
