@@ -21,6 +21,9 @@ const ComplaintSchema = new mongoose.Schema({
   priority: {
     type: String, enum: ['Low', 'Medium', 'High', 'Urgent'], default: 'Low'
   },
+  attachment: {
+    type: String, // To store base64 data URL
+  },
   category: {
     type: String,
     enum: ['Water', 'Electricity', 'Lift', 'Security', 'Cleanliness', 'Noise', 'Parking', 'Other'],

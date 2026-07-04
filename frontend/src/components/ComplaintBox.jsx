@@ -7,7 +7,7 @@ import theme from '../theme';
 const ComplaintBox = () => {
   const { user } = useContext(AuthContext);
   const [complaints, setComplaints] = useState([]);
-  const [form, setForm] = useState({ title: '', description: '' });
+  const [form, setForm] = useState({ title: '', description: '', attachment: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [page, setPage] = useState(1);
@@ -37,6 +37,21 @@ const ComplaintBox = () => {
     return () => clearInterval(interval);
   }, [fetchComplaints]);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size must be less than 5MB.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setForm({ ...form, attachment: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handlePost = async (e) => {
     e.preventDefault();
     if (!form.title.trim() || !form.description.trim()) {
@@ -53,7 +68,7 @@ const ComplaintBox = () => {
     }
     try {
       await api.post('/complaints', form);
-      setForm({ title: '', description: '' });
+      setForm({ title: '', description: '', attachment: '' });
       fetchComplaints();
       toast.success('Incident report filed successfully.');
     } catch (error) {
@@ -117,6 +132,21 @@ const ComplaintBox = () => {
               className="incident-input"
               style={{ minHeight: '80px' }}
             />
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <label style={{ flex: 1, padding: '10px', background: theme.border, cursor: 'pointer', textAlign: 'center', fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700' }}>
+                📎 ATTACH_FILE
+                <input type="file" style={{ display: 'none' }} onChange={handleFileChange} />
+              </label>
+              <label style={{ flex: 1, padding: '10px', background: theme.border, cursor: 'pointer', textAlign: 'center', fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700' }}>
+                📸 LIVE_PHOTO
+                <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={handleFileChange} />
+              </label>
+            </div>
+            {form.attachment && (
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', color: theme.accent, marginTop: '-5px' }}>
+                // FILE_ATTACHED_READY_FOR_UPLOAD
+              </div>
+            )}
             <button type="submit" style={{
               background: theme.textMain, color: 'white', border: 'none', padding: '14px',
               fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer',
@@ -196,6 +226,23 @@ const ComplaintBox = () => {
                 }}>
                   {c.description}
                 </p>
+
+                {c.attachment && (
+                  <div style={{ marginTop: '15px' }}>
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', color: theme.textMain }}>
+                      // EVIDENCE_ATTACHED:
+                    </span>
+                    <div style={{ marginTop: '10px' }}>
+                      {c.attachment.startsWith('data:image') ? (
+                        <img src={c.attachment} alt="Evidence" style={{ maxWidth: '100%', maxHeight: '300px', border: `2px solid ${theme.border}` }} />
+                      ) : (
+                        <a href={c.attachment} download="evidence_file" style={{ color: theme.accent, textDecoration: 'underline', fontFamily: "'Space Mono', monospace", fontSize: '13px' }}>
+                          [ DOWNLOAD_ATTACHED_FILE ]
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Admin Actions */}
                 {user && user.role === 'admin' && c.status === 'Pending' && (

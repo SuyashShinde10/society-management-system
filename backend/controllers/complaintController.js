@@ -22,7 +22,7 @@ const getComplaints = async (req, res) => {
 
 const addComplaint = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, attachment } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({ message: 'TITLE_AND_DESCRIPTION_REQUIRED' });
@@ -33,6 +33,7 @@ const addComplaint = async (req, res) => {
       societyId: req.user.societyId,
       title,
       description,
+      attachment,
       status: 'Pending',
     });
 
