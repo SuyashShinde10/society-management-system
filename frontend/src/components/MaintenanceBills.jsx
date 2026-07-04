@@ -176,9 +176,9 @@ const MaintenanceBills = () => {
           </button>
         </form>
       )}
-
-      <div style={{ padding: '20px', flex: 1, overflowY: 'auto', maxHeight: '60vh', paddingRight: '5px' }}>
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        <div style={{ padding: '20px 20px 0 20px' }}>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <input 
             type="text" 
             placeholder="SEARCH BILLS..." 
@@ -193,9 +193,10 @@ const MaintenanceBills = () => {
             <option value="Paid">STATUS: PAID</option>
             <option value="Overdue">STATUS: OVERDUE</option>
           </select>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
               <span className="spinner"></span>
@@ -253,11 +254,12 @@ const MaintenanceBills = () => {
         {hasMore && (
           <button onClick={() => setPage(page + 1)} style={{
             width: '100%', marginTop: '20px', padding: '10px', background: 'transparent', border: `2px dashed ${theme.border}`,
-            fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer'
+            fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', flexShrink: 0
           }}>
             LOAD_MORE_RECORDS
           </button>
         )}
+        </div>
       </div>
     </div>
   );

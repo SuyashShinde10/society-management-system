@@ -10,7 +10,9 @@ const DashboardOverview = () => {
     notices: 0,
     complaints: 0,
     expenses: 0,
-    bills: 0
+    bills: 0,
+    totalMembers: 0,
+    pastMembers: 0
   });
 
   const [loading, setLoading] = useState(true);
@@ -18,18 +20,21 @@ const DashboardOverview = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [noticesRes, complaintsRes, expensesRes, billsRes] = await Promise.all([
+        const [noticesRes, complaintsRes, expensesRes, billsRes, analyticsRes] = await Promise.all([
           api.get('/notices'),
           api.get('/complaints'),
           api.get('/expenses'),
-          api.get('/bills')
+          api.get('/bills'),
+          api.get('/analytics')
         ]);
 
         setStats({
           notices: noticesRes.data.length,
           complaints: complaintsRes.data.filter(c => c.status === 'Pending').length,
           expenses: expensesRes.data.reduce((acc, curr) => acc + Number(curr.amount), 0),
-          bills: billsRes.data.filter(b => b.status === 'Pending').length
+          bills: billsRes.data.filter(b => b.status === 'Pending').length,
+          totalMembers: analyticsRes.data.totalMembers || 0,
+          pastMembers: analyticsRes.data.pastMembers || 0
         });
       } catch (error) {
         console.error('// STATS_FETCH_ERROR');
@@ -70,6 +75,16 @@ const DashboardOverview = () => {
         <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: stats.complaints > 0 ? '#FEF2F2' : '#F9F9F9', borderLeft: `8px solid ${stats.complaints > 0 ? theme.danger : theme.textMain}` }}>
           <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>PENDING_INCIDENTS</span>
           <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.complaints}</div>
+        </div>
+
+        <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9' }}>
+          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>TOTAL_MEMBERS</span>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.totalMembers}</div>
+        </div>
+
+        <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9' }}>
+          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>PAST_MEMBERS</span>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.pastMembers}</div>
         </div>
 
 

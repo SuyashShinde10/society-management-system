@@ -61,8 +61,11 @@ const getAnalytics = async (req, res) => {
       const totalComplaints = await Complaint.countDocuments({ societyId });
       const openComplaints = await Complaint.countDocuments({ societyId, status: { $ne: 'Resolved' } });
 
+      const pastMembers = 0; // Hardcoded to 0 for now as deleted members are hard deleted
+
       return res.json({
         totalMembers,
+        pastMembers,
         revenue: { weekly: revWeekly, monthly: revMonthly, annual: revAnnual },
         pendingBills: { count: pendingBillsCount, amount: pendingBillsAmount },
         expenses: { weekly: expWeekly, monthly: expMonthly, annual: expAnnual },
@@ -71,6 +74,9 @@ const getAnalytics = async (req, res) => {
 
     } else {
       // MEMBER ANALYTICS
+      const totalMembers = await User.countDocuments({ societyId, role: 'member' });
+      const pastMembers = 0;
+      
       const userBills = await MaintenanceBill.find({ societyId, userId });
       
       let paidWeekly = 0, paidMonthly = 0, paidAnnual = 0, totalPaid = 0;
@@ -92,6 +98,8 @@ const getAnalytics = async (req, res) => {
       const openComplaints = await Complaint.countDocuments({ societyId, user: userId, status: { $ne: 'Resolved' } });
 
       return res.json({
+        totalMembers,
+        pastMembers,
         myPayments: { weekly: paidWeekly, monthly: paidMonthly, annual: paidAnnual, total: totalPaid },
         pendingAmount,
         complaints: { total: userComplaints, open: openComplaints }
