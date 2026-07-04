@@ -118,7 +118,7 @@ const MaintenanceBills = () => {
   const hasMore = paginatedBills.length < filteredBills.length;
 
   return (
-    <div style={{ background: theme.surface, flex: 1, minHeight: 0, border: `3px solid ${theme.border}`, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, display: 'flex', flexDirection: 'column' }}>
       <div style={{ background: theme.textMain, color: 'white', padding: '15px 20px', display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ flex: '1 1 100px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '20px' }}>🧾</span>
@@ -196,7 +196,7 @@ const MaintenanceBills = () => {
           </div>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <div style={{ overflowY: 'auto', maxHeight: '60vh', padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
               <span className="spinner"></span>

@@ -90,7 +90,7 @@ const ComplaintBox = () => {
   const hasMore = paginatedComplaints.length < filteredComplaints.length;
 
   return (
-    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, height: '100%', position: 'relative' }}>
+    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, position: 'relative' }}>
       {/* HEADER */}
       <div style={{ background: theme.textMain, color: 'white', padding: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <span style={{ fontSize: '20px' }}>🗳️</span>

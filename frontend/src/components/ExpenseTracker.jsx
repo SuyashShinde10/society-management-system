@@ -89,7 +89,7 @@ const ExpenseTracker = () => {
   const totalExpense = expenses.reduce((acc, curr) => acc + Number(curr.amount), 0);
 
   return (
-    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, height: '100%', position: 'relative' }}>
+    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, position: 'relative' }}>
       {/* HEADER */}
       <div style={{
         background: theme.textMain, color: 'white', padding: '20px',

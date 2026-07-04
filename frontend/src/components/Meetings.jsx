@@ -75,7 +75,7 @@ const Meetings = () => {
   };
 
   return (
-    <div style={{ background: theme.surface, height: '100%', border: `3px solid ${theme.border}`, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, display: 'flex', flexDirection: 'column' }}>
       <div style={{ background: theme.textMain, color: 'white', padding: '15px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <span style={{ fontSize: '20px' }}>🗓️</span>
         <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px' }}>

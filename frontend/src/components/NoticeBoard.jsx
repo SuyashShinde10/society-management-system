@@ -106,7 +106,7 @@ const NoticeBoard = () => {
   const hasMore = paginatedNotices.length < filteredNotices.length;
 
   return (
-    <div style={{ background: theme.surface, height: '100%', border: `3px solid ${theme.border}`, padding: '0' }}>
+    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, padding: '0' }}>
       {/* HEADER */}
       <div style={{ background: theme.textMain, color: 'white', padding: '15px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <span style={{ fontSize: '20px' }}>📢</span>
