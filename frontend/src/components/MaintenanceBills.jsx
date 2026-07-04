@@ -196,7 +196,7 @@ const MaintenanceBills = () => {
           </div>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', maxHeight: '60vh', padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
               <span className="spinner"></span>
