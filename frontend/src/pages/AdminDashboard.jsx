@@ -28,7 +28,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="dashboard-container" style={{ backgroundColor: theme.bg, minHeight: '100vh', padding: '40px 20px', color: theme.textMain }}>
+    <div className="dashboard-container" style={{ backgroundColor: theme.bg, minHeight: '100vh', padding: '40px 20px', color: theme.textMain, display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       <style>
         {`
           @media (max-width: 900px) {
@@ -75,7 +75,7 @@ const Dashboard = () => {
           }
         `}
       </style>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
 
         {/* --- HEADER --- */}
         <header className="dashboard-header" style={{
@@ -177,7 +177,7 @@ const Dashboard = () => {
         </div>
 
           {/* MAIN CONTENT PORTAL */}
-          <div className="main-content" style={{ flex: 1, minWidth: 0, paddingLeft: '40px' }}>
+          <div className="main-content" style={{ flex: 1, minWidth: 0, minHeight: 0, paddingLeft: '40px', display: 'flex', flexDirection: 'column' }}>
             {activeTab === 'overview' && <DashboardOverview />}
             {activeTab === 'profile' && <Profile />}
             {activeTab === 'registry' && (
