@@ -108,45 +108,56 @@ const MaintenanceBills = () => {
     try {
       const doc = new jsPDF();
       
-      // Set fonts and text
+      // Header Section
       doc.setFont('courier', 'bold');
       doc.setFontSize(22);
       doc.text('INVOICE', 105, 20, null, null, 'center');
       
-      doc.setFontSize(12);
+      doc.setFontSize(14);
+      doc.text('ABC Cooperative Housing Society', 105, 30, null, null, 'center');
+      
+      doc.setFontSize(10);
       doc.setFont('courier', 'normal');
-      doc.text('Society Management System', 105, 30, null, null, 'center');
+      // Replace these placeholders with actual data if stored in context/db, otherwise use defaults
+      doc.text('Admin: Suyash Shinde | Phone: +91-9876543210', 105, 36, null, null, 'center');
+      doc.text('Email: admin@abcsociety.com', 105, 41, null, null, 'center');
       
-      doc.line(20, 35, 190, 35);
+      doc.line(20, 46, 190, 46);
       
+      // Bill Information
       doc.setFont('courier', 'bold');
-      doc.text(`Bill ID: ${bill._id}`, 20, 45);
-      doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 45);
+      doc.setFontSize(12);
+      doc.text(`Bill ID: ${bill._id}`, 20, 56);
+      doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 56);
       
+      // Resident Information
       doc.setFont('courier', 'normal');
-      doc.text('Billed To:', 20, 60);
-      doc.text(`${bill.userId?.name || 'Resident'}`, 20, 68);
+      doc.text('Billed To:', 20, 71);
+      doc.text(`${bill.userId?.name || 'Resident'}`, 20, 79);
       if (bill.userId?.flatDetails) {
-        doc.text(`Wing: ${bill.userId.flatDetails.wing} | Flat: ${bill.userId.flatDetails.flatNumber}`, 20, 76);
+        doc.text(`Wing: ${bill.userId.flatDetails.wing} | Flat: ${bill.userId.flatDetails.flatNumber}`, 20, 87);
       }
 
-      doc.text(`Title: ${bill.title}`, 20, 90);
-      doc.text(`Description: ${bill.description || 'N/A'}`, 20, 98);
-      doc.text(`Due Date: ${new Date(bill.dueDate).toLocaleDateString()}`, 20, 106);
+      // Bill Details
+      doc.text(`Title: ${bill.title}`, 20, 101);
+      doc.text(`Description: ${bill.description || 'N/A'}`, 20, 109);
+      doc.text(`Due Date: ${new Date(bill.dueDate).toLocaleDateString()}`, 20, 117);
       
+      // Financials
       doc.setFont('courier', 'bold');
       doc.setFontSize(14);
-      doc.text(`Amount Due: Rs. ${bill.amount.toLocaleString()}`, 20, 120);
+      doc.text(`Amount Due: Rs. ${bill.amount.toLocaleString()}`, 20, 131);
       
       doc.setFontSize(12);
-      doc.text(`Status: ${bill.status.toUpperCase()}`, 140, 120);
+      doc.text(`Status: ${bill.status.toUpperCase()}`, 140, 131);
 
+      // Status Stamp
       if (bill.status === 'Paid') {
         doc.setTextColor(0, 128, 0); // Green
-        doc.text('PAID IN FULL', 105, 140, null, null, 'center');
+        doc.text('PAID IN FULL', 105, 151, null, null, 'center');
       } else {
         doc.setTextColor(255, 0, 0); // Red
-        doc.text('PAYMENT PENDING', 105, 140, null, null, 'center');
+        doc.text('PAYMENT PENDING', 105, 151, null, null, 'center');
       }
 
       // Footer
