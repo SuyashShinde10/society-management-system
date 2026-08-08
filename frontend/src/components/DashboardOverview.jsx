@@ -32,7 +32,7 @@ const DashboardOverview = () => {
           notices: noticesRes.data.length,
           complaints: complaintsRes.data.filter(c => c.status === 'Pending').length,
           expenses: expensesRes.data.reduce((acc, curr) => acc + Number(curr.amount), 0),
-          bills: billsRes.data.filter(b => b.status === 'Pending').length,
+          bills: billsRes.data.filter(b => !b.isPaid).length,
           totalMembers: analyticsRes.data.totalMembers || 0,
           pastMembers: analyticsRes.data.pastMembers || 0
         });
