@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
+import { jsPDF } from 'jspdf';
 
 const MaintenanceBills = () => {
   const { user } = useContext(AuthContext);
@@ -100,6 +101,65 @@ const MaintenanceBills = () => {
     } catch (error) {
       fetchBills();
       toast.error('Payment update failed.');
+    }
+  };
+
+  const handleDownloadInvoice = (bill) => {
+    try {
+      const doc = new jsPDF();
+      
+      // Set fonts and text
+      doc.setFont('courier', 'bold');
+      doc.setFontSize(22);
+      doc.text('INVOICE', 105, 20, null, null, 'center');
+      
+      doc.setFontSize(12);
+      doc.setFont('courier', 'normal');
+      doc.text('Society Management System', 105, 30, null, null, 'center');
+      
+      doc.line(20, 35, 190, 35);
+      
+      doc.setFont('courier', 'bold');
+      doc.text(`Bill ID: ${bill._id}`, 20, 45);
+      doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 45);
+      
+      doc.setFont('courier', 'normal');
+      doc.text('Billed To:', 20, 60);
+      doc.text(`${bill.userId?.name || 'Resident'}`, 20, 68);
+      if (bill.userId?.flatDetails) {
+        doc.text(`Wing: ${bill.userId.flatDetails.wing} | Flat: ${bill.userId.flatDetails.flatNumber}`, 20, 76);
+      }
+
+      doc.text(`Title: ${bill.title}`, 20, 90);
+      doc.text(`Description: ${bill.description || 'N/A'}`, 20, 98);
+      doc.text(`Due Date: ${new Date(bill.dueDate).toLocaleDateString()}`, 20, 106);
+      
+      doc.setFont('courier', 'bold');
+      doc.setFontSize(14);
+      doc.text(`Amount Due: Rs. ${bill.amount.toLocaleString()}`, 20, 120);
+      
+      doc.setFontSize(12);
+      doc.text(`Status: ${bill.status.toUpperCase()}`, 140, 120);
+
+      if (bill.status === 'Paid') {
+        doc.setTextColor(0, 128, 0); // Green
+        doc.text('PAID IN FULL', 105, 140, null, null, 'center');
+      } else {
+        doc.setTextColor(255, 0, 0); // Red
+        doc.text('PAYMENT PENDING', 105, 140, null, null, 'center');
+      }
+
+      // Footer
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(10);
+      doc.line(20, 270, 190, 270);
+      doc.text('Thank you for your prompt payment!', 105, 280, null, null, 'center');
+
+      doc.save(`Invoice_${bill.title.replace(/\s+/g, '_')}_${bill._id.slice(-6)}.pdf`);
+    } catch (err) {
+      console.error('PDF Generation Error:', err);
+      toast.error('Failed to generate PDF');
     }
   };
 
@@ -235,17 +295,24 @@ const MaintenanceBills = () => {
                   </div>
                 </div>
 
-                {/* Member Payment Actions */}
-                {b.status !== 'Paid' && user?.role === 'admin' && (
-                  <div style={{ marginTop: '15px', borderTop: `1px dashed ${theme.border}`, paddingTop: '10px' }}>
+                {/* Action Buttons */}
+                <div style={{ marginTop: '15px', borderTop: `1px dashed ${theme.border}`, paddingTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  {b.status !== 'Paid' && user?.role === 'admin' && (
                     <button onClick={() => handleMarkPaid(b._id)} style={{
                       background: theme.textMain, color: 'white', padding: '8px 16px', border: 'none',
                       fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
                     }}>
                       [ MARK_AS_PAID ]
                     </button>
-                  </div>
-                )}
+                  )}
+                  
+                  <button onClick={() => handleDownloadInvoice(b)} style={{
+                    background: 'transparent', color: theme.textMain, padding: '8px 16px', border: `2px solid ${theme.textMain}`,
+                    fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
+                  }}>
+                    [ DOWNLOAD_INVOICE ]
+                  </button>
+                </div>
               </div>
             ))
           )}

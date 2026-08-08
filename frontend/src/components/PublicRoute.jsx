@@ -1,21 +1,26 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
 
 /**
  * ACCESS_CONTROL_PROTOCOL: PUBLIC_ROUTE
  * Purpose: Prevents authenticated operators from accessing entry-level pages (Login/Register).
  */
 const PublicRoute = ({ children }) => {
-  // Check for active AUTH_TOKEN in local storage
-  const token = localStorage.getItem('token');
+  const { user, loading } = useContext(AuthContext);
 
-  // If token exists, system state is AUTHENTICATED. Redirect to PROTECTED_DASHBOARD.
-  if (token) {
-    console.log("// SESSION_ALREADY_ACTIVE: Redirecting to Core Dashboard.");
-    return <Navigate to="/dashboard" replace />;
+  if (loading) {
+    return null;
   }
 
-  // If no token, allow access to PUBLIC_ASSETS (Login/Register).
+  // If user exists, system state is AUTHENTICATED. Redirect to their dashboard.
+  if (user) {
+    console.log("// SESSION_ALREADY_ACTIVE: Redirecting to Core Dashboard.");
+    const correctPath = user.role === 'admin' ? '/dashboard' : '/resident';
+    return <Navigate to={correctPath} replace />;
+  }
+
+  // If no user, allow access to PUBLIC_ASSETS (Login/Register).
   return children;
 };
 
