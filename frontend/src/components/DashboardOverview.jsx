@@ -77,15 +77,19 @@ const DashboardOverview = () => {
           <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.complaints}</div>
         </div>
 
-        <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9' }}>
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>TOTAL_MEMBERS</span>
-          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.totalMembers}</div>
-        </div>
+        {user?.role === 'admin' && (
+          <>
+            <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9' }}>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>TOTAL_MEMBERS</span>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.totalMembers}</div>
+            </div>
 
-        <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9' }}>
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>PAST_MEMBERS</span>
-          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.pastMembers}</div>
-        </div>
+            <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9' }}>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>PAST_MEMBERS</span>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.pastMembers}</div>
+            </div>
+          </>
+        )}
 
 
         <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: stats.bills > 0 ? '#FEF2F2' : '#F9F9F9', borderLeft: `8px solid ${stats.bills > 0 ? theme.danger : theme.textMain}` }}>
