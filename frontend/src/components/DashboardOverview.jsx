@@ -3,7 +3,7 @@ import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 
-const DashboardOverview = () => {
+const DashboardOverview = ({ onNavigate }) => {
   const { user } = useContext(AuthContext);
   
   const [stats, setStats] = useState({
@@ -67,24 +67,44 @@ const DashboardOverview = () => {
 
       <div style={{ padding: '30px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
         
-        <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9' }}>
+        <div 
+          onClick={() => onNavigate && onNavigate('notices')}
+          style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9', cursor: 'pointer', transition: '0.2s' }}
+          onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+          onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+        >
           <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>ACTIVE_NOTICES</span>
           <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.notices}</div>
         </div>
 
-        <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: stats.complaints > 0 ? '#FEF2F2' : '#F9F9F9', borderLeft: `8px solid ${stats.complaints > 0 ? theme.danger : theme.textMain}` }}>
+        <div 
+          onClick={() => onNavigate && onNavigate('complaints')}
+          style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: stats.complaints > 0 ? '#FEF2F2' : '#F9F9F9', borderLeft: `8px solid ${stats.complaints > 0 ? theme.danger : theme.textMain}`, cursor: 'pointer', transition: '0.2s' }}
+          onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+          onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+        >
           <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>PENDING_INCIDENTS</span>
           <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.complaints}</div>
         </div>
 
         {user?.role === 'admin' && (
           <>
-            <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9' }}>
+            <div 
+              onClick={() => onNavigate && onNavigate('registry')}
+              style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9', cursor: 'pointer', transition: '0.2s' }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
               <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>TOTAL_MEMBERS</span>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.totalMembers}</div>
             </div>
 
-            <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9' }}>
+            <div 
+              onClick={() => onNavigate && onNavigate('registry')}
+              style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9', cursor: 'pointer', transition: '0.2s' }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
               <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>PAST_MEMBERS</span>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.pastMembers}</div>
             </div>
@@ -92,13 +112,23 @@ const DashboardOverview = () => {
         )}
 
 
-        <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: stats.bills > 0 ? '#FEF2F2' : '#F9F9F9', borderLeft: `8px solid ${stats.bills > 0 ? theme.danger : theme.textMain}` }}>
+        <div 
+          onClick={() => onNavigate && onNavigate('bills')}
+          style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: stats.bills > 0 ? '#FEF2F2' : '#F9F9F9', borderLeft: `8px solid ${stats.bills > 0 ? theme.danger : theme.textMain}`, cursor: 'pointer', transition: '0.2s' }}
+          onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+          onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+        >
           <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>{user?.role === 'admin' ? 'PENDING_DUES_COUNT' : 'MY_PENDING_BILLS'}</span>
           <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.bills}</div>
         </div>
 
         {user?.role === 'admin' && (
-          <div style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9', gridColumn: '1 / -1' }}>
+          <div 
+            onClick={() => onNavigate && onNavigate('expenses')}
+            style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9', gridColumn: '1 / -1', cursor: 'pointer', transition: '0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
             <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>TOTAL_OUTFLOW</span>
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '36px', fontWeight: '700', lineHeight: 1, marginTop: '10px', color: theme.danger }}>
               ₹{stats.expenses.toLocaleString()}

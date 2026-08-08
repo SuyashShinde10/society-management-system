@@ -180,7 +180,7 @@ const MemberDashboard = () => {
 
           {/* MAIN CONTENT PORTAL */}
           <div className="main-content" style={{ flex: 1, minWidth: 0, minHeight: 0, paddingLeft: '40px', display: 'flex', flexDirection: 'column' }}>
-            {activeTab === 'overview' && <DashboardOverview />}
+            {activeTab === 'overview' && <DashboardOverview onNavigate={setActiveTab} />}
             {activeTab === 'profile' && <Profile />}
             {activeTab === 'notices' && <NoticeBoard />}
             {activeTab === 'meetings' && <Meetings />}
