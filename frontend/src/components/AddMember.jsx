@@ -19,6 +19,12 @@ const AddMember = () => {
 
   const [limits, setLimits] = useState({ wings: [], floors: 0 });
 
+  // OTP State
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
+  const [timer, setTimer] = useState(0);
+
   useEffect(() => {
     const fetchLimits = async () => {
       try {
@@ -35,10 +41,64 @@ const AddMember = () => {
     if (user?.role === 'admin') fetchLimits();
   }, [user]);
 
+  // Timer Effect
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
 
+  const sendOTP = async () => {
+    if (!email) {
+      toast.error('Please enter an email address first.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.post('/auth/send-otp', { 
+        email,
+        societyName: user?.societyName,
+        adminName: user?.name,
+        adminEmail: user?.email
+      });
+      setOtpSent(true);
+      setTimer(120);
+      toast.success('OTP sent to the email!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to send OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyOTP = async () => {
+    if (!otp) {
+      toast.error('Please enter the OTP.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.post('/auth/verify-otp', { email, otp });
+      setIsVerified(true);
+      setTimer(0);
+      toast.success('Email verified successfully!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Invalid OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddMember = async (e) => {
     e.preventDefault();
+    if (!isVerified) {
+      toast.error('Please verify the email first.');
+      return;
+    }
     if (!name || !email || !wing || !floor || !flatNumber) {
       toast.error('Please fill all required fields.');
       return;
@@ -56,8 +116,11 @@ const AddMember = () => {
       });
       toast.success('Resident added to registry successfully.');
       setGeneratedCreds({ email, password: response.data.generatedPassword });
+      
+      // Reset form (keeping OTP verified false for next entry)
       setName(''); setEmail(''); setPhone('');
       setFloor('0'); setFlatNumber(''); setResidentType('Owner');
+      setIsVerified(false); setOtpSent(false); setOtp(''); setTimer(0);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to add member. Please try again.');
     } finally {
@@ -125,7 +188,63 @@ const AddMember = () => {
         <div className="add-member-grid-2">
           <div>
             <label className="registry-label">Communication_Email</label>
-            <input type="email" placeholder="ADDR@DOMAIN.COM" value={email} onChange={(e) => setEmail(e.target.value)} required className="registry-input" />
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input 
+                type="email" 
+                placeholder="ADDR@DOMAIN.COM" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+                className="registry-input" 
+                style={{ flex: 1 }}
+                disabled={otpSent || isVerified} 
+              />
+              {!isVerified && (
+                <button
+                  type="button"
+                  onClick={otpSent ? (timer === 0 ? sendOTP : null) : sendOTP}
+                  disabled={loading || (otpSent && timer > 0)}
+                  style={{
+                    padding: '0 15px', backgroundColor: (otpSent && timer > 0) ? '#aaa' : theme.textMain, color: 'white',
+                    border: 'none', fontWeight: '700', fontFamily: "'Space Mono', monospace", cursor: (loading || (otpSent && timer > 0)) ? 'not-allowed' : 'pointer',
+                    boxShadow: `4px 4px 0px ${theme.accent}`
+                  }}
+                >
+                  {loading ? '...' : otpSent ? (timer > 0 ? `RESEND(${timer}s)` : 'RESEND_OTP') : 'VERIFY'}
+                </button>
+              )}
+              {isVerified && (
+                <div style={{ padding: '0 15px', backgroundColor: theme.accent, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontFamily: "'Space Mono', monospace", border: '1px solid #1A1A1A', boxShadow: `4px 4px 0px #1A1A1A` }}>
+                  VERIFIED
+                </div>
+              )}
+            </div>
+
+            {otpSent && !isVerified && (
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <input 
+                  type="text" 
+                  placeholder="ENTER_OTP" 
+                  value={otp} 
+                  onChange={(e) => setOtp(e.target.value)} 
+                  className="registry-input" 
+                  style={{ flex: 1, borderColor: theme.accent, borderWidth: '2px' }}
+                  maxLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={verifyOTP}
+                  disabled={loading}
+                  style={{
+                    padding: '0 15px', backgroundColor: theme.accent, color: 'white',
+                    border: 'none', fontWeight: '700', fontFamily: "'Space Mono', monospace", cursor: loading ? 'not-allowed' : 'pointer',
+                    boxShadow: `4px 4px 0px ${theme.textMain}`
+                  }}
+                >
+                  CONFIRM
+                </button>
+              </div>
+            )}
           </div>
           <div>
             <label className="registry-label">Phone_Number</label>
@@ -133,7 +252,7 @@ const AddMember = () => {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px', opacity: isVerified ? 1 : 0.4, pointerEvents: isVerified ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
           <div>
             <label className="registry-label">Occupancy_Status</label>
             <select value={residentType} onChange={(e) => setResidentType(e.target.value)} className="registry-input" style={{ height: '43px' }}>
@@ -141,49 +260,48 @@ const AddMember = () => {
               <option value="Tenant">TENANT</option>
             </select>
           </div>
-        </div>
 
-        <div className="add-member-grid-3">
-          <div>
-            <label className="registry-label">Structure_Wing</label>
-            <select value={wing} onChange={(e) => setWing(e.target.value)} required className="registry-input">
-              <option value="">N/A</option>
-              {limits.wings.map((w) => (
-                <option key={w} value={w}>{w}</option>
-              ))}
-            </select>
-          </div>
+          <div className="add-member-grid-3">
+            <div>
+              <label className="registry-label">Structure_Wing</label>
+              <select value={wing} onChange={(e) => setWing(e.target.value)} required className="registry-input">
+                <option value="">N/A</option>
+                {limits.wings.map((w) => (
+                  <option key={w} value={w}>{w}</option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="registry-label">Floor_Level</label>
-            <select value={floor} onChange={(e) => setFloor(e.target.value)} required className="registry-input">
-              {[...Array(limits.floors + 1).keys()].map((f) => (
-                <option key={f} value={f}>{f === 0 ? '00_GROUND' : f.toString().padStart(2, '0')}</option>
-              ))}
-            </select>
-          </div>
+            <div>
+              <label className="registry-label">Floor_Level</label>
+              <select value={floor} onChange={(e) => setFloor(e.target.value)} required className="registry-input">
+                {[...Array(limits.floors + 1).keys()].map((f) => (
+                  <option key={f} value={f}>{f === 0 ? '00_GROUND' : f.toString().padStart(2, '0')}</option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="registry-label">Unit_Number</label>
-            <input 
-              type="text" 
-              placeholder="E.g. 101A, G-4" 
-              value={flatNumber} 
-              onChange={(e) => setFlatNumber(e.target.value)} 
-              required 
-              className="registry-input" 
-            />
+            <div>
+              <label className="registry-label">Unit_Number</label>
+              <input 
+                type="text" 
+                placeholder="E.g. 101A, G-4" 
+                value={flatNumber} 
+                onChange={(e) => setFlatNumber(e.target.value)} 
+                required 
+                className="registry-input" 
+              />
+            </div>
           </div>
         </div>
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !isVerified}
           style={{
-            padding: '18px', background: theme.textMain, color: 'white', border: 'none',
-            fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: '14px', boxShadow: `6px 6px 0px ${theme.accent}`, transition: 'all 0.1s',
-            opacity: loading ? 0.7 : 1,
+            padding: '18px', backgroundColor: (!isVerified || loading) ? '#aaa' : theme.textMain, color: 'white', border: 'none',
+            fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: (!isVerified || loading) ? 'not-allowed' : 'pointer',
+            fontSize: '14px', boxShadow: (!isVerified || loading) ? 'none' : `6px 6px 0px ${theme.accent}`, transition: 'all 0.1s',
           }}
         >
           {loading ? '[ PROCESSING... ]' : '[ AUTHORIZE_NEW_RESIDENT ]'}
@@ -201,19 +319,31 @@ const AddMember = () => {
               <div><strong style={{ opacity: 0.7 }}>EMAIL:</strong> {generatedCreds.email}</div>
               <div style={{ marginTop: '5px' }}><strong style={{ opacity: 0.7 }}>PASSWORD:</strong> <span style={{ color: theme.danger, fontWeight: 'bold' }}>{generatedCreds.password}</span></div>
             </div>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(`Society Portal Access:\n\nEmail: ${generatedCreds.email}\nTemporary Password: ${generatedCreds.password}\n\nPlease login and you will be required to change this password immediately.`);
-                toast.success('Copied to clipboard!');
-              }}
-              style={{
-                padding: '0 20px', background: theme.accent, color: 'white', border: 'none',
-                cursor: 'pointer', fontFamily: "'Space Mono', monospace", fontWeight: '700',
-                boxShadow: `4px 4px 0px ${theme.border}`
-              }}
-            >
-              [ COPY_TO_CLIPBOARD ]
-            </button>
+            <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', justifyContent: 'center' }}>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`Society Portal Access:\n\nEmail: ${generatedCreds.email}\nTemporary Password: ${generatedCreds.password}\n\nPlease login and you will be required to change this password immediately.`);
+                  toast.success('Copied to clipboard!');
+                }}
+                style={{
+                  padding: '10px 20px', background: theme.accent, color: 'white', border: 'none',
+                  cursor: 'pointer', fontFamily: "'Space Mono', monospace", fontWeight: '700',
+                  boxShadow: `4px 4px 0px ${theme.border}`, flex: 1
+                }}
+              >
+                [ COPY_TO_CLIPBOARD ]
+              </button>
+              <button
+                onClick={() => setGeneratedCreds(null)}
+                style={{
+                  padding: '10px 20px', background: theme.textMain, color: 'white', border: 'none',
+                  cursor: 'pointer', fontFamily: "'Space Mono', monospace", fontWeight: '700',
+                  boxShadow: `4px 4px 0px ${theme.border}`, flex: 1
+                }}
+              >
+                [ OK_CLOSE ]
+              </button>
+            </div>
           </div>
         </div>
       )}

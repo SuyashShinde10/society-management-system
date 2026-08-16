@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
     lowercase: true, maxlength: [150, 'Email too long']
   },
   password: {
-    type: String, required: true, minlength: 6
+    type: String, required: true, minlength: 8
   },
   role: {
     type: String, enum: ['admin', 'member'], default: 'member'

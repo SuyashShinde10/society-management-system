@@ -22,7 +22,8 @@ const ComplaintSchema = new mongoose.Schema({
     type: String, enum: ['Low', 'Medium', 'High', 'Urgent'], default: 'Low'
   },
   attachment: {
-    type: String, // To store base64 data URL
+    type: String,
+    maxlength: [500, 'Attachment URL too long'], // URLs only — no base64
   },
   category: {
     type: String,

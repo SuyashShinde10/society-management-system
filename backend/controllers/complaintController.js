@@ -1,6 +1,7 @@
 const Complaint = require('../models/Complaint');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
+const { getProfessionalEmailTemplate } = require('../utils/emailTemplates');
 
 const getComplaints = async (req, res) => {
   try {
@@ -8,7 +9,12 @@ const getComplaints = async (req, res) => {
       return res.status(200).json([]);
     }
 
-    const complaints = await Complaint.find({ societyId: req.user.societyId })
+    const filter = { societyId: req.user.societyId };
+    if (req.user.role !== 'admin') {
+      filter.user = req.user._id;
+    }
+
+    const complaints = await Complaint.find(filter)
       .populate('user', 'name flatDetails')
       .sort({ createdAt: -1 })
       .limit(100); // Safety pagination cap
@@ -28,6 +34,15 @@ const addComplaint = async (req, res) => {
       return res.status(400).json({ message: 'TITLE_AND_DESCRIPTION_REQUIRED' });
     }
 
+    // Basic attachment validation to prevent SSRF or malformed URLs
+    if (attachment) {
+      try {
+        new URL(attachment);
+      } catch (e) {
+        return res.status(400).json({ message: 'INVALID_ATTACHMENT_URL' });
+      }
+    }
+
     const complaint = await Complaint.create({
       user: req.user._id,
       societyId: req.user.societyId,
@@ -39,11 +54,22 @@ const addComplaint = async (req, res) => {
 
     // Notify Admins
     const admins = await User.find({ societyId: req.user.societyId, role: 'admin' });
+    
+    const html = getProfessionalEmailTemplate({
+      subtitle: 'NEW COMPLAINT LOGGED',
+      greeting: 'Hello Admin,',
+      bodyText: `A new complaint has been filed by a resident in the system.`,
+      highlightBox: title,
+      highlightBoxLabel: 'Complaint Title',
+      footerText: 'Please review and assign a resolution status in the admin dashboard.'
+    });
+
     admins.forEach(admin => {
       sendEmail({
         email: admin.email,
         subject: `New Complaint Logged: ${title}`,
-        message: `A new complaint has been filed by a resident.\n\nTitle: ${title}\nDescription: ${description}\n\nPlease review it in the admin dashboard.`
+        message: `A new complaint has been filed by a resident.\n\nTitle: ${title}\nDescription: ${description}\n\nPlease review it in the admin dashboard.`,
+        html
       });
     });
 
@@ -74,6 +100,27 @@ const updateComplaintStatus = async (req, res) => {
 
     complaint.status = status;
     const updatedComplaint = await complaint.save();
+    
+    // Notify the user about the status change
+    const user = await User.findById(complaint.user);
+    if (user) {
+      const html = getProfessionalEmailTemplate({
+        subtitle: 'COMPLAINT STATUS UPDATE',
+        greeting: `Hello ${user.name},`,
+        bodyText: `The status of your complaint regarding "<strong>${complaint.title}</strong>" has been updated.`,
+        highlightBox: status,
+        highlightBoxLabel: 'New Status',
+        footerText: 'Log in to the portal for more details.'
+      });
+
+      sendEmail({
+        email: user.email,
+        subject: `Complaint Status Updated: ${complaint.title}`,
+        message: `Hello ${user.name},\n\nThe status of your complaint regarding "${complaint.title}" has been updated to: ${status}.\n\nPlease check the portal for more details.`,
+        html
+      });
+    }
+
     res.status(200).json(updatedComplaint);
   } catch (error) {
     console.error('Error updating status:', error);

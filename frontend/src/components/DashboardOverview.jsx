@@ -20,13 +20,18 @@ const DashboardOverview = ({ onNavigate }) => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [noticesRes, complaintsRes, expensesRes, billsRes, analyticsRes] = await Promise.all([
+        const requests = [
           api.get('/notices'),
           api.get('/complaints'),
-          api.get('/expenses'),
           api.get('/bills'),
           api.get('/analytics')
-        ]);
+        ];
+        if (user?.role === 'admin') {
+          requests.splice(2, 0, api.get('/expenses'));
+        } else {
+          requests.splice(2, 0, Promise.resolve({ data: [] }));
+        }
+        const [noticesRes, complaintsRes, expensesRes, billsRes, analyticsRes] = await Promise.all(requests);
 
         setStats({
           notices: noticesRes.data.length,
@@ -47,7 +52,7 @@ const DashboardOverview = ({ onNavigate }) => {
 
     const interval = setInterval(() => {
       fetchStats();
-    }, 10000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);

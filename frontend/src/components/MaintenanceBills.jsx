@@ -18,6 +18,7 @@ const MaintenanceBills = () => {
   const [showGenerateForm, setShowGenerateForm] = useState(false);
   const [users, setUsers] = useState([]);
   const [generateData, setGenerateData] = useState({ title: '', description: '', amount: '', dueDate: '', targetType: 'All', targetUserId: '' });
+  const [payingBillId, setPayingBillId] = useState(null);
   const limit = 10;
 
   useEffect(() => {
@@ -29,7 +30,7 @@ const MaintenanceBills = () => {
     // Vercel-compatible real-time fallback (Short Polling)
     const interval = setInterval(() => {
       fetchBills(false);
-    }, 10000); // 10 seconds
+    }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
   }, [user]);
@@ -48,10 +49,11 @@ const MaintenanceBills = () => {
     try {
       const { data } = await api.get('/bills');
       const mappedData = data.map(b => {
-        let status = 'Pending';
-        if (b.isPaid) status = 'Paid';
-        else if (new Date(b.dueDate) < new Date()) status = 'Overdue';
-        return { ...b, status };
+        let computedStatus = b.status; // Trust backend
+        if (!b.isPaid && b.status === 'Pending' && b.dueDate && new Date(b.dueDate) < new Date()) {
+          computedStatus = 'Overdue';
+        }
+        return { ...b, status: computedStatus };
       });
       setBills(mappedData);
     } catch (error) {
@@ -92,11 +94,18 @@ const MaintenanceBills = () => {
     }
   };
 
-  const handleMarkPaid = async (id) => {
+  const handleMarkPaid = async (id, method = 'UPI', action = 'approve') => {
     try {
-      setBills(prev => prev.map(b => b._id === id ? { ...b, status: 'Paid' } : b));
-      await api.put(`/bills/${id}/pay`, { paymentMode: 'UPI' });
-      toast.success('Payment recorded successfully.');
+      if (action === 'reject') {
+        setBills(prev => prev.map(b => b._id === id ? { ...b, status: 'Pending', paymentMode: null } : b));
+      } else if (user?.role === 'admin') {
+        setBills(prev => prev.map(b => b._id === id ? { ...b, status: 'Paid', paymentMode: method } : b));
+      } else {
+        setBills(prev => prev.map(b => b._id === id ? { ...b, status: 'Under Verification', paymentMode: method } : b));
+      }
+      setPayingBillId(null);
+      await api.put(`/bills/${id}/pay`, { paymentMode: method, action });
+      toast.success(action === 'reject' ? 'Payment rejected.' : `Payment recorded via ${method}.`);
       fetchBills();
     } catch (error) {
       fetchBills();
@@ -107,57 +116,59 @@ const MaintenanceBills = () => {
   const handleDownloadInvoice = (bill) => {
     try {
       const doc = new jsPDF();
+      const isPaid = bill.status === 'Paid';
+      const docTitle = isPaid ? 'PAYMENT RECEIPT' : 'MAINTENANCE BILL';
       
       // Header Section
       doc.setFont('courier', 'bold');
       doc.setFontSize(22);
-      doc.text('INVOICE', 105, 20, null, null, 'center');
+      doc.text(docTitle, 105, 20, null, null, 'center');
       
       doc.setFontSize(14);
-      doc.text('ABC Cooperative Housing Society', 105, 30, null, null, 'center');
+      const societyName = user?.societyName || 'Awaastech Society';
+      doc.text(societyName.toUpperCase(), 105, 30, null, null, 'center');
       
       doc.setFontSize(10);
       doc.setFont('courier', 'normal');
-      // Replace these placeholders with actual data if stored in context/db, otherwise use defaults
-      doc.text('Admin: Suyash Shinde | Phone: +91-9876543210', 105, 36, null, null, 'center');
-      doc.text('Email: admin@abcsociety.com', 105, 41, null, null, 'center');
+      const locationText = user?.societyCity ? `Location: ${user.societyCity}` : 'Authorized Society Document';
+      doc.text(locationText, 105, 36, null, null, 'center');
       
-      doc.line(20, 46, 190, 46);
+      doc.line(20, 42, 190, 42);
       
       // Bill Information
       doc.setFont('courier', 'bold');
       doc.setFontSize(12);
-      doc.text(`Bill ID: ${bill._id}`, 20, 56);
-      doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 56);
+      doc.text(`Bill ID: ${bill._id}`, 20, 52);
+      doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 52);
       
       // Resident Information
       doc.setFont('courier', 'normal');
-      doc.text('Billed To:', 20, 71);
-      doc.text(`${bill.userId?.name || 'Resident'}`, 20, 79);
+      doc.text('Billed To:', 20, 67);
+      doc.text(`${bill.userId?.name || 'Resident'}`, 20, 75);
       if (bill.userId?.flatDetails) {
-        doc.text(`Wing: ${bill.userId.flatDetails.wing} | Flat: ${bill.userId.flatDetails.flatNumber}`, 20, 87);
+        doc.text(`Wing: ${bill.userId.flatDetails.wing} | Flat: ${bill.userId.flatDetails.flatNumber}`, 20, 83);
       }
 
       // Bill Details
-      doc.text(`Title: ${bill.title}`, 20, 101);
-      doc.text(`Description: ${bill.description || 'N/A'}`, 20, 109);
-      doc.text(`Due Date: ${new Date(bill.dueDate).toLocaleDateString()}`, 20, 117);
+      doc.text(`Title: ${bill.title}`, 20, 97);
+      doc.text(`Description: ${bill.description || 'N/A'}`, 20, 105);
+      doc.text(`Due Date: ${new Date(bill.dueDate).toLocaleDateString()}`, 20, 113);
       
       // Financials
       doc.setFont('courier', 'bold');
       doc.setFontSize(14);
-      doc.text(`Amount Due: Rs. ${bill.amount.toLocaleString()}`, 20, 131);
+      doc.text(`Amount Due: Rs. ${bill.amount.toLocaleString()}`, 20, 127);
       
       doc.setFontSize(12);
-      doc.text(`Status: ${bill.status.toUpperCase()}`, 140, 131);
+      doc.text(`Status: ${bill.status.toUpperCase()}`, 140, 127);
 
       // Status Stamp
-      if (bill.status === 'Paid') {
+      if (isPaid) {
         doc.setTextColor(0, 128, 0); // Green
-        doc.text('PAID IN FULL', 105, 151, null, null, 'center');
+        doc.text('PAID IN FULL', 105, 147, null, null, 'center');
       } else {
         doc.setTextColor(255, 0, 0); // Red
-        doc.text('PAYMENT PENDING', 105, 151, null, null, 'center');
+        doc.text('PAYMENT PENDING', 105, 147, null, null, 'center');
       }
 
       // Footer
@@ -165,9 +176,9 @@ const MaintenanceBills = () => {
       doc.setFont('courier', 'normal');
       doc.setFontSize(10);
       doc.line(20, 270, 190, 270);
-      doc.text('Thank you for your prompt payment!', 105, 280, null, null, 'center');
+      doc.text(isPaid ? 'Thank you for your prompt payment!' : 'Please clear your dues before the due date.', 105, 280, null, null, 'center');
 
-      doc.save(`Invoice_${bill.title.replace(/\s+/g, '_')}_${bill._id.slice(-6)}.pdf`);
+      doc.save(`${isPaid ? 'Receipt' : 'Bill'}_${bill.title.replace(/\s+/g, '_')}_${bill._id.slice(-6)}.pdf`);
     } catch (err) {
       console.error('PDF Generation Error:', err);
       toast.error('Failed to generate PDF');
@@ -261,6 +272,7 @@ const MaintenanceBills = () => {
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="brutal-input" style={{ flex: 1, padding: '10px', fontFamily: "'Space Mono', monospace", minWidth: '150px' }}>
             <option value="All">STATUS: ALL</option>
             <option value="Pending">STATUS: PENDING</option>
+            <option value="Under Verification">STATUS: VERIFYING</option>
             <option value="Paid">STATUS: PAID</option>
             <option value="Overdue">STATUS: OVERDUE</option>
           </select>
@@ -298,7 +310,7 @@ const MaintenanceBills = () => {
                     </div>
                     <span style={{
                       fontSize: '10px', fontWeight: '700', fontFamily: "'Space Mono', monospace", padding: '2px 6px',
-                      background: b.status === 'Paid' ? theme.resolved : b.status === 'Pending' ? theme.pending : theme.declined,
+                      background: b.status === 'Paid' ? theme.resolved : (b.status === 'Pending' || b.status === 'Overdue' ? theme.pending : '#E35205'),
                       color: 'white'
                     }}>
                       {b.status?.toUpperCase() || 'UNKNOWN'}
@@ -308,20 +320,58 @@ const MaintenanceBills = () => {
 
                 {/* Action Buttons */}
                 <div style={{ marginTop: '15px', borderTop: `1px dashed ${theme.border}`, paddingTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                  {b.status !== 'Paid' && user?.role === 'admin' && (
-                    <button onClick={() => handleMarkPaid(b._id)} style={{
+                  
+                  {/* Admin Verification Options */}
+                  {b.status === 'Under Verification' && user?.role === 'admin' && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button onClick={() => {
+                        if (window.confirm(`Are you sure you want to VERIFY and approve this payment of ₹${b.amount}?`)) {
+                          handleMarkPaid(b._id, b.paymentMode, 'approve');
+                        }
+                      }} style={{
+                        background: theme.resolved, color: 'white', padding: '8px 16px', border: 'none',
+                        fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
+                      }}>
+                        [ VERIFY_PAYMENT ]
+                      </button>
+                      <button onClick={() => {
+                        if (window.confirm('Are you sure you want to REJECT this payment? The member will have to submit their payment details again.')) {
+                          handleMarkPaid(b._id, null, 'reject');
+                        }
+                      }} style={{
+                        background: theme.declined, color: 'white', padding: '8px 16px', border: 'none',
+                        fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
+                      }}>
+                        [ REJECT ]
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Member Payment Options */}
+                  {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId !== b._id && (
+                    <button onClick={() => setPayingBillId(b._id)} style={{
                       background: theme.textMain, color: 'white', padding: '8px 16px', border: 'none',
                       fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
                     }}>
-                      [ MARK_AS_PAID ]
+                      {user?.role === 'admin' ? '[ MARK_AS_PAID ]' : '[ PAY_BILL ]'}
                     </button>
+                  )}
+                  
+                  {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId === b._id && (
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', background: theme.fieldBg, padding: '5px 10px', border: `1px dashed ${theme.textMain}` }}>
+                      <span style={{ fontSize: '12px', fontFamily: "'Space Mono', monospace", fontWeight: 'bold' }}>PAY_VIA:</span>
+                      <button onClick={() => handleMarkPaid(b._id, 'UPI')} style={{ background: '#0070BA', color: 'white', padding: '6px 12px', border: 'none', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '11px' }}>[ UPI ]</button>
+                      <button onClick={() => handleMarkPaid(b._id, 'Net Banking')} style={{ background: '#E35205', color: 'white', padding: '6px 12px', border: 'none', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '11px' }}>[ NET_BANK ]</button>
+                      <button onClick={() => handleMarkPaid(b._id, 'Cash')} style={{ background: '#28A745', color: 'white', padding: '6px 12px', border: 'none', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '11px' }}>[ CASH ]</button>
+                      <button onClick={() => setPayingBillId(null)} style={{ background: 'transparent', color: theme.textMain, border: 'none', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '11px', textDecoration: 'underline' }}>CANCEL</button>
+                    </div>
                   )}
                   
                   <button onClick={() => handleDownloadInvoice(b)} style={{
                     background: 'transparent', color: theme.textMain, padding: '8px 16px', border: `2px solid ${theme.textMain}`,
                     fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
                   }}>
-                    [ DOWNLOAD_INVOICE ]
+                    {b.status === 'Paid' ? '[ DOWNLOAD_RECEIPT ]' : '[ DOWNLOAD_BILL ]'}
                   </button>
                 </div>
               </div>

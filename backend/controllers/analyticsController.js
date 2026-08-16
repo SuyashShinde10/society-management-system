@@ -39,7 +39,7 @@ const getAnalytics = async (req, res) => {
           if (paidDate >= startOfWeek) revWeekly += b.amount;
           if (paidDate >= startOfMonth) revMonthly += b.amount;
           if (paidDate >= startOfYear) revAnnual += b.amount;
-        } else if (!b.isPaid) {
+        } else if (!b.isPaid && b.status === 'Pending') {
           pendingBillsCount++;
           pendingBillsAmount += b.amount;
         }
@@ -89,7 +89,7 @@ const getAnalytics = async (req, res) => {
           if (paidDate >= startOfWeek) paidWeekly += b.amount;
           if (paidDate >= startOfMonth) paidMonthly += b.amount;
           if (paidDate >= startOfYear) paidAnnual += b.amount;
-        } else if (!b.isPaid) {
+        } else if (!b.isPaid && b.status === 'Pending') {
           pendingAmount += b.amount;
         }
       });

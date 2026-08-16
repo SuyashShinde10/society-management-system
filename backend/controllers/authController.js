@@ -4,6 +4,76 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/sendEmail');
 
+const { getProfessionalEmailTemplate } = require('../utils/emailTemplates');
+
+// OTP store
+const Otp = require('../models/Otp');
+
+// ─── 0. SEND OTP ─────────────────────────────────────────────────────────────
+const sendOTP = async (req, res) => {
+  try {
+    const { email, societyName, adminName, adminEmail } = req.body;
+    if (!email) return res.status(400).json({ message: 'EMAIL_REQUIRED' });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    await Otp.deleteMany({ email });
+    await Otp.create({ email, otp });
+
+    const templateSubtitle = societyName ? `SECURE DEPLOYMENT PROTOCOL - ${societyName.toUpperCase()}` : 'SECURE DEPLOYMENT PROTOCOL';
+    const templateBodyText = adminName 
+      ? `You are one step away from joining <strong>${societyName}</strong>. Society admin <strong>${adminName}</strong> (<a href="mailto:${adminEmail}">${adminEmail}</a>) has initiated your onboarding. Please use the verification code below to authorize your registration.`
+      : 'You are one step away from deploying your society system. Please use the verification code below to authorize your registration.';
+
+    const html = getProfessionalEmailTemplate({
+      subtitle: templateSubtitle,
+      greeting: 'Hello,',
+      bodyText: templateBodyText,
+      highlightBox: otp,
+      highlightBoxLabel: 'Verification Code',
+      warningText: 'This code expires in exactly 120 seconds.',
+      footerText: societyName ? `Sent on behalf of ${societyName}` : undefined
+    });
+
+    await sendEmail({
+      email,
+      subject: 'Awaastech Society Deployment - Verification Code',
+      message: `Your verification code is: ${otp}\n\nThis code expires in 120 seconds.`,
+      html
+    });
+
+    res.json({ message: 'OTP_SENT_SUCCESSFULLY' });
+  } catch (error) {
+    console.error('// SEND_OTP_FAULT:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
+// ─── 0. VERIFY OTP ───────────────────────────────────────────────────────────
+const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const storedOtp = await Otp.findOne({ email });
+    if (!storedOtp) return res.status(400).json({ message: 'OTP_NOT_REQUESTED_OR_EXPIRED' });
+
+    if (storedOtp.attempts >= 5) {
+      await Otp.deleteOne({ email });
+      return res.status(429).json({ message: 'OTP_MAX_ATTEMPTS_EXCEEDED' });
+    }
+
+    if (storedOtp.otp !== otp) {
+      storedOtp.attempts += 1;
+      await storedOtp.save();
+      return res.status(400).json({ message: 'INVALID_OTP' });
+    }
+
+    await Otp.deleteOne({ email }); // Clear after successful verify
+    res.json({ success: true, message: 'EMAIL_VERIFIED' });
+  } catch (error) {
+    console.error('// VERIFY_OTP_FAULT:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
 // ─── 1. REGISTER (Admin creates society) ─────────────────────────────────────
 const registerUser = async (req, res) => {
   try {
@@ -18,10 +88,23 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'NAME_EMAIL_PASSWORD_REQUIRED' });
     }
 
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'PASSWORD_MIN_8_CHARS' });
+    }
+    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!strongPassword.test(password)) {
+      return res.status(400).json({ message: 'PASSWORD_COMPLEXITY_REQUIRED' });
+    }
+
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'EMAIL_ALREADY_IN_USE' });
 
-    // Admin secret code check removed as requested
+    if (role !== 'admin') {
+      return res.status(403).json({ message: 'ONLY_ADMIN_REGISTRATION_ALLOWED' });
+    }
+    if (secretCode !== process.env.ADMIN_SECRET_CODE) {
+      return res.status(403).json({ message: 'INVALID_ADMIN_SECRET_CODE' });
+    }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -47,25 +130,17 @@ const registerUser = async (req, res) => {
         maintenanceAmount: Number(maintenanceAmount) || 0,
       });
       assignedSocietyId = newSociety._id;
-    } else {
-      if (!societyId) return res.status(400).json({ message: 'TARGET_SOCIETY_NOT_SELECTED' });
-      const societyExists = await Society.findById(societyId);
-      if (!societyExists) return res.status(400).json({ message: 'SOCIETY_NOT_FOUND' });
-      assignedSocietyId = societyId;
-    }
+      assignedSocietyId = newSociety._id;
 
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
-      role: role || 'member',
-      societyId: assignedSocietyId,
-      flatDetails: role === 'member' ? flatDetails : undefined,
+      role: 'admin',
+      societyId: assignedSocietyId
     });
 
-    if (role === 'admin') {
-      await Society.findByIdAndUpdate(assignedSocietyId, { createdBy: user._id });
-    }
+    await Society.findByIdAndUpdate(assignedSocietyId, { createdBy: user._id });
 
     res.status(201).json({ message: 'REGISTRY_INITIALIZED_SUCCESSFULLY' });
   } catch (error) {
@@ -81,6 +156,14 @@ const memberSelfRegister = async (req, res) => {
 
     if (!name || !email || !password || !societyId) {
       return res.status(400).json({ message: 'ALL_FIELDS_REQUIRED' });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'PASSWORD_MIN_8_CHARS' });
+    }
+    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!strongPassword.test(password)) {
+      return res.status(400).json({ message: 'PASSWORD_COMPLEXITY_REQUIRED' });
     }
 
     const userExists = await User.findOne({ email });
@@ -105,10 +188,18 @@ const memberSelfRegister = async (req, res) => {
     // Notify Admins
     const admins = await User.find({ societyId, role: 'admin' });
     admins.forEach(admin => {
+      const html = getProfessionalEmailTemplate({
+        subtitle: 'NEW REGISTRATION REQUEST',
+        greeting: 'Hello Admin,',
+        bodyText: `A new member (<strong>${name}</strong>) has registered for Flat <strong>${wing}-${flatNumber}</strong>. Please log in to the admin dashboard to review and approve or decline their request.`,
+        footerText: 'This is an automated system notification.'
+      });
+
       sendEmail({
         email: admin.email,
         subject: 'New Member Registration Request',
-        message: `A new member (${name}) has registered for Flat ${wing}-${flatNumber}. Please log in to the admin dashboard to approve or decline their request.`
+        message: `A new member (${name}) has registered for Flat ${wing}-${flatNumber}. Please approve or decline their request.`,
+        html
       });
     });
 
@@ -143,7 +234,7 @@ const loginUser = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, role: user.role, societyId: user.societyId?._id },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '8h' }
     );
 
     res.json({
@@ -189,6 +280,14 @@ const updateProfile = async (req, res) => {
       }
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) return res.status(400).json({ message: 'CURRENT_PASSWORD_INCORRECT' });
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: 'PASSWORD_MIN_8_CHARS' });
+      }
+      const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      if (!strongPassword.test(newPassword)) {
+        return res.status(400).json({ message: 'PASSWORD_COMPLEXITY_REQUIRED' });
+      }
+
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
       user.mustChangePassword = false;
@@ -206,7 +305,7 @@ const updateProfile = async (req, res) => {
 // ─── 5. GET ALL USERS (Admin) ─────────────────────────────────────────────────
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({ societyId: req.user.societyId, role: 'member' })
+    const users = await User.find({ societyId: req.user.societyId, role: 'member', isActive: true })
       .select('-password')
       .sort({ createdAt: -1 });
     res.json(users);
@@ -242,11 +341,26 @@ const approveMember = async (req, res) => {
     user.isActive = true;
     await user.save();
 
+    const adminUser = await User.findById(req.user._id).populate('societyId');
+    const societyName = adminUser.societyId?.name || 'Awaastech Society';
+    const adminName = adminUser.name;
+    const adminEmail = adminUser.email;
+
     // Notify User
+    const html = getProfessionalEmailTemplate({
+      subtitle: `ACCOUNT APPROVED - ${societyName.toUpperCase()}`,
+      greeting: `Hello ${user.name},`,
+      bodyText: `Great news! Your registration for <strong>${societyName}</strong> has been approved by the society admin (<strong>${adminName}</strong> - <a href="mailto:${adminEmail}">${adminEmail}</a>). You can now log in to the member portal to view bills, notices, and submit complaints.`,
+      highlightBox: 'APPROVED',
+      highlightBoxLabel: 'Account Status',
+      footerText: `Welcome to ${societyName}.`
+    });
+
     sendEmail({
       email: user.email,
       subject: 'Society Registration Approved',
-      message: `Hello ${user.name},\n\nYour registration has been approved by the society admin. You can now log in to the portal.`
+      message: `Hello ${user.name},\n\nYour registration has been approved. You can now log in to the portal.`,
+      html
     });
 
     res.json({ message: 'MEMBER_APPROVED' });
@@ -316,9 +430,31 @@ const addMember = async (req, res) => {
       flatDetails: { wing, floor: Number(floor), flatNumber, residentType: residentType || 'Owner' }
     });
 
+    const adminUser = await User.findById(req.user._id).populate('societyId');
+    const societyName = adminUser.societyId?.name || 'Awaastech Society';
+    const adminName = adminUser.name;
+    const adminEmail = adminUser.email;
+
+    // Notify User with credentials
+    const html = getProfessionalEmailTemplate({
+      subtitle: `WELCOME TO ${societyName.toUpperCase()}`,
+      greeting: `Hello ${user.name},`,
+      bodyText: `An account has been created for you by your society admin (<strong>${adminName}</strong>). Please use the following temporary credentials to log in. <strong>You must change your password immediately after logging in.</strong><br><br>If you have any questions, contact your admin at <a href="mailto:${adminEmail}">${adminEmail}</a>.`,
+      highlightBox: `${user.email}<br><span style="font-size: 20px;">Pass: ${generatedPassword}</span>`,
+      highlightBoxLabel: 'Your Login Credentials',
+      warningText: 'Do not share this password with anyone.',
+      footerText: `Sent on behalf of ${societyName}`
+    });
+
+    sendEmail({
+      email: user.email,
+      subject: 'Welcome to the Society Management System',
+      message: `Hello ${user.name},\n\nLogin Email: ${user.email}\nTemporary Password: ${generatedPassword}\n\nPlease log in and change your password immediately.`,
+      html
+    });
+
     res.status(201).json({ 
-      message: 'MEMBER_ADDED_TO_REGISTRY',
-      generatedPassword
+      message: 'MEMBER_ADDED_TO_REGISTRY'
     });
   } catch (error) {
     console.error('// ADD_MEMBER_FAULT:', error);
@@ -339,7 +475,11 @@ const updateMember = async (req, res) => {
     }
 
     if (name) user.name = name;
-    if (email) user.email = email;
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) return res.status(400).json({ message: 'EMAIL_ALREADY_IN_USE' });
+      user.email = email;
+    }
     if (phone !== undefined) user.phone = phone;
     if (parkingSlot !== undefined) user.parkingSlot = parkingSlot;
     if (vehicleNumber !== undefined) user.vehicleNumber = vehicleNumber;
@@ -372,7 +512,8 @@ const getSocietyLimits = async (req, res) => {
 };
 
 module.exports = {
+  sendOTP, verifyOTP,
   registerUser, loginUser, updateProfile,
-  getAllUsers,
+  getAllUsers, getPendingMembers, approveMember,
   deleteUser, addMember, updateMember, getSocietyLimits
 };

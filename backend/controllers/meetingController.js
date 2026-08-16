@@ -1,4 +1,7 @@
 const Meeting = require('../models/Meeting');
+const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
+const { getProfessionalEmailTemplate } = require('../utils/emailTemplates');
 
 // @desc    Get all meetings for a society
 // @route   GET /api/meetings
@@ -43,6 +46,53 @@ exports.createMeeting = async (req, res) => {
       targetType: targetType || 'All',
       targetUserId: targetType === 'Specific' ? targetUserId : undefined,
     });
+
+    // Notify members
+    const meetingDate = new Date(date).toLocaleString();
+    
+    if (targetType === 'Specific') {
+      const user = await User.findOne({ _id: targetUserId, societyId: req.user.societyId });
+      if (!user) return res.status(404).json({ message: 'MEMBER_NOT_FOUND_IN_SOCIETY' });
+
+      const html = getProfessionalEmailTemplate({
+        subtitle: 'MEETING INVITATION',
+        greeting: `Hello ${user.name},`,
+        bodyText: `You have been invited to a society meeting: "<strong>${title}</strong>".`,
+        highlightBox: meetingDate,
+        highlightBoxLabel: `Location: ${location}`,
+        footerText: 'Please try to attend.'
+      });
+
+      sendEmail({
+        email: user.email,
+        subject: `Meeting Invite: ${title}`,
+        message: `Hello ${user.name},\n\nYou have been invited to a society meeting.\n\nTitle: ${title}\nDate: ${meetingDate}\nLocation: ${location}\nDescription: ${description}\n\nPlease try to attend.`,
+        html
+      });
+    } else {
+      const members = await User.find({ societyId: req.user.societyId, role: 'member', isActive: true });
+      
+      const html = getProfessionalEmailTemplate({
+        subtitle: 'SOCIETY MEETING',
+        greeting: 'Hello Resident,',
+        bodyText: `A new society meeting has been scheduled: "<strong>${title}</strong>".`,
+        highlightBox: meetingDate,
+        highlightBoxLabel: `Location: ${location}`,
+        footerText: 'Your attendance is highly appreciated.'
+      });
+
+      (async () => {
+        for (const member of members) {
+          await sendEmail({
+            email: member.email,
+            subject: `Society Meeting: ${title}`,
+            message: `Hello ${member.name},\n\nA new society meeting has been scheduled.\n\nTitle: ${title}\nDate: ${meetingDate}\nLocation: ${location}\nDescription: ${description}\n\nPlease try to attend.`,
+            html
+          }).catch(err => console.error("Meeting email error:", err.message));
+          await new Promise(r => setTimeout(r, 100)); // 100ms delay
+        }
+      })();
+    }
 
     res.status(201).json(meeting);
   } catch (error) {

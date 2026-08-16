@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import api from '../api';
@@ -16,13 +16,70 @@ const Register = () => {
   const [wings, setWings] = useState([]);
   const [floors, setFloors] = useState('');
 
+  // OTP State
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
+  const [timer, setTimer] = useState(0);
+
   const WING_OPTIONS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   const handleCheckboxChange = (opt) =>
     wings.includes(opt) ? setWings(wings.filter((i) => i !== opt)) : setWings([...wings, opt]);
 
+  // Timer Effect
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const sendOTP = async () => {
+    if (!email) {
+      toast.error('Please enter an email address first.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.post('/auth/send-otp', { email });
+      setOtpSent(true);
+      setTimer(120);
+      toast.success('OTP sent to your email!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to send OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyOTP = async () => {
+    if (!otp) {
+      toast.error('Please enter the OTP.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.post('/auth/verify-otp', { email, otp });
+      setIsVerified(true);
+      setTimer(0);
+      toast.success('Email verified successfully!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Invalid OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isVerified) {
+      toast.error('Please verify your email first.');
+      return;
+    }
     if (wings.length === 0) {
       toast.error('Please select at least one Wing.');
       return;
@@ -81,15 +138,73 @@ const Register = () => {
               SECTION_01: ADMIN_CREDENTIALS
             </label>
             <div style={{ display: 'grid', gap: '10px' }}>
-              <input placeholder="FULL_NAME" value={name} onChange={(e) => setName(e.target.value)} required className="brutal-input" />
-              <input type="email" placeholder="EMAIL_ADDRESS" value={email} onChange={(e) => setEmail(e.target.value)} required className="brutal-input" />
+              <input placeholder="FULL_NAME" value={name} onChange={(e) => setName(e.target.value)} required className="brutal-input" disabled={isVerified} />
+              
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input 
+                  type="email" 
+                  placeholder="EMAIL_ADDRESS" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  required 
+                  className="brutal-input" 
+                  style={{ flex: 1 }}
+                  disabled={otpSent || isVerified} 
+                />
+                {!isVerified && (
+                  <button
+                    type="button"
+                    onClick={otpSent ? (timer === 0 ? sendOTP : null) : sendOTP}
+                    disabled={loading || (otpSent && timer > 0)}
+                    style={{
+                      padding: '0 20px', backgroundColor: (otpSent && timer > 0) ? '#aaa' : theme.textMain, color: 'white',
+                      border: 'none', fontWeight: '700', fontFamily: "'Space Mono', monospace", cursor: (loading || (otpSent && timer > 0)) ? 'not-allowed' : 'pointer',
+                      boxShadow: `4px 4px 0px ${theme.accent}`
+                    }}
+                  >
+                    {loading ? '...' : otpSent ? (timer > 0 ? `RESEND(${timer}s)` : 'RESEND_OTP') : 'VERIFY'}
+                  </button>
+                )}
+                {isVerified && (
+                  <div style={{ padding: '0 20px', backgroundColor: theme.accent, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontFamily: "'Space Mono', monospace", border: '1px solid #1A1A1A', boxShadow: `4px 4px 0px #1A1A1A` }}>
+                    VERIFIED
+                  </div>
+                )}
+              </div>
+
+              {otpSent && !isVerified && (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="ENTER_OTP" 
+                    value={otp} 
+                    onChange={(e) => setOtp(e.target.value)} 
+                    className="brutal-input" 
+                    style={{ flex: 1, borderColor: theme.accent, borderWidth: '2px' }}
+                    maxLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={verifyOTP}
+                    disabled={loading}
+                    style={{
+                      padding: '0 20px', backgroundColor: theme.accent, color: 'white',
+                      border: 'none', fontWeight: '700', fontFamily: "'Space Mono', monospace", cursor: loading ? 'not-allowed' : 'pointer',
+                      boxShadow: `4px 4px 0px ${theme.textMain}`
+                    }}
+                  >
+                    CONFIRM
+                  </button>
+                </div>
+              )}
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
-                <input type="password" placeholder="PASSWORD" value={password} onChange={(e) => setPassword(e.target.value)} required className="brutal-input" />
+                <input type="password" placeholder="PASSWORD" value={password} onChange={(e) => setPassword(e.target.value)} required className="brutal-input" disabled={!isVerified} />
               </div>
             </div>
           </div>
 
-          <div style={{ marginBottom: '25px' }}>
+          <div style={{ marginBottom: '25px', opacity: isVerified ? 1 : 0.4, pointerEvents: isVerified ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
             <label style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700', marginBottom: '10px' }}>
               SECTION_02: SOCIETY_MANIFEST
             </label>
@@ -133,12 +248,11 @@ const Register = () => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isVerified}
             style={{
-              width: '100%', padding: '20px', backgroundColor: theme.textMain, color: 'white',
+              width: '100%', padding: '20px', backgroundColor: (!isVerified || loading) ? '#aaa' : theme.textMain, color: 'white',
               border: 'none', fontSize: '16px', fontWeight: '700', fontFamily: "'Space Mono', monospace",
-              cursor: loading ? 'not-allowed' : 'pointer', boxShadow: `6px 6px 0px ${theme.accent}`,
-              opacity: loading ? 0.7 : 1,
+              cursor: (!isVerified || loading) ? 'not-allowed' : 'pointer', boxShadow: (!isVerified || loading) ? 'none' : `6px 6px 0px ${theme.accent}`,
             }}
           >
             {loading ? 'DEPLOYING...' : 'INITIALIZE_DEPLOYMENT'}

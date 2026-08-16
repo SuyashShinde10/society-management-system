@@ -6,7 +6,7 @@ import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 
 const Profile = () => {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -40,8 +40,14 @@ const Profile = () => {
         payload.newPassword = formData.newPassword;
       }
 
-      await api.put('/auth/profile', payload);
+      const { data } = await api.put('/auth/profile', payload);
       toast.success('Profile updated successfully');
+      
+      if (data.user) {
+        const updatedUser = { ...user, ...data.user };
+        setUser(updatedUser);
+        localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+      }
       
       if (formData.newPassword) {
         setFormData({ ...formData, currentPassword: '', newPassword: '' });

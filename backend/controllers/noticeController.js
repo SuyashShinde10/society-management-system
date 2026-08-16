@@ -1,4 +1,7 @@
 const Notice = require('../models/Notice');
+const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
+const { getProfessionalEmailTemplate } = require('../utils/emailTemplates');
 
 const getNotices = async (req, res) => {
   try {
@@ -43,6 +46,51 @@ const addNotice = async (req, res) => {
       targetType: targetType || 'All',
       targetUserId: targetType === 'Specific' ? targetUserId : undefined,
     });
+
+    // Notify members
+    if (targetType === 'Specific') {
+      const user = await User.findOne({ _id: targetUserId, societyId: req.user.societyId });
+      if (!user) return res.status(404).json({ message: 'MEMBER_NOT_FOUND_IN_SOCIETY' });
+
+      const html = getProfessionalEmailTemplate({
+        subtitle: 'DIRECT NOTICE',
+        greeting: `Hello ${user.name},`,
+        bodyText: `A new notice has been posted specifically for you.`,
+        highlightBox: title,
+        highlightBoxLabel: 'Notice Title',
+        footerText: 'Please log in to the portal to view full details.'
+      });
+
+      sendEmail({
+        email: user.email,
+        subject: `New Notice: ${title}`,
+        message: `Hello ${user.name},\n\nA new notice has been posted specifically for you:\n\nTitle: ${title}\n\n${content}\n\nPlease check the portal for more details.`,
+        html
+      });
+    } else {
+      const members = await User.find({ societyId: req.user.societyId, role: 'member', isActive: true });
+      
+      const html = getProfessionalEmailTemplate({
+        subtitle: 'SOCIETY NOTICE',
+        greeting: 'Hello Resident,',
+        bodyText: `A new society notice has been posted by the administration.`,
+        highlightBox: title,
+        highlightBoxLabel: 'Notice Title',
+        footerText: 'Please log in to the portal to view full details.'
+      });
+      // In a real production system, this should be sent as BCC or handled via a queue to avoid spam/timeouts.
+      (async () => {
+        for (const member of members) {
+          await sendEmail({
+            email: member.email,
+            subject: `Society Notice: ${title}`,
+            message: `Hello ${member.name},\n\nA new society notice has been posted:\n\nTitle: ${title}\n\n${content}\n\nPlease check the portal for more details.`,
+            html
+          }).catch(err => console.error("Notice email error:", err.message));
+          await new Promise(r => setTimeout(r, 100)); // 100ms delay between sends
+        }
+      })();
+    }
 
     res.status(201).json(notice);
   } catch (error) {

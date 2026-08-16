@@ -8,7 +8,9 @@ const sendEmail = async (options) => {
     }
     
     const transporter = nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE || 'gmail',
+      host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
+      port: process.env.EMAIL_PORT || 587,
+      secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -16,15 +18,17 @@ const sendEmail = async (options) => {
     });
 
     const mailOptions = {
-      from: `Society System <${process.env.EMAIL_USER}>`,
+      from: `Awaastech Society System <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
       to: options.email,
       subject: options.subject,
       text: options.message,
+      html: options.html, // Support for professional HTML templates
     };
 
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('// EMAIL_SENT_SUCCESS:', info.messageId);
   } catch (error) {
-    console.error('// EMAIL_SEND_ERROR', error.message);
+    console.error('// EMAIL_SEND_ERROR:', error.message);
   }
 };
 

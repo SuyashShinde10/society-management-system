@@ -1,6 +1,8 @@
 const MaintenanceBill = require('../models/MaintenanceBill');
 const User = require('../models/User');
 const Society = require('../models/Society');
+const sendEmail = require('../utils/sendEmail');
+const { getProfessionalEmailTemplate } = require('../utils/emailTemplates');
 
 // @desc  Generate bills based on target selection
 // @route POST /api/bills/generate
@@ -39,6 +41,23 @@ const generateBills = async (req, res) => {
           amount: Number(amount),
           dueDate: dueDate ? new Date(dueDate) : null,
         });
+        
+        // Notify member
+        const html = getProfessionalEmailTemplate({
+          subtitle: 'NEW MAINTENANCE BILL',
+          greeting: `Hello ${member.name},`,
+          bodyText: `A new maintenance bill of ₹${amount} has been generated for you.`,
+          highlightBox: `₹${amount}`,
+          highlightBoxLabel: `Due Date: ${dueDate ? new Date(dueDate).toDateString() : 'N/A'}`,
+          warningText: 'Please login to the portal to view details and make payment.'
+        });
+
+        sendEmail({
+          email: member.email,
+          subject: `New Maintenance Bill: ${title}`,
+          html
+        });
+        
         bills.push(bill);
       } catch (err) {
         errors.push(`Failed for ${member.name}: ${err.message}`);
@@ -68,10 +87,15 @@ const getBills = async (req, res) => {
       filter.userId = req.user._id;
     }
 
+    const page = parseInt(req.query.page) || 1;
+    const limit = 20;
+    const skip = (page - 1) * limit;
+
     const bills = await MaintenanceBill.find(filter)
       .populate('userId', 'name flatDetails')
       .sort({ createdAt: -1 })
-      .limit(200);
+      .skip(skip)
+      .limit(limit);
 
     res.json(bills);
   } catch (error) {
@@ -80,12 +104,11 @@ const getBills = async (req, res) => {
   }
 };
 
-// @desc  Mark a bill as paid
+// @desc  Mark a bill as paid or submit for verification
 // @route PUT /api/bills/:id/pay
-// @access Admin
 const markBillPaid = async (req, res) => {
   try {
-    const { paymentMode, notes } = req.body;
+    const { paymentMode, notes, action } = req.body;
 
     const bill = await MaintenanceBill.findById(req.params.id);
     if (!bill) return res.status(404).json({ message: 'BILL_NOT_FOUND' });
@@ -94,16 +117,54 @@ const markBillPaid = async (req, res) => {
       return res.status(403).json({ message: 'FORBIDDEN' });
     }
 
-    const updateData = {
-      isPaid: true,
-      paidOn: new Date(),
-      paymentMode: paymentMode || 'Cash',
-      markedPaidBy: req.user._id,
-    };
+    // Members can only pay their own bills
+    if (req.user.role !== 'admin' && bill.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'NOT_YOUR_BILL' });
+    }
+
+    const updateData = {};
+    if (req.user.role === 'admin') {
+      if (action === 'reject') {
+        if (bill.status === 'Pending') return res.status(400).json({ message: 'BILL_ALREADY_PENDING' });
+        updateData.status = 'Pending';
+        updateData.paymentMode = null;
+        updateData.isPaid = false;
+      } else {
+        if (bill.isPaid) return res.status(400).json({ message: 'BILL_ALREADY_PAID' });
+        updateData.isPaid = true;
+        updateData.status = 'Paid';
+        updateData.paidOn = new Date();
+        updateData.paymentMode = paymentMode || bill.paymentMode || 'Cash';
+        updateData.markedPaidBy = req.user._id;
+      }
+    } else {
+      // Member submission
+      if (bill.isPaid) return res.status(400).json({ message: 'BILL_ALREADY_PAID' });
+      if (bill.status === 'Under Verification') return res.status(400).json({ message: 'ALREADY_UNDER_VERIFICATION' });
+      
+      updateData.status = 'Under Verification';
+      updateData.paymentMode = paymentMode || 'UPI';
+    }
+
     if (notes) updateData.notes = notes;
 
-    const updatedBill = await MaintenanceBill.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    const updatedBill = await MaintenanceBill.findByIdAndUpdate(req.params.id, updateData, { new: true }).populate('userId', 'name email');
     
+    if (updatedBill.status === 'Paid' && updatedBill.userId && updatedBill.userId.email) {
+      const html = getProfessionalEmailTemplate({
+        subtitle: 'PAYMENT RECEIPT',
+        greeting: `Hello ${updatedBill.userId.name},`,
+        bodyText: `Your payment of ₹${updatedBill.amount} for "${updatedBill.title}" has been received successfully via ${updatedBill.paymentMode}.`,
+        footerText: 'Thank you!'
+      });
+
+      sendEmail({
+        email: updatedBill.userId.email,
+        subject: `Payment Receipt: ${updatedBill.title}`,
+        html
+      });
+    }
+
     res.json(updatedBill);
   } catch (error) {
     console.error('Error marking bill paid:', error);

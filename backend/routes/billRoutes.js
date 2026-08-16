@@ -5,7 +5,7 @@ const { protect, admin } = require('../middleware/authMiddleware');
 
 router.get('/', protect, getBills);
 router.post('/generate', protect, admin, generateBills);
-router.put('/:id/pay', protect, admin, markBillPaid);
+router.put('/:id/pay', protect, markBillPaid);
 router.delete('/:id', protect, admin, deleteBill);
 
 module.exports = router;

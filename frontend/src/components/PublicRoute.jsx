@@ -15,7 +15,6 @@ const PublicRoute = ({ children }) => {
 
   // If user exists, system state is AUTHENTICATED. Redirect to their dashboard.
   if (user) {
-    console.log("// SESSION_ALREADY_ACTIVE: Redirecting to Core Dashboard.");
     const correctPath = user.role === 'admin' ? '/dashboard' : '/resident';
     return <Navigate to={correctPath} replace />;
   }

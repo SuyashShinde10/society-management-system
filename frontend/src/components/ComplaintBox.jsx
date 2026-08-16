@@ -32,25 +32,12 @@ const ComplaintBox = () => {
     // Vercel-compatible real-time fallback (Short Polling)
     const interval = setInterval(() => {
       fetchComplaints(false);
-    }, 10000); // 10 seconds
+    }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
   }, [fetchComplaints]);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('File size must be less than 5MB.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setForm({ ...form, attachment: reader.result });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // File upload replaced with URL input to prevent DB bloat
 
   const handlePost = async (e) => {
     e.preventDefault();
@@ -132,16 +119,13 @@ const ComplaintBox = () => {
               className="incident-input"
               style={{ minHeight: '80px' }}
             />
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <label style={{ flex: 1, padding: '10px', background: theme.border, cursor: 'pointer', textAlign: 'center', fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700' }}>
-                📎 ATTACH_FILE
-                <input type="file" style={{ display: 'none' }} onChange={handleFileChange} />
-              </label>
-              <label style={{ flex: 1, padding: '10px', background: theme.border, cursor: 'pointer', textAlign: 'center', fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700' }}>
-                📸 LIVE_PHOTO
-                <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={handleFileChange} />
-              </label>
-            </div>
+            <input
+              type="url"
+              placeholder="EVIDENCE_URL (Optional)"
+              value={form.attachment}
+              onChange={(e) => setForm({ ...form, attachment: e.target.value })}
+              className="incident-input"
+            />
             {form.attachment && (
               <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', color: theme.accent, marginTop: '-5px' }}>
                 // FILE_ATTACHED_READY_FOR_UPLOAD

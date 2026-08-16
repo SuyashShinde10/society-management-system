@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 const {
+  sendOTP, verifyOTP,
   registerUser, loginUser, updateProfile,
-  getAllUsers, deleteUser, addMember, updateMember, getSocietyLimits
+  getAllUsers, getPendingMembers, deleteUser, addMember, updateMember, getSocietyLimits, approveMember
 } = require('../controllers/authController');
 
 const { protect, admin } = require('../middleware/authMiddleware');
@@ -16,6 +17,8 @@ const authLimiter = rateLimit({
 });
 
 // ── PUBLIC ──────────────────────────────────────────────────────────────────
+router.post('/send-otp', authLimiter, sendOTP);
+router.post('/verify-otp', authLimiter, verifyOTP);
 router.post('/register', authLimiter, registerUser);               // Admin creates society
 router.post('/login', authLimiter, loginUser);
 
@@ -25,7 +28,9 @@ router.get('/society-limits', protect, getSocietyLimits);
 
 // ── ADMIN ONLY ───────────────────────────────────────────────────────────────
 router.get('/users', protect, admin, getAllUsers);
+router.get('/pending-members', protect, admin, getPendingMembers);
 router.post('/add-member', protect, admin, addMember);
+router.put('/approve-member/:id', protect, admin, approveMember);
 router.delete('/user/:id', protect, admin, deleteUser);
 router.put('/user/:id', protect, admin, updateMember);
 

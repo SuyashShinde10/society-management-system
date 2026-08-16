@@ -63,16 +63,31 @@ app.use(
 // -------------------------------------------------------
 // BODY PARSING
 // -------------------------------------------------------
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+// Auth routes: tiny payloads only
+app.use('/api/auth', express.json({ limit: '1kb' }));
+// General: reasonable ceiling
+app.use(express.json({ limit: '50kb' }));
+app.use(express.urlencoded({ extended: false, limit: '50kb' }));
 
 // -------------------------------------------------------
-// NOSQL INJECTION SANITIZATION (REMOVED)
+// NOSQL INJECTION SANITIZATION (CUSTOM MIDDLEWARE)
 // -------------------------------------------------------
-// Note: express-mongo-sanitize was causing 500 crashes on Vercel
-// because it attempts to mutate read-only getters on Vercel's
-// IncomingMessage req object. Mongoose schema casting provides
-// sufficient baseline protection for string/ObjectId fields.
+app.use((req, res, next) => {
+  const sanitize = (obj) => {
+    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+      for (const key of Object.keys(obj)) {
+        if (key.startsWith('$')) {
+          delete obj[key];
+        } else {
+          sanitize(obj[key]);
+        }
+      }
+    }
+  };
+  sanitize(req.body);
+  sanitize(req.query);
+  next();
+});
 
 // -------------------------------------------------------
 // RATE LIMITING
@@ -113,7 +128,7 @@ app.use('/api/analytics', require('./routes/analyticsRoutes'));
 // HEALTH CHECK
 // -------------------------------------------------------
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', version: '2.0.0' });
+  res.json({ status: 'ok' });
 });
 
 // -------------------------------------------------------

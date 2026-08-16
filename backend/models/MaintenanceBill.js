@@ -13,6 +13,7 @@ const MaintenanceBillSchema = new mongoose.Schema({
 
   amount: { type: Number, required: true, min: 0 },
   isPaid: { type: Boolean, default: false },
+  status: { type: String, enum: ['Pending', 'Under Verification', 'Paid'], default: 'Pending' },
   paidOn: { type: Date },
   paymentMode: {
     type: String, enum: ['Cash', 'Bank Transfer', 'Cheque', 'UPI', 'Other']

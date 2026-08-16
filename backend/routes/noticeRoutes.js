@@ -6,13 +6,13 @@ const {
   deleteNotice // <--- Ensure this is imported
 } = require('../controllers/noticeController');
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 // Define Routes
 router.get('/', protect, getNotices);
-router.post('/', protect, addNotice);
+router.post('/', protect, admin, addNotice);
 
 // This line was crashing because deleteNotice was undefined
-router.delete('/:id', protect, deleteNotice); 
+router.delete('/:id', protect, admin, deleteNotice); 
 
 module.exports = router;
