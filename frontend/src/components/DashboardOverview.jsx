@@ -58,7 +58,12 @@ const DashboardOverview = ({ onNavigate }) => {
   }, []);
 
   if (loading) {
-    return <div style={{ fontFamily: "'Space Mono', monospace", padding: '40px' }}>// CALCULATING_METRICS...</div>;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px', fontFamily: "'Space Mono', monospace", background: theme.surface, border: `3px solid ${theme.border}`, gap: '20px' }}>
+        <img src="/awaastech-logo.png" alt="Loading Logo" className="brutal-pulse" style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
+        // CALCULATING_METRICS...
+      </div>
+    );
   }
 
   return (

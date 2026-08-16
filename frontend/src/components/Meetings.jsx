@@ -140,7 +140,7 @@ const Meetings = () => {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', maxHeight: '60vh', overflowY: 'auto', paddingRight: '5px' }}>
           {isLoading ? (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}><span className="spinner"></span></div>
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}><img src="/awaastech-logo.png" alt="Loading" className="brutal-pulse" style={{ width: '40px', height: '40px', objectFit: 'contain' }} /></div>
           ) : meetings.length === 0 ? (
             <div style={{ gridColumn: '1 / -1', fontFamily: "'Space Mono', monospace", fontSize: '12px', color: theme.textSec, textAlign: 'center' }}>// NO_UPCOMING_MEETINGS</div>
           ) : (

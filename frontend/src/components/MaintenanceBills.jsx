@@ -282,7 +282,7 @@ const MaintenanceBills = () => {
         <div style={{ overflowY: 'auto', maxHeight: '60vh', padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-              <span className="spinner"></span>
+              <img src="/awaastech-logo.png" alt="Loading" className="brutal-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
           ) : paginatedBills.length === 0 ? (
             <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', textAlign: 'center', color: theme.textSec }}>// NO_BILLS_FOUND</p>

@@ -182,7 +182,7 @@ const NoticeBoard = () => {
         <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '60vh', overflowY: 'auto', border: `1px solid ${theme.border}` }}>
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-              <span className="spinner"></span>
+              <img src="/awaastech-logo.png" alt="Loading" className="brutal-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
           ) : paginatedNotices.length === 0 ? (
             <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', padding: '20px', textAlign: 'center' }}>

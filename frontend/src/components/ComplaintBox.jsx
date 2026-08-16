@@ -161,7 +161,7 @@ const ComplaintBox = () => {
         <div style={{ overflowY: 'auto', maxHeight: '60vh', border: `1px solid ${theme.border}` }}>
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-              <span className="spinner"></span>
+              <img src="/awaastech-logo.png" alt="Loading" className="brutal-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
           ) : paginatedComplaints.length === 0 ? (
             <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', fontFamily: "'Space Mono', monospace", fontSize: '12px' }}>
