@@ -63,11 +63,8 @@ const Profile = () => {
   };
 
   return (
-    <div style={{ backgroundColor: theme.bg, minHeight: '100vh', padding: '40px 20px' }}>
+    <div style={{ width: '100%' }}>
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", fontWeight: '700', marginBottom: '30px' }}>
-          ← BACK_TO_DASHBOARD
-        </button>
 
         <div className="organic-card" style={{ padding: '40px' }}>
           <header style={{ borderBottom: `2px solid ${theme.textMain}`, paddingBottom: '20px', marginBottom: '30px' }}>
