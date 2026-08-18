@@ -35,8 +35,14 @@ const App = () => {
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
             <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
 
-            {/* Protected: both roles */}
-            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+            {/* Protected: standalone profile for security/superadmin */}
+            <Route path="/profile" element={
+              <PrivateRoute>
+                <div style={{ backgroundColor: '#F9F8F3', minHeight: '100vh', padding: '40px 20px', display: 'flex', flexDirection: 'column' }}>
+                  <Profile />
+                </div>
+              </PrivateRoute>
+            } />
 
             {/* Admin dashboard */}
             <Route

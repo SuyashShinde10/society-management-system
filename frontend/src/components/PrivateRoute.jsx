@@ -22,7 +22,10 @@ const PrivateRoute = ({ children }) => {
   if (!user) return <Navigate to="/login" replace />;
 
   if (user.mustChangePassword && location.pathname !== '/profile') {
-    return <Navigate to="/profile" replace />;
+    if (user.role === 'security' || user.role === 'superadmin') {
+      return <Navigate to="/profile" replace />;
+    }
+    // admin and member handle their own mustChangePassword lock in their dashboards
   }
 
   return children;
