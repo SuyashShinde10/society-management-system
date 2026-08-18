@@ -38,7 +38,21 @@ const ComplaintBox = () => {
     return () => clearInterval(interval);
   }, [fetchComplaints]);
 
-  // File upload replaced with URL input to prevent DB bloat
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) { // 3MB limit
+      toast.error('File size must be less than 3MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setForm({ ...form, attachment: reader.result });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handlePost = async (e) => {
     e.preventDefault();
@@ -122,16 +136,32 @@ const ComplaintBox = () => {
               className="incident-input"
               style={{ minHeight: '80px' }}
             />
-            <input
-              type="url"
-              placeholder="EVIDENCE_URL (Optional)"
-              value={form.attachment}
-              onChange={(e) => setForm({ ...form, attachment: e.target.value })}
-              className="incident-input"
-            />
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <label style={{
+                flex: 1, padding: '12px', background: '#F9F8F3', border: `1px dashed ${theme.border}`, 
+                borderRadius: '12px', textAlign: 'center', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", fontSize: '14px', color: theme.textMain
+              }}>
+                📄 Upload File (Max 3MB)
+                <input type="file" accept="*/*" onChange={handleFileUpload} style={{ display: 'none' }} />
+              </label>
+
+              <label style={{
+                flex: 1, padding: '12px', background: '#F9F8F3', border: `1px dashed ${theme.border}`, 
+                borderRadius: '12px', textAlign: 'center', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", fontSize: '14px', color: theme.textMain
+              }}>
+                📷 Take Photo / Video
+                <input type="file" accept="image/*,video/*" capture="environment" onChange={handleFileUpload} style={{ display: 'none' }} />
+              </label>
+            </div>
+            
             {form.attachment && (
-              <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: '11px', color: theme.accent, marginTop: '-5px' }}>
-                // FILE_ATTACHED_READY_FOR_UPLOAD
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 15px', background: '#EEF2FF', borderRadius: '8px', border: '1px solid #C7D2FE' }}>
+                <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '12px', color: '#4F46E5', fontWeight: '600' }}>
+                  ✓ EVIDENCE ATTACHED
+                </span>
+                <button type="button" onClick={() => setForm({ ...form, attachment: '' })} style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
+                  Remove
+                </button>
               </div>
             )}
             <button type="submit" style={{
