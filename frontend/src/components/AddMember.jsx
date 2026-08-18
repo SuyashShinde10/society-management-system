@@ -24,6 +24,9 @@ const AddMember = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [timer, setTimer] = useState(0);
 
+  const [loading, setLoading] = useState(false);
+  const [generatedCreds, setGeneratedCreds] = useState(null);
+
   useEffect(() => {
     const fetchLimits = async () => {
       try {
