@@ -20,6 +20,7 @@ const MaintenanceBills = () => {
   const [users, setUsers] = useState([]);
   const [generateData, setGenerateData] = useState({ title: '', description: '', amount: '', dueDate: '', targetType: 'All', targetUserId: '' });
   const [payingBillId, setPayingBillId] = useState(null);
+  const [splitPayments, setSplitPayments] = useState({ upi: '', cash: '', bank: '' });
   const [expandedGroup, setExpandedGroup] = useState(null);
   const limit = 10;
 
@@ -167,6 +168,11 @@ const MaintenanceBills = () => {
       doc.setFont('courier', 'bold');
       doc.setFontSize(14);
       doc.text(`Amount Due: Rs. ${bill.amount.toLocaleString()}`, 20, 127);
+      
+      if (bill.paymentMode) {
+        doc.setFontSize(12);
+        doc.text(`Payment Mode: ${bill.paymentMode}`, 20, 137);
+      }
       
       doc.setFontSize(12);
       doc.text(`Status: ${bill.status.toUpperCase()}`, 140, 127);
@@ -319,7 +325,7 @@ const MaintenanceBills = () => {
 
         {/* Member Payment Options */}
         {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId !== b._id && (
-          <button onClick={() => setPayingBillId(b._id)} style={{
+          <button onClick={() => { setPayingBillId(b._id); setSplitPayments({ upi: '', cash: '', bank: '' }); }} style={{
             background: theme.textMain, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
             fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
           }}>
@@ -328,12 +334,59 @@ const MaintenanceBills = () => {
         )}
         
         {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId === b._id && (
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', background: '#F9F8F3', padding: '8px 12px', borderRadius: '12px', border: `1px solid ${theme.border}` }}>
-            <span style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', marginRight: '5px' }}>Pay via:</span>
-            <button onClick={() => handleMarkPaid(b._id, 'UPI')} style={{ background: '#0070BA', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>UPI</button>
-            <button onClick={() => handleMarkPaid(b._id, 'Net Banking')} style={{ background: '#E35205', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>Net Bank</button>
-            <button onClick={() => handleMarkPaid(b._id, 'Cash')} style={{ background: '#28A745', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>Cash</button>
-            <button onClick={() => setPayingBillId(null)} style={{ background: 'transparent', color: theme.textSec, border: 'none', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px', padding: '8px' }}>Cancel</button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: '#F9F8F3', padding: '15px', borderRadius: '12px', border: `1px solid ${theme.border}`, marginTop: '10px', width: '100%' }}>
+            <div style={{ fontSize: '13px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', color: theme.textMain }}>
+              Total Amount to Pay: ₹{b.amount.toLocaleString()}
+            </div>
+            <div style={{ fontSize: '12px', color: theme.textSec, marginBottom: '5px' }}>
+              Enter amount for each method used (leave blank if 0):
+            </div>
+            
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '100px' }}>
+                <label style={{ fontSize: '11px', fontWeight: '700', color: theme.textSec }}>UPI (₹)</label>
+                <input type="number" min="0" placeholder="0" value={splitPayments.upi} onChange={(e) => setSplitPayments({...splitPayments, upi: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${theme.border}`, borderRadius: '6px', marginTop: '4px', fontFamily: "'Outfit', sans-serif" }} />
+              </div>
+              <div style={{ flex: 1, minWidth: '100px' }}>
+                <label style={{ fontSize: '11px', fontWeight: '700', color: theme.textSec }}>Cash (₹)</label>
+                <input type="number" min="0" placeholder="0" value={splitPayments.cash} onChange={(e) => setSplitPayments({...splitPayments, cash: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${theme.border}`, borderRadius: '6px', marginTop: '4px', fontFamily: "'Outfit', sans-serif" }} />
+              </div>
+              <div style={{ flex: 1, minWidth: '100px' }}>
+                <label style={{ fontSize: '11px', fontWeight: '700', color: theme.textSec }}>Net Bank (₹)</label>
+                <input type="number" min="0" placeholder="0" value={splitPayments.bank} onChange={(e) => setSplitPayments({...splitPayments, bank: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${theme.border}`, borderRadius: '6px', marginTop: '4px', fontFamily: "'Outfit', sans-serif" }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+              <button onClick={() => {
+                const u = Number(splitPayments.upi) || 0;
+                const c = Number(splitPayments.cash) || 0;
+                const n = Number(splitPayments.bank) || 0;
+                const total = u + c + n;
+                
+                if (total !== Number(b.amount)) {
+                  toast.error(`Total entered (₹${total}) must match the bill amount (₹${b.amount}).`);
+                  return;
+                }
+                
+                let modes = [];
+                if (u > 0) modes.push(`UPI (₹${u})`);
+                if (c > 0) modes.push(`Cash (₹${c})`);
+                if (n > 0) modes.push(`Net Bank (₹${n})`);
+                
+                if (modes.length === 0) {
+                  toast.error('Please enter payment amounts.');
+                  return;
+                }
+                
+                handleMarkPaid(b._id, modes.join(' + '));
+              }} style={{ background: theme.accent, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px', flex: 1 }}>
+                Submit Payment Details
+              </button>
+              <button onClick={() => { setPayingBillId(null); setSplitPayments({ upi: '', cash: '', bank: '' }); }} style={{ background: 'transparent', color: theme.textSec, border: `1px solid ${theme.border}`, padding: '10px 16px', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px' }}>
+                Cancel
+              </button>
+            </div>
           </div>
         )}
         
