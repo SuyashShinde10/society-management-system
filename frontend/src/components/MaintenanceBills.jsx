@@ -22,6 +22,13 @@ const MaintenanceBills = () => {
   const [payingBillId, setPayingBillId] = useState(null);
   const limit = 10;
 
+  const isNew = (dateString) => {
+    if (!dateString) return false;
+    const diffTime = Math.abs(new Date() - new Date(dateString));
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 2;
+  };
+
   useEffect(() => {
     fetchBills();
     if (user?.role === 'admin') {
@@ -298,7 +305,15 @@ const MaintenanceBills = () => {
               }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '600' }}>{b.title}</h4>
+                    <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
+                      {b.title}
+                      {isNew(b.createdAt) && (
+                        <span style={{
+                          fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700',
+                          background: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '10px'
+                        }}>NEW</span>
+                      )}
+                    </h4>
                     {user?.role === 'admin' && (
                       <p style={{ margin: '0 0 5px 0', fontSize: '13px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
                         TO: {b.userId?.name} (W_{b.userId?.flatDetails?.wing} F_{b.userId?.flatDetails?.flatNumber})

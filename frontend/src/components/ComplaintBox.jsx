@@ -15,6 +15,13 @@ const ComplaintBox = () => {
   const [isLoading, setIsLoading] = useState(true);
   const limit = 10;
 
+  const isNew = (dateString) => {
+    if (!dateString) return false;
+    const diffTime = Math.abs(new Date() - new Date(dateString));
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 2;
+  };
+
   const fetchComplaints = useCallback(async (showLoader = true) => {
     if (showLoader) setIsLoading(true);
     try {
@@ -212,8 +219,14 @@ const ComplaintBox = () => {
                 onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
-                  <h4 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: theme.textMain, fontWeight: '600' }}>
+                  <h4 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: theme.textMain, fontWeight: '600', display: 'flex', alignItems: 'center' }}>
                     {c.title}
+                    {isNew(c.createdAt) && (
+                      <span style={{
+                        fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700',
+                        background: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '10px'
+                      }}>NEW</span>
+                    )}
                   </h4>
                   <span style={{
                     fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700',

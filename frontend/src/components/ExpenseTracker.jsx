@@ -15,6 +15,13 @@ const ExpenseTracker = () => {
   const [isLoading, setIsLoading] = useState(true);
   const limit = 10;
 
+  const isNew = (dateString) => {
+    if (!dateString) return false;
+    const diffTime = Math.abs(new Date() - new Date(dateString));
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 2;
+  };
+
   useEffect(() => {
     fetchExpenses();
     
@@ -185,7 +192,15 @@ const ExpenseTracker = () => {
                 transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
               }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: '600', fontSize: '16px', color: theme.textMain }}>{exp.title}</div>
+                  <div style={{ fontWeight: '600', fontSize: '16px', color: theme.textMain, display: 'flex', alignItems: 'center' }}>
+                    {exp.title}
+                    {isNew(exp.createdAt) && (
+                      <span style={{
+                        fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700',
+                        background: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '10px'
+                      }}>NEW</span>
+                    )}
+                  </div>
                   <div style={{ fontSize: '12px', color: theme.textSec, marginTop: '4px' }}>
                     {/* ✅ BUG FIX (Q4): was exp.date — Expense model has no `date` field, only createdAt */}
                     {exp.category} • {new Date(exp.createdAt).toLocaleDateString()}

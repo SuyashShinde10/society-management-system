@@ -13,6 +13,13 @@ const Meetings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const isNew = (dateString) => {
+    if (!dateString) return false;
+    const diffTime = Math.abs(new Date() - new Date(dateString));
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 2;
+  };
+
   useEffect(() => {
     fetchMeetings();
     if (user?.role === 'admin') {
@@ -156,8 +163,14 @@ const Meetings = () => {
               return (
                 <div key={meet._id} style={{ border: `1px solid ${theme.border}`, padding: '24px', borderRadius: '20px', background: 'white', position: 'relative', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', transition: 'transform 0.2s, box-shadow 0.2s', opacity: isPast ? 0.7 : 1 }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                    <h4 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: '600', color: theme.textMain }}>
+                    <h4 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: '600', color: theme.textMain, display: 'flex', alignItems: 'center' }}>
                       {meet.title}
+                      {isNew(meet.createdAt) && (
+                        <span style={{
+                          fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700',
+                          background: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '10px'
+                        }}>NEW</span>
+                      )}
                     </h4>
                     {isPast && <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '11px', fontWeight: '600', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '12px' }}>Past</span>}
                   </div>
