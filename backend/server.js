@@ -65,6 +65,8 @@ app.use(
 // -------------------------------------------------------
 // Auth routes: tiny payloads only
 app.use('/api/auth', express.json({ limit: '1kb' }));
+// Visitor routes need larger payload for base64 photo/signature
+app.use('/api/visitors', express.json({ limit: '5mb' }));
 // General: reasonable ceiling
 app.use(express.json({ limit: '50kb' }));
 app.use(express.urlencoded({ extended: false, limit: '50kb' }));
