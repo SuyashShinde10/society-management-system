@@ -10,17 +10,18 @@ const SecurityStaff = () => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchStaff = async () => {
+    try {
+      const { data } = await api.get('/auth/security-staff');
+      setStaff(data);
+    } catch (error) {
+      console.error('Failed to fetch security staff', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchStaff = async () => {
-      try {
-        const { data } = await api.get('/auth/security-staff');
-        setStaff(data);
-      } catch (error) {
-        console.error('Failed to fetch security staff', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchStaff();
   }, []);
 
@@ -77,7 +78,7 @@ const SecurityStaff = () => {
       </div>
 
       <div style={{ marginBottom: '40px' }}>
-        <AddSecurity />
+        <AddSecurity onAdd={fetchStaff} />
       </div>
 
       {staff.length === 0 ? (

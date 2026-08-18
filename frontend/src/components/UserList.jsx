@@ -5,7 +5,7 @@ import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { Users, Search, Edit2, Trash2 } from 'lucide-react';
 
-const UserList = () => {
+const UserList = ({ refreshTrigger }) => {
   const { user } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
 
@@ -19,7 +19,7 @@ const UserList = () => {
     if (user && user.role === 'admin') {
       fetchUsers();
     }
-  }, [user]);
+  }, [user, refreshTrigger]);
 
   const fetchUsers = async () => {
     try {

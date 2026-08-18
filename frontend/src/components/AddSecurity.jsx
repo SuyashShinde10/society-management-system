@@ -5,7 +5,7 @@ import api from '../api';
 import theme from '../theme';
 import AuthContext from '../context/AuthContext';
 
-const AddSecurity = () => {
+const AddSecurity = ({ onAdd }) => {
   const { user } = useContext(AuthContext);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -90,6 +90,7 @@ const AddSecurity = () => {
       });
       toast.success('Security Staff added successfully.');
       setGeneratedCreds({ email, password: response.data.generatedPassword });
+      if (onAdd) onAdd();
       
       // Reset form
       setName(''); setEmail(''); setPhone('');

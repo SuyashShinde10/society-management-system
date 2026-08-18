@@ -5,7 +5,7 @@ import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { UserPlus, Building, Copy, CheckCircle2 } from 'lucide-react';
 
-const AddMember = () => {
+const AddMember = ({ onAdd }) => {
   const { user } = useContext(AuthContext);
 
   const [name, setName] = useState('');
@@ -122,6 +122,7 @@ const AddMember = () => {
       });
       toast.success('Resident added to registry successfully.');
       setGeneratedCreds({ email, password: response.data.generatedPassword });
+      if (onAdd) onAdd();
       
       // Reset form (keeping OTP verified false for next entry)
       setName(''); setEmail(''); setPhone('');

@@ -52,6 +52,7 @@ const AdminDashboard = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(user?.mustChangePassword ? 'profile' : 'overview');
+  const [registryRefresh, setRegistryRefresh] = useState(0);
 
   if (!user) {
     return (
@@ -193,11 +194,11 @@ const AdminDashboard = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
                 <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
                   <h2 style={{ margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '32px', color: theme.textMain }}>Onboard New Resident</h2>
-                  <AddMember />
+                  <AddMember onAdd={() => setRegistryRefresh(prev => prev + 1)} />
                 </div>
                 <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
                   <h2 style={{ margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '32px', color: theme.textMain }}>Registry Database</h2>
-                  <UserList />
+                  <UserList refreshTrigger={registryRefresh} />
                 </div>
               </div>
             )}
