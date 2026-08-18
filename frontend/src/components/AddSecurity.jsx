@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { toast } from 'sonner';
-import { Shield, ShieldCheck, Mail, Phone, Calendar, Clock, MapPin, Loader2, KeyRound } from 'lucide-react';
+import { Shield, ShieldCheck, Mail, Phone, Calendar, Clock, MapPin, Loader2, KeyRound, CheckCircle2 } from 'lucide-react';
 import api from '../api';
 import theme from '../theme';
+import AuthContext from '../context/AuthContext';
 
 const AddSecurity = () => {
+  const { user } = useContext(AuthContext);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -15,8 +17,70 @@ const AddSecurity = () => {
   const [loading, setLoading] = useState(false);
   const [generatedCreds, setGeneratedCreds] = useState(null);
 
+  // OTP State
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
+  const [timer, setTimer] = useState(0);
+
+  // Timer Effect
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const sendOTP = async () => {
+    if (!email) {
+      toast.error('Please enter an email address first.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.post('/auth/send-otp', { 
+        email,
+        societyName: user?.societyName,
+        adminName: user?.name,
+        adminEmail: user?.email
+      });
+      setOtpSent(true);
+      setTimer(120);
+      toast.success('OTP sent to the email!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to send OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyOTP = async () => {
+    if (!otp) {
+      toast.error('Please enter the OTP.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.post('/auth/verify-otp', { email, otp });
+      setIsVerified(true);
+      setTimer(0);
+      toast.success('Email verified successfully!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Invalid OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isVerified) {
+      toast.error('Please verify the email first.');
+      return;
+    }
     setLoading(true);
     setGeneratedCreds(null);
 
@@ -30,6 +94,7 @@ const AddSecurity = () => {
       // Reset form
       setName(''); setEmail(''); setPhone('');
       setAge(''); setAddress(''); setJoinDate(new Date().toISOString().split('T')[0]); setShift('Day');
+      setIsVerified(false); setOtpSent(false); setOtp(''); setTimer(0);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to add security staff. Please try again.');
     } finally {
@@ -78,11 +143,67 @@ const AddSecurity = () => {
                 style={{ width: '100%', padding: '12px 16px', background: 'white', border: `1px solid ${theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
-            <div>
+            <div style={{ gridColumn: '1 / -1' }}>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Email Address</label>
-              <input type="email" placeholder="e.g. ramesh@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required 
-                style={{ width: '100%', padding: '12px 16px', background: 'white', border: `1px solid ${theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
-              />
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input 
+                  type="email" 
+                  placeholder="e.g. ramesh@example.com" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  required 
+                  disabled={otpSent || isVerified}
+                  style={{ flex: 1, padding: '12px 16px', background: 'white', border: `1px solid ${theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
+                />
+                {!isVerified && (
+                  <button
+                    type="button"
+                    onClick={otpSent ? (timer === 0 ? sendOTP : null) : sendOTP}
+                    disabled={loading || (otpSent && timer > 0)}
+                    style={{
+                      padding: '0 20px', borderRadius: '12px', backgroundColor: (otpSent && timer > 0) ? '#E2E8F0' : theme.textMain, color: (otpSent && timer > 0) ? '#64748B' : 'white',
+                      border: 'none', fontWeight: '600', fontFamily: "'Outfit', sans-serif", cursor: (loading || (otpSent && timer > 0)) ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)', transition: 'transform 0.2s'
+                    }}
+                    onMouseOver={(e) => !loading && !(otpSent && timer > 0) ? e.target.style.transform = 'translateY(-2px)' : null}
+                    onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    {loading ? '...' : otpSent ? (timer > 0 ? `Resend (${timer}s)` : 'Resend OTP') : 'Verify'}
+                  </button>
+                )}
+                {isVerified && (
+                  <div style={{ padding: '0 20px', borderRadius: '12px', backgroundColor: '#F0FDF4', color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '600', fontFamily: "'Outfit', sans-serif", border: '1px solid #BBF7D0' }}>
+                    <CheckCircle2 size={18} /> Verified
+                  </div>
+                )}
+              </div>
+              
+              {otpSent && !isVerified && (
+                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Enter OTP" 
+                    value={otp} 
+                    onChange={(e) => setOtp(e.target.value)} 
+                    style={{ flex: 1, padding: '12px 16px', background: 'white', border: `2px solid ${theme.accent}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
+                    maxLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={verifyOTP}
+                    disabled={loading}
+                    style={{
+                      padding: '0 20px', borderRadius: '12px', backgroundColor: theme.accent, color: 'white',
+                      border: 'none', fontWeight: '600', fontFamily: "'Outfit', sans-serif", cursor: loading ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)', transition: 'transform 0.2s'
+                    }}
+                    onMouseOver={(e) => !loading ? e.target.style.transform = 'translateY(-2px)' : null}
+                    onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    Confirm
+                  </button>
+                </div>
+              )}
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Phone Number</label>
@@ -130,13 +251,13 @@ const AddSecurity = () => {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !isVerified}
           style={{
-            background: theme.textMain, color: 'white', border: 'none', borderRadius: '14px',
-            padding: '18px', fontSize: '16px', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1, transition: 'all 0.2s ease',
+            background: (!isVerified || loading) ? '#E2E8F0' : theme.textMain, color: (!isVerified || loading) ? '#94A3B8' : 'white', border: 'none', borderRadius: '14px',
+            padding: '18px', fontSize: '16px', fontWeight: '600', cursor: (!isVerified || loading) ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s ease',
             display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px',
-            marginTop: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
+            marginTop: '10px', boxShadow: (!isVerified || loading) ? 'none' : '0 8px 24px rgba(0,0,0,0.1)'
           }}
         >
           {loading ? <><Loader2 size={18} className="spin" /> Creating Profile...</> : 'Authorize Security Staff'}
