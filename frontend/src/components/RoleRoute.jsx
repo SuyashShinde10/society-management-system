@@ -11,9 +11,14 @@ const RoleRoute = ({ children, role }) => {
 
   if (!user) return <Navigate to="/login" replace />;
 
-  if (user.role !== role) {
+  const userRole = user.role || 'member';
+
+  if (userRole !== role) {
     // Send to correct dashboard
-    const correctPath = user.role === 'admin' ? '/dashboard' : '/resident';
+    let correctPath = '/resident';
+    if (userRole === 'admin') correctPath = '/dashboard';
+    if (userRole === 'superadmin') correctPath = '/superadmin';
+    if (userRole === 'security') correctPath = '/security';
     return <Navigate to={correctPath} replace />;
   }
 

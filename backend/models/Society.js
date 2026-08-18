@@ -24,7 +24,10 @@ const societySchema = new mongoose.Schema({
   amenities: [{ type: String, trim: true }], // ['Pool', 'Gym', 'Clubhouse']
   logo: { type: String }, // URL
 
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  isActive: { type: Boolean, default: true },
+  planType: { type: String, enum: ['Trial', 'Pro', 'Premium'], default: 'Trial' },
+  planExpiry: { type: Date, default: () => new Date(+new Date() + 30*24*60*60*1000) } // Default 30 days trial
 }, { timestamps: true });
 
 module.exports = mongoose.model('Society', societySchema);

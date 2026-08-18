@@ -1,7 +1,10 @@
 import React, { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { LayoutDashboard, User, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert } from 'lucide-react';
 import theme from '../theme';
+
 // Components
 import NoticeBoard from '../components/NoticeBoard';
 import ComplaintBox from '../components/ComplaintBox';
@@ -12,186 +15,186 @@ import Profile from '../components/Profile';
 import Meetings from '../components/Meetings';
 import Analytics from '../components/Analytics';
 
+// --- DOODLES & ANIMATIONS ---
+const SparkleDoodle = () => (
+  <svg width="24" height="24" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', top: '-10px', left: '-15px' }}>
+    <motion.path d="M15 0L17 12L30 15L17 17L15 30L12 17L0 15L12 12L15 0Z" fill="#D9734E" 
+      initial={{ scale: 0, rotate: 45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 200, delay: 0.5 }} />
+  </svg>
+);
+
+const AnimatedText = ({ text }) => {
+  const words = text.split(" ");
+  return (
+    <motion.span initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.08 } }, hidden: {} }} style={{ display: "inline-flex", flexWrap: "wrap", position: 'relative' }}>
+      <SparkleDoodle />
+      {words.map((word, index) => (
+        <motion.span key={index} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { type: "spring", damping: 12, stiffness: 100 } } }} style={{ marginRight: "6px" }}>
+          {word}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+};
+
+const BackgroundBlobs = () => (
+  <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}>
+    <motion.div animate={{ rotate: -360 }} transition={{ duration: 65, repeat: Infinity, ease: "linear" }}
+      style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(107,112,92,0.04) 0%, rgba(249,248,243,0) 70%)', borderRadius: '50%' }} />
+  </div>
+);
+
 const MemberDashboard = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(user?.mustChangePassword ? 'profile' : 'overview');
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Outfit', sans-serif", backgroundColor: theme.bg }}>
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: '40px', height: '40px', border: `3px solid ${theme.border}`, borderTopColor: theme.accent, borderRadius: '50%' }} />
+      </div>
+    );
+  }
+
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'profile', label: 'My Profile', icon: User },
+    { id: 'notices', label: 'Notice Board', icon: Bell },
+    { id: 'meetings', label: 'Global Meetings', icon: Calendar },
+    { id: 'bills', label: 'My Bills', icon: ReceiptText },
+    { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
+    { id: 'expenses', label: 'Society Expenses', icon: Wallet },
+    { id: 'analytics', label: 'Analytics Reports', icon: PieChart },
+  ];
 
   return (
-    <div className="dashboard-container" style={{ backgroundColor: theme.bg, minHeight: '100vh', padding: '40px 20px', color: theme.textMain, display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+    <div className="dashboard-container" style={{ backgroundColor: theme.bg, minHeight: '100vh', padding: '30px', color: theme.textMain, display: 'flex', flexDirection: 'column', boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif" }}>
+      <BackgroundBlobs />
       <style>
         {`
           @media (max-width: 900px) {
-            .dashboard-header {
-              flex-direction: column !important;
-              align-items: flex-start !important;
-              gap: 20px;
-              padding: 20px !important;
-            }
-            .dashboard-header-actions {
-              width: 100%;
-              display: flex;
-              flex-direction: column;
-              gap: 15px;
-            }
-            .dashboard-layout {
-              flex-direction: column !important;
-            }
-            .sidebar-nav {
-              width: 100% !important;
-              border-right: none !important;
-              border-bottom: 3px solid ${theme.border} !important;
-              padding: 20px !important;
-            }
-            .sidebar-menu {
-              width: 100% !important;
-              flex-direction: column !important;
-              gap: 10px !important;
-            }
-            .sidebar-menu button {
-              width: 100% !important;
-              justify-content: flex-start !important;
-              padding: 12px 20px !important;
-              font-size: 14px !important;
-            }
-            .main-content {
-              padding-left: 0 !important;
-              padding-top: 20px !important;
-            }
-            .dashboard-container {
-              padding: 20px 10px !important;
-            }
+            .dashboard-header { flex-direction: column !important; align-items: flex-start !important; gap: 20px; padding: 25px !important; }
+            .dashboard-layout { flex-direction: column !important; gap: 20px !important; }
+            .sidebar-nav { width: 100% !important; padding: 20px !important; }
+            .sidebar-menu { flex-direction: row !important; flex-wrap: wrap; gap: 10px !important; }
+            .sidebar-menu button { flex: 1 1 calc(50% - 10px); justify-content: center; padding: 12px !important; font-size: 13px !important; }
+            .main-content { padding-left: 0 !important; }
+            .dashboard-container { padding: 15px !important; }
           }
+          .nav-btn:hover { background-color: #F9F8F3 !important; transform: translateY(-2px); }
+          .nav-btn-active:hover { transform: translateY(-2px); }
         `}
       </style>
-      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
+      
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '30px' }}>
 
         {/* --- HEADER --- */}
-        <header className="dashboard-header" style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginBottom: '50px', background: theme.surface, padding: '40px',
-          border: `3px solid ${theme.border}`, boxShadow: '10px 10px 0px rgba(0,0,0,0.05)'
-        }}>
-          <div style={{ borderLeft: `10px solid ${theme.textMain}`, paddingLeft: '25px', wordBreak: 'break-word' }}>
-            <span className="mono-label" style={{ color: theme.accent }}>// MEMBER_SESSION_ACTIVE</span>
-            <h1 style={{
-              fontFamily: "'Cormorant Garamond', serif", margin: '5px 0',
-              fontSize: 'clamp(24px, 5vw, 2.8rem)', fontWeight: '600', textTransform: 'uppercase', lineHeight: 1
-            }}>
-              {user.societyName || 'SYSTEM_CORE'}
-            </h1>
-            <p style={{ fontFamily: "'Space Mono', monospace", margin: 0, fontSize: '14px', fontWeight: '700' }}>
-              RESIDENT: <span style={{ color: theme.accent }}>{user.name?.toUpperCase()}</span>
-              {user.flatDetails && (
-                <span style={{ marginLeft: '15px', color: theme.textSec }}>
-                  [ WING {user.flatDetails.wing} / FLAT {user.flatDetails.flatNumber} ]
-                </span>
-              )}
-            </p>
+        <header
+          className="dashboard-header" style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            background: 'white', padding: '30px 40px', borderRadius: '24px',
+            border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+          }}>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{ width: '50px', height: '50px', background: '#F9F8F3', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+              <img src="/awaastech-logo.png" alt="Logo" style={{ width: '26px', height: '26px', objectFit: 'contain' }} />
+            </div>
+            <div style={{ zIndex: 10 }}>
+              <h1 style={{ fontFamily: "'Cormorant Garamond', serif", margin: '0 0 4px 0', fontSize: '32px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>
+                <AnimatedText text={user.societyName || 'Awaastech Society'} />
+              </h1>
+              <p style={{ margin: 0, fontSize: '15px', fontWeight: '400', color: theme.textSec }}>
+                Welcome back, <span style={{ color: theme.accent, fontWeight: '600' }}>{user.name}</span>
+                {user.flatDetails && (
+                  <span style={{ marginLeft: '10px', fontSize: '13px', background: '#F9F8F3', padding: '4px 10px', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
+                    Wing {user.flatDetails.wing} • Flat {user.flatDetails.flatNumber}
+                  </span>
+                )}
+              </p>
+            </div>
           </div>
 
-          <div className="dashboard-header-actions" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <Link to="/profile" className="brutal-btn" style={{
-              background: theme.textMain, color: 'white', padding: '12px 24px', textDecoration: 'none',
-              fontFamily: "'Space Mono', monospace", fontWeight: '700', fontSize: '14px',
-              boxShadow: `4px 4px 0px ${theme.accent}`, textAlign: 'center', width: '100%', boxSizing: 'border-box'
-            }}>
-              PROFILE
-            </Link>
-            <button
-              onClick={() => { logout(); navigate('/'); }}
-              className="logout-btn brutal-btn"
-              style={{
-                background: 'transparent', color: theme.textMain, border: `2px solid ${theme.textMain}`,
-                padding: '12px 24px', fontFamily: "'Space Mono', monospace", fontWeight: '700',
-                cursor: 'pointer', textAlign: 'center', width: '100%', boxSizing: 'border-box'
-              }}
-            >
-              [ DISCONNECT ]
-            </button>
-          </div>
+          <motion.button whileHover={{ scale: 1.02, backgroundColor: '#F9F8F3' }} whileTap={{ scale: 0.98 }}
+            onClick={() => { logout(); navigate('/'); }}
+            style={{
+              background: 'white', color: theme.textMain, border: `1px solid ${theme.border}`, borderRadius: '12px',
+              padding: '12px 20px', fontFamily: "'Outfit', sans-serif", fontWeight: '500', fontSize: '14px',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+              transition: 'all 0.2s'
+            }}
+          >
+            <LogOut size={16} /> Sign Out
+          </motion.button>
         </header>
 
-        {/* SIDEBAR NAVIGATION */}
-        <div className="dashboard-layout" style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-        
-        {/* Navigation Panel */}
-        <div className="sidebar-nav" style={{
-          width: '280px', background: theme.surface, borderRight: `3px solid ${theme.border}`,
-          padding: '30px 20px', display: 'flex', flexDirection: 'column', gap: '40px',
-          boxShadow: '5px 0 15px rgba(0,0,0,0.02)'
-        }}>
+        {/* --- MAIN LAYOUT --- */}
+        <div className="dashboard-layout" style={{ display: 'flex', flex: 1, minHeight: 0, gap: '30px' }}>
           
-          {user?.mustChangePassword && (
-            <div style={{ background: theme.danger, color: 'white', padding: '10px', fontSize: '12px', fontFamily: "'Space Mono', monospace", fontWeight: 'bold' }}>
-              ⚠️ YOU MUST CHANGE YOUR GENERATED PASSWORD TO CONTINUE.
+          {/* NAVIGATION SIDEBAR */}
+          <div
+            className="sidebar-nav" style={{
+            width: '280px', background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`,
+            padding: '30px 20px', display: 'flex', flexDirection: 'column', gap: '20px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.02)', height: 'fit-content'
+          }}>
+            
+            {user?.mustChangePassword && (
+              <div style={{ background: '#FEF2F2', color: '#B91C1C', padding: '15px', borderRadius: '12px', fontSize: '13px', fontWeight: '500', display: 'flex', gap: '10px', alignItems: 'flex-start', border: '1px solid #FEE2E2', marginBottom: '10px' }}>
+                <ShieldAlert size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+                <span>You must change your generated password to continue accessing other modules.</span>
+              </div>
+            )}
+
+            <div className="sidebar-menu" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <span style={{ fontSize: '12px', fontWeight: '600', color: theme.textSec, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', paddingLeft: '10px' }}>Menu</span>
+              
+              {navItems.map((tab) => {
+                const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
+                const isActive = activeTab === tab.id;
+                const Icon = tab.icon;
+                
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => !isDisabled && setActiveTab(tab.id)}
+                    disabled={isDisabled}
+                    className={isActive ? "nav-btn-active" : "nav-btn"}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px',
+                      background: isActive ? theme.accent : 'transparent',
+                      color: isActive ? 'white' : theme.textMain,
+                      border: 'none', borderRadius: '14px',
+                      fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: isActive ? '600' : '500',
+                      cursor: isDisabled ? 'not-allowed' : 'pointer', textAlign: 'left', transition: 'all 0.2s ease',
+                      opacity: isDisabled ? 0.4 : 1,
+                      boxShadow: isActive ? '0 4px 12px rgba(217,115,78,0.2)' : 'none'
+                    }}
+                  >
+                    <Icon size={18} color={isActive ? 'white' : theme.textSec} style={{ transition: 'color 0.2s' }} />
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
-          )}
+            </div>
 
-          <div className="sidebar-menu" style={{ width: '250px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.5, width: '100%' }}>// NAVIGATION</span>
-            {[
-              { id: 'overview', label: 'Overview', icon: '📊' },
-              { id: 'profile', label: 'My Profile', icon: '👤' },
-              { id: 'notices', label: 'Notice Board', icon: '📢' },
-              { id: 'meetings', label: 'Global Meetings', icon: '🗓️' },
-              { id: 'bills', label: 'My Bills', icon: '🧾' },
-              { id: 'complaints', label: 'Complaints', icon: '🗳️' },
-              { id: 'expenses', label: 'Society Expenses', icon: '💰' },
-              { id: 'analytics', label: 'Analytics', icon: '📈' },
-            ].map((tab) => {
-              const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => !isDisabled && setActiveTab(tab.id)}
-                  disabled={isDisabled}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '15px', padding: '15px 20px',
-                    background: activeTab === tab.id ? theme.textMain : 'transparent',
-                    color: activeTab === tab.id ? 'white' : theme.textMain,
-                    border: `2px solid ${activeTab === tab.id ? theme.textMain : 'transparent'}`,
-                    fontFamily: "'Space Mono', monospace", fontSize: '14px', fontWeight: '700',
-                    cursor: isDisabled ? 'not-allowed' : 'pointer', textAlign: 'left', transition: 'all 0.2s',
-                    opacity: isDisabled ? 0.4 : 1
-                  }}
-                  onMouseOver={(e) => {
-                    if (activeTab !== tab.id && !isDisabled) {
-                      e.currentTarget.style.border = `2px dashed ${theme.textMain}`;
-                      e.currentTarget.style.background = '#f5f5f5';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (activeTab !== tab.id && !isDisabled) {
-                      e.currentTarget.style.border = '2px solid transparent';
-                      e.currentTarget.style.background = 'transparent';
-                    }
-                  }}
-                >
-                  <span style={{ fontSize: '18px' }}>{tab.icon}</span>
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-          </div>
-
-          {/* MAIN CONTENT PORTAL */}
-          <div className="main-content" style={{ flex: 1, minWidth: 0, minHeight: 0, paddingLeft: '40px', display: 'flex', flexDirection: 'column' }}>
+          {/* CONTENT PORTAL */}
+          <div
+            className="main-content" style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            
             {activeTab === 'overview' && <DashboardOverview onNavigate={setActiveTab} />}
             {activeTab === 'profile' && <Profile />}
-            {activeTab === 'notices' && <NoticeBoard />}
-            {activeTab === 'meetings' && <Meetings />}
-            {activeTab === 'bills' && <MaintenanceBills />}
-            {activeTab === 'complaints' && <ComplaintBox />}
-            {activeTab === 'expenses' && <ExpenseTracker />}
-            {activeTab === 'analytics' && <Analytics />}
+            {activeTab === 'notices' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><NoticeBoard /></div>}
+            {activeTab === 'meetings' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Meetings /></div>}
+            {activeTab === 'bills' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><MaintenanceBills /></div>}
+            {activeTab === 'complaints' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ComplaintBox /></div>}
+            {activeTab === 'expenses' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ExpenseTracker /></div>}
+            {activeTab === 'analytics' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Analytics /></div>}
           </div>
 
         </div>
-
       </div>
     </div>
   );

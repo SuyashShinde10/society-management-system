@@ -2,12 +2,15 @@ import React, { useState, useContext } from 'react';
 import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 import theme from '../theme';
 
 const Profile = () => {
   const { user, setUser } = useContext(AuthContext);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handlePasswordChange = async (e) => {
@@ -40,46 +43,52 @@ const Profile = () => {
   if (!user) return null;
 
   return (
-    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, padding: 'clamp(15px, 5vw, 40px)', marginBottom: '40px' }}>
+    <div style={{ background: 'white', borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: `1px solid ${theme.border}`, padding: 'clamp(20px, 5vw, 40px)', marginBottom: '40px' }}>
       <style>
         {`
           .profile-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 40px;
+          }
+          .registry-input {
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
           }
           @media (max-width: 800px) {
             .profile-grid {
               grid-template-columns: 1fr;
+              gap: 20px;
             }
           }
         `}
       </style>
-      <h3 style={{
-        fontFamily: "'Cormorant Garamond', serif",
-        fontSize: '28px', textTransform: 'uppercase', margin: '0 0 30px 0',
-        borderBottom: `2px solid ${theme.border}`, paddingBottom: '15px'
-      }}>
-        User_Profile
-      </h3>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px', paddingBottom: '20px', borderBottom: `1px solid ${theme.border}` }}>
+        <h3 style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: 'clamp(24px, 5vw, 32px)', fontWeight: '600', margin: 0, color: theme.textMain
+        }}>
+          User Profile
+        </h3>
+      </div>
 
       <div className="profile-grid">
         
         {/* User Info Read-Only */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ background: '#F9F9F9', padding: '20px', border: `2px solid ${theme.textMain}` }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>LEGAL_NAME</span>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: 'bold' }}>{user.name}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '16px', border: `1px solid #E2E8F0` }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '13px', fontWeight: '600', color: '#64748B', display: 'block', marginBottom: '8px' }}>Legal Name</span>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', color: theme.textMain }}>{user.name}</div>
           </div>
-          <div style={{ background: '#F9F9F9', padding: '20px', border: `2px solid ${theme.textMain}` }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>EMAIL_ADDRESS</span>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '16px' }}>{user.email}</div>
+          <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '16px', border: `1px solid #E2E8F0` }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '13px', fontWeight: '600', color: '#64748B', display: 'block', marginBottom: '8px' }}>Email Address</span>
+            <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '500', color: theme.textMain }}>{user.email}</div>
           </div>
           {user.role === 'member' && user.flatDetails && (
-            <div style={{ background: '#F9F9F9', padding: '20px', border: `2px solid ${theme.textMain}` }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>FLAT_DETAILS</span>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '16px' }}>
-                {user.flatDetails.wing}-{user.flatDetails.flatNumber}
+            <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '16px', border: `1px solid #E2E8F0` }}>
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '13px', fontWeight: '600', color: '#64748B', display: 'block', marginBottom: '8px' }}>Flat Details</span>
+              <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '500', color: theme.textMain }}>
+                Wing {user.flatDetails.wing} • Unit {user.flatDetails.flatNumber}
               </div>
             </div>
           )}
@@ -87,44 +96,58 @@ const Profile = () => {
 
         {/* Password Change Form */}
         <div>
-          <form onSubmit={handlePasswordChange} style={{ background: '#EAEAEA', padding: '30px', border: `2px dashed ${theme.textMain}`, display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h4 style={{ margin: 0, fontFamily: "'Space Mono', monospace", fontSize: '16px', fontWeight: '700' }}>[ CHANGE_PASSWORD ]</h4>
+          <form onSubmit={handlePasswordChange} style={{ background: '#F9F8F3', padding: '32px', borderRadius: '20px', border: `1px solid ${theme.border}`, display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <h4 style={{ margin: 0, fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '600', color: theme.textMain }}>Change Password</h4>
             
             <div>
-              <label className="registry-label">Current_Password</label>
-              <input
-                type="password"
-                placeholder="********"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                required
-                className="registry-input"
-              />
+              <label className="registry-label" style={{ marginBottom: '8px', display: 'block' }}>Current Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  placeholder="********"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                  className="registry-input"
+                  style={{ width: '100%', paddingRight: '45px', boxSizing: 'border-box', background: 'white' }}
+                />
+                <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+                  {showCurrentPassword ? <EyeOff size={18} color={theme.textSec} /> : <Eye size={18} color={theme.textSec} />}
+                </button>
+              </div>
             </div>
             
             <div>
-              <label className="registry-label">New_Password</label>
-              <input
-                type="password"
-                placeholder="********"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                className="registry-input"
-              />
+              <label className="registry-label" style={{ marginBottom: '8px', display: 'block' }}>New Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="********"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  className="registry-input"
+                  style={{ width: '100%', paddingRight: '45px', boxSizing: 'border-box', background: 'white' }}
+                />
+                <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+                  {showNewPassword ? <EyeOff size={18} color={theme.textSec} /> : <Eye size={18} color={theme.textSec} />}
+                </button>
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
               style={{
-                marginTop: '10px', padding: '15px', background: theme.textMain, color: 'white', border: 'none',
-                fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '14px', boxShadow: `4px 4px 0px ${theme.accent}`, transition: 'all 0.1s',
+                marginTop: '16px', padding: '16px', borderRadius: '12px', background: theme.textMain, color: 'white', border: 'none',
+                fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: '15px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', transition: 'all 0.2s',
                 opacity: loading ? 0.7 : 1,
               }}
+              onMouseOver={(e) => !loading ? e.target.style.transform = 'translateY(-2px)' : null}
+              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
             >
-              {loading ? '[ UPDATING... ]' : '[ CONFIRM_CHANGE ]'}
+              {loading ? 'Updating...' : 'Confirm Change'}
             </button>
           </form>
         </div>

@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
+import { Wallet } from 'lucide-react';
 
 const ExpenseTracker = () => {
   const { user } = useContext(AuthContext);
@@ -89,29 +90,31 @@ const ExpenseTracker = () => {
   const totalExpense = expenses.reduce((acc, curr) => acc + Number(curr.amount), 0);
 
   return (
-    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* HEADER */}
-      <div style={{
-        background: theme.textMain, color: 'white', padding: '20px',
-        display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', alignItems: 'center'
-      }}>
-        <h3 style={{ flex: '1 1 100px', margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px', wordBreak: 'break-all' }}>
-          Financial_Ledger
-        </h3>
-        <div style={{ flex: '0 0 auto', fontFamily: "'Space Mono', monospace", textAlign: 'right' }}>
-          <span style={{ fontSize: '10px', opacity: 0.7, display: 'block' }}>TOTAL_OUTFLOW</span>
-          <span style={{ fontSize: '18px', fontWeight: '700', color: '#fb7185' }}>₹{totalExpense.toLocaleString()}</span>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', alignItems: 'center', padding: '0 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ background: '#F9F8F3', padding: '10px', borderRadius: '12px' }}>
+            <Wallet size={24} color={theme.accent} />
+          </div>
+          <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', color: theme.textMain }}>
+            Financial Ledger
+          </h3>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', background: 'white', padding: '10px 16px', borderRadius: '12px', border: `1px solid ${theme.border}`, boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+          <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '12px', fontWeight: '600', color: theme.textSec }}>Total Outflow</span>
+          <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '20px', fontWeight: '700', color: theme.danger }}>₹{totalExpense.toLocaleString()}</span>
         </div>
       </div>
 
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '0' }}>
         {/* ADMIN INPUT SECTION */}
         {user && user.role === 'admin' && (
           <form onSubmit={handleSubmit} style={{
-            display: 'grid', gap: '12px', background: '#F9F9F9', padding: '20px',
-            border: `1px solid ${theme.border}`, marginBottom: '30px', boxShadow: '6px 6px 0px rgba(0,0,0,0.05)'
+            display: 'grid', gap: '16px', background: 'white', padding: '24px', borderRadius: '20px',
+            border: `1px solid ${theme.border}`, marginBottom: '30px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
           }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700' }}>// LOG_NEW_EXPENDITURE</span>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', fontWeight: '600', color: theme.textSec }}>Log New Expenditure</span>
             <input
               placeholder="DESCRIPTION (e.g. LIFT_MAINTENANCE)"
               value={form.title}
@@ -136,10 +139,11 @@ const ExpenseTracker = () => {
               </select>
             </div>
             <button type="submit" style={{
-              background: theme.textMain, color: 'white', padding: '12px', border: 'none',
-              fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', marginTop: '5px'
-            }}>
-              [+] RECORD_TRANSACTION
+              background: theme.textMain, color: 'white', padding: '14px', border: 'none', borderRadius: '12px',
+              fontFamily: "'Outfit', sans-serif", fontWeight: '600', fontSize: '15px', cursor: 'pointer', marginTop: '5px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)', transition: 'transform 0.2s'
+            }} onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}>
+              Record Transaction
             </button>
           </form>
         )}
@@ -150,10 +154,10 @@ const ExpenseTracker = () => {
             placeholder="SEARCH TRANSACTIONS..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="brutal-input" 
-            style={{ flex: '1 1 200px', padding: '10px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}
+            className="organic-input" 
+            style={{ flex: '1 1 200px', padding: '10px', boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif" }}
           />
-          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="brutal-input" style={{ flex: '1 1 150px', padding: '10px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}>
+          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="organic-input" style={{ flex: '1 1 150px', padding: '10px', boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif" }}>
             <option value="All">ALL_CATEGORIES</option>
             <option value="Maintenance">Maintenance</option>
             <option value="Repairs">Repairs</option>
@@ -164,36 +168,37 @@ const ExpenseTracker = () => {
         </div>
 
         {/* LIST SECTION */}
-        <div style={{ overflowY: 'auto', maxHeight: '60vh', border: `1px solid ${theme.border}`, fontFamily: "'Space Mono', monospace" }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh', paddingRight: '10px' }}>
           {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-              <img src="/awaastech-logo.png" alt="Loading" className="brutal-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
+              <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
           ) : paginatedExpenses.length === 0 ? (
-            <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', fontSize: '12px' }}>
-              // NO_TRANSACTION_HISTORY_FOUND
+            <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, fontFamily: "'Outfit', sans-serif", fontSize: '14px' }}>
+              No transaction history found.
             </div>
           ) : (
             paginatedExpenses.map((exp) => (
               <div key={exp._id} style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '15px 20px', borderBottom: `1px dashed ${theme.textMain}`
-              }}>
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white',
+                padding: '20px 24px', borderRadius: '20px', border: `1px solid ${theme.border}`,
+                transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+              }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: '700', fontSize: '14px', textTransform: 'uppercase' }}>{exp.title}</div>
-                  <div style={{ fontSize: '10px', color: theme.textSec, marginTop: '4px' }}>
+                  <div style={{ fontWeight: '600', fontSize: '16px', color: theme.textMain }}>{exp.title}</div>
+                  <div style={{ fontSize: '12px', color: theme.textSec, marginTop: '4px' }}>
                     {/* ✅ BUG FIX (Q4): was exp.date — Expense model has no `date` field, only createdAt */}
-                    CAT: {exp.category?.toUpperCase() || 'UNKNOWN'} // DATE: {new Date(exp.createdAt).toLocaleDateString()}
+                    {exp.category} • {new Date(exp.createdAt).toLocaleDateString()}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                  <span style={{ fontWeight: '700', color: theme.danger }}>-₹{Number(exp.amount).toLocaleString()}</span>
+                  <span style={{ fontWeight: '700', fontSize: '16px', color: theme.danger }}>-₹{Number(exp.amount).toLocaleString()}</span>
                   {user && user.role === 'admin' && (
                     <button
                       onClick={() => handleDelete(exp._id)}
-                      style={{ background: 'none', border: 'none', color: theme.textSec, cursor: 'pointer', fontSize: '14px', padding: '5px' }}
+                      style={{ background: '#FEE2E2', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: '12px', padding: '6px 10px', borderRadius: '8px', fontWeight: '600' }}
                     >
-                      [X]
+                      Delete
                     </button>
                   )}
                 </div>
@@ -203,12 +208,12 @@ const ExpenseTracker = () => {
         </div>
 
         {hasMore && (
-          <button onClick={() => setPage(page + 1)} style={{ width: '100%', marginTop: '20px', padding: '10px', background: 'transparent', border: `2px dashed ${theme.border}`, fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer' }}>
-            LOAD_MORE_RECORDS
+          <button onClick={() => setPage(page + 1)} style={{ width: '100%', marginTop: '20px', padding: '12px', background: 'white', borderRadius: '12px', border: `1px dashed ${theme.border}`, color: theme.textMain, fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'white'}>
+            Load More Records
           </button>
         )}
 
-        <div style={{ marginTop: '15px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textAlign: 'center', opacity: 0.5 }}>
+        <div style={{ marginTop: '15px', fontSize: '10px', fontFamily: "'Outfit', sans-serif", textAlign: 'center', opacity: 0.5 }}>
           END_OF_REPORT // GENERATED_ON_{new Date().toLocaleDateString().replace(/\//g, '_')}
         </div>
       </div>

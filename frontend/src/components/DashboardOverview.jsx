@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
+import { motion } from 'framer-motion';
+import { Bell, AlertCircle, Users, UserMinus, Receipt, Wallet, Activity } from 'lucide-react';
 
 const DashboardOverview = ({ onNavigate }) => {
   const { user } = useContext(AuthContext);
@@ -59,94 +61,144 @@ const DashboardOverview = ({ onNavigate }) => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px', fontFamily: "'Space Mono', monospace", background: theme.surface, border: `3px solid ${theme.border}`, gap: '20px' }}>
-        <img src="/awaastech-logo.png" alt="Loading Logo" className="brutal-pulse" style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
-        // CALCULATING_METRICS...
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px', fontFamily: "'Outfit', sans-serif", background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, gap: '20px' }}>
+        <img src="/awaastech-logo.png" alt="Loading Logo" className="organic-pulse" style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
+        <span style={{ color: theme.textSec, fontWeight: '500' }}>Loading Metrics...</span>
       </div>
     );
   }
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, padding: '0', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: theme.textMain, color: 'white', padding: '15px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <span style={{ fontSize: '20px' }}>📊</span>
-        <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px' }}>
-          System_Overview
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 10px' }}>
+        <div style={{ background: '#F9F8F3', padding: '10px', borderRadius: '12px' }}>
+          <Activity size={24} color={theme.accent} />
+        </div>
+        <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', color: theme.textMain }}>
+          System Overview
         </h3>
       </div>
 
-      <div style={{ padding: '30px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+      <motion.div 
+        initial="hidden" 
+        animate="visible" 
+        variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}
+      >
         
-        <div 
+        {/* Active Notices */}
+        <motion.div 
+          variants={cardVariants}
+          whileHover={{ y: -4, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           onClick={() => onNavigate && onNavigate('notices')}
-          style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9', cursor: 'pointer', transition: '0.2s' }}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          style={{ background: 'white', borderRadius: '24px', padding: '24px', border: `1px solid ${theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'box-shadow 0.2s' }}
         >
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>ACTIVE_NOTICES</span>
-          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.notices}</div>
-        </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: '500', color: theme.textSec }}>Active Notices</span>
+            <div style={{ background: '#F9F8F3', padding: '8px', borderRadius: '10px' }}>
+              <Bell size={18} color={theme.accent} />
+            </div>
+          </div>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>{stats.notices}</div>
+        </motion.div>
 
-        <div 
+        {/* Pending Incidents */}
+        <motion.div 
+          variants={cardVariants}
+          whileHover={{ y: -4, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           onClick={() => onNavigate && onNavigate('complaints')}
-          style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: stats.complaints > 0 ? '#FEF2F2' : '#F9F9F9', borderLeft: `8px solid ${stats.complaints > 0 ? theme.danger : theme.textMain}`, cursor: 'pointer', transition: '0.2s' }}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          style={{ background: stats.complaints > 0 ? '#FEF2F2' : 'white', borderRadius: '24px', padding: '24px', border: `1px solid ${stats.complaints > 0 ? '#FEE2E2' : theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'box-shadow 0.2s' }}
         >
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>PENDING_INCIDENTS</span>
-          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.complaints}</div>
-        </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: '500', color: stats.complaints > 0 ? '#B91C1C' : theme.textSec }}>Pending Incidents</span>
+            <div style={{ background: stats.complaints > 0 ? '#FEE2E2' : '#F9F8F3', padding: '8px', borderRadius: '10px' }}>
+              <AlertCircle size={18} color={stats.complaints > 0 ? '#DC2626' : theme.textMain} />
+            </div>
+          </div>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: stats.complaints > 0 ? '#991B1B' : theme.textMain, lineHeight: 1 }}>{stats.complaints}</div>
+        </motion.div>
 
         {user?.role === 'admin' && (
           <>
-            <div 
+            {/* Total Members */}
+            <motion.div 
+              variants={cardVariants}
+              whileHover={{ y: -4, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
               onClick={() => onNavigate && onNavigate('registry')}
-              style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9', cursor: 'pointer', transition: '0.2s' }}
-              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              style={{ background: 'white', borderRadius: '24px', padding: '24px', border: `1px solid ${theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'box-shadow 0.2s' }}
             >
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>TOTAL_MEMBERS</span>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.totalMembers}</div>
-            </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: '500', color: theme.textSec }}>Total Members</span>
+                <div style={{ background: '#F9F8F3', padding: '8px', borderRadius: '10px' }}>
+                  <Users size={18} color={theme.accent} />
+                </div>
+              </div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>{stats.totalMembers}</div>
+            </motion.div>
 
-            <div 
+            {/* Past Members */}
+            <motion.div 
+              variants={cardVariants}
+              whileHover={{ y: -4, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
               onClick={() => onNavigate && onNavigate('registry')}
-              style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9', cursor: 'pointer', transition: '0.2s' }}
-              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              style={{ background: 'white', borderRadius: '24px', padding: '24px', border: `1px solid ${theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'box-shadow 0.2s' }}
             >
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>PAST_MEMBERS</span>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.pastMembers}</div>
-            </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: '500', color: theme.textSec }}>Past Members</span>
+                <div style={{ background: '#F9F8F3', padding: '8px', borderRadius: '10px' }}>
+                  <UserMinus size={18} color={theme.textMain} />
+                </div>
+              </div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>{stats.pastMembers}</div>
+            </motion.div>
           </>
         )}
 
-
-        <div 
+        {/* Pending Dues */}
+        <motion.div 
+          variants={cardVariants}
+          whileHover={{ y: -4, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           onClick={() => onNavigate && onNavigate('bills')}
-          style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: stats.bills > 0 ? '#FEF2F2' : '#F9F9F9', borderLeft: `8px solid ${stats.bills > 0 ? theme.danger : theme.textMain}`, cursor: 'pointer', transition: '0.2s' }}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          style={{ background: stats.bills > 0 ? '#FEF2F2' : 'white', borderRadius: '24px', padding: '24px', border: `1px solid ${stats.bills > 0 ? '#FEE2E2' : theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'box-shadow 0.2s' }}
         >
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>{user?.role === 'admin' ? 'PENDING_DUES_COUNT' : 'MY_PENDING_BILLS'}</span>
-          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', lineHeight: 1, marginTop: '10px' }}>{stats.bills}</div>
-        </div>
-
-        {user?.role === 'admin' && (
-          <div 
-            onClick={() => onNavigate && onNavigate('expenses')}
-            style={{ border: `2px solid ${theme.textMain}`, padding: '20px', background: '#F9F9F9', gridColumn: '1 / -1', cursor: 'pointer', transition: '0.2s' }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.7 }}>TOTAL_OUTFLOW</span>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '36px', fontWeight: '700', lineHeight: 1, marginTop: '10px', color: theme.danger }}>
-              ₹{stats.expenses.toLocaleString()}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: '500', color: stats.bills > 0 ? '#B91C1C' : theme.textSec }}>
+              {user?.role === 'admin' ? 'Pending Dues' : 'My Pending Bills'}
+            </span>
+            <div style={{ background: stats.bills > 0 ? '#FEE2E2' : '#F9F8F3', padding: '8px', borderRadius: '10px' }}>
+              <Receipt size={18} color={stats.bills > 0 ? '#DC2626' : theme.accent} />
             </div>
           </div>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: stats.bills > 0 ? '#991B1B' : theme.textMain, lineHeight: 1 }}>{stats.bills}</div>
+        </motion.div>
+
+        {/* Total Outflow */}
+        {user?.role === 'admin' && (
+          <motion.div 
+            variants={cardVariants}
+            whileHover={{ y: -4, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+            onClick={() => onNavigate && onNavigate('expenses')}
+            style={{ background: '#F9F8F3', borderRadius: '24px', padding: '24px', border: `1px solid ${theme.border}`, gridColumn: '1 / -1', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '16px', transition: 'box-shadow 0.2s' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: '500', color: theme.textSec }}>Total Outflow</span>
+              <div style={{ background: 'white', padding: '8px', borderRadius: '10px', border: `1px solid ${theme.border}` }}>
+                <Wallet size={18} color={theme.accent} />
+              </div>
+            </div>
+            <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: '36px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>
+              ₹{stats.expenses.toLocaleString()}
+            </div>
+          </motion.div>
         )}
 
-      </div>
+      </motion.div>
     </div>
   );
 };

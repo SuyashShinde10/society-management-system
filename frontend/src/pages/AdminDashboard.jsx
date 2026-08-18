@@ -1,7 +1,10 @@
 import React, { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { LayoutDashboard, User, Users, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert } from 'lucide-react';
 import theme from '../theme';
+
 // Components
 import NoticeBoard from '../components/NoticeBoard';
 import ComplaintBox from '../components/ComplaintBox';
@@ -13,209 +16,207 @@ import DashboardOverview from '../components/DashboardOverview';
 import Profile from '../components/Profile';
 import Meetings from '../components/Meetings';
 import Analytics from '../components/Analytics';
+import VisitorLogs from '../components/VisitorLogs';
+import SecurityStaff from '../components/SecurityStaff';
 
-const Dashboard = () => {
+// --- DOODLES & ANIMATIONS ---
+const SparkleDoodle = () => (
+  <svg width="24" height="24" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', top: '-10px', left: '-15px' }}>
+    <motion.path d="M15 0L17 12L30 15L17 17L15 30L12 17L0 15L12 12L15 0Z" fill="#D9734E" 
+      initial={{ scale: 0, rotate: 45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 200, delay: 0.5 }} />
+  </svg>
+);
+
+const AnimatedText = ({ text }) => {
+  const words = text.split(" ");
+  return (
+    <motion.span initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.08 } }, hidden: {} }} style={{ display: "inline-flex", flexWrap: "wrap", position: 'relative' }}>
+      <SparkleDoodle />
+      {words.map((word, index) => (
+        <motion.span key={index} variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { type: "spring", damping: 12, stiffness: 100 } } }} style={{ marginRight: "6px" }}>
+          {word}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+};
+
+const BackgroundBlobs = () => (
+  <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}>
+    <motion.div animate={{ rotate: 360 }} transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+      style={{ position: 'absolute', top: '-20%', right: '-10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(217,115,78,0.03) 0%, rgba(249,248,243,0) 70%)', borderRadius: '50%' }} />
+  </div>
+);
+
+const AdminDashboard = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(user?.mustChangePassword ? 'profile' : 'overview');
 
   if (!user) {
     return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Space Mono', monospace", backgroundColor: theme.bg }}>
-        // INITIALIZING_DASHBOARD...
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Outfit', sans-serif", backgroundColor: theme.bg }}>
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: '40px', height: '40px', border: `3px solid ${theme.border}`, borderTopColor: theme.accent, borderRadius: '50%' }} />
       </div>
     );
   }
 
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'profile', label: 'My Profile', icon: User },
+    { id: 'registry', label: 'Member Registry', icon: Users },
+    { id: 'notices', label: 'Notice Board', icon: Bell },
+    { id: 'meetings', label: 'Global Meetings', icon: Calendar },
+    { id: 'bills', label: 'Billing System', icon: ReceiptText },
+    { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
+    { id: 'visitors', label: 'Visitor Logs', icon: ShieldAlert },
+    { id: 'security-staff', label: 'Security Staff', icon: ShieldAlert },
+    { id: 'expenses', label: 'Society Expenses', icon: Wallet },
+    { id: 'analytics', label: 'Analytics Reports', icon: PieChart },
+  ];
+
   return (
-    <div className="dashboard-container" style={{ backgroundColor: theme.bg, minHeight: '100vh', padding: '40px 20px', color: theme.textMain, display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+    <div className="dashboard-container" style={{ backgroundColor: theme.bg, minHeight: '100vh', padding: '30px', color: theme.textMain, display: 'flex', flexDirection: 'column', boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif" }}>
+      <BackgroundBlobs />
       <style>
         {`
           @media (max-width: 900px) {
-            .dashboard-header {
-              flex-direction: column !important;
-              align-items: flex-start !important;
-              gap: 20px;
-              padding: 20px !important;
-            }
-            .dashboard-header-actions {
-              width: 100%;
-              display: flex;
-              flex-direction: column;
-              gap: 15px;
-            }
-            .dashboard-layout {
-              flex-direction: column !important;
-            }
-            .sidebar-nav {
-              width: 100% !important;
-              border-right: none !important;
-              border-bottom: 3px solid ${theme.border} !important;
-              padding: 20px !important;
-            }
-            .sidebar-menu {
-              width: 100% !important;
-              flex-direction: row !important;
-              flex-wrap: wrap;
-              gap: 10px !important;
-            }
-            .sidebar-menu button {
-              flex: 1 1 calc(50% - 10px);
-              justify-content: center;
-              padding: 10px !important;
-              font-size: 12px !important;
-            }
-            .main-content {
-              padding-left: 0 !important;
-              padding-top: 20px !important;
-            }
-            .dashboard-container {
-              padding: 20px 10px !important;
-            }
+            .dashboard-header { flex-direction: column !important; align-items: flex-start !important; gap: 20px; padding: 25px !important; }
+            .dashboard-layout { flex-direction: column !important; gap: 20px !important; }
+            .sidebar-nav { width: 100% !important; padding: 20px !important; }
+            .sidebar-menu { flex-direction: row !important; flex-wrap: wrap; gap: 10px !important; }
+            .sidebar-menu button { flex: 1 1 calc(50% - 10px); justify-content: center; padding: 12px !important; font-size: 13px !important; }
+            .main-content { padding-left: 0 !important; }
+            .dashboard-container { padding: 15px !important; }
           }
+          .nav-btn:hover { background-color: #F9F8F3 !important; transform: translateY(-2px); }
+          .nav-btn-active:hover { transform: translateY(-2px); }
         `}
       </style>
-      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%' }}>
+      
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '30px' }}>
 
         {/* --- HEADER --- */}
-        <header className="dashboard-header" style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginBottom: '50px', background: theme.surface, padding: '40px',
-          border: `3px solid ${theme.border}`, boxShadow: '10px 10px 0px rgba(0,0,0,0.05)'
-        }}>
-          <div style={{ borderLeft: `10px solid ${theme.textMain}`, paddingLeft: '25px', wordBreak: 'break-word' }}>
-            <span className="mono-label" style={{ color: theme.accent }}>// SESSION_ACTIVE</span>
-            <h1 style={{
-              fontFamily: "'Cormorant Garamond', serif", margin: '5px 0',
-              fontSize: 'clamp(24px, 5vw, 2.8rem)', fontWeight: '600', textTransform: 'uppercase', lineHeight: 1
-            }}>
-              {user.societyName || 'SYSTEM_CORE'}
-            </h1>
-            <p style={{ fontFamily: "'Space Mono', monospace", margin: 0, fontSize: '14px', fontWeight: '700' }}>
-              OPERATOR: <span style={{ color: theme.accent }}>{user.name?.toUpperCase()}</span>
-            </p>
-          </div>
-
-          <div className="dashboard-header-actions" style={{ display: 'flex' }}>
-            <button
-              onClick={() => { logout(); navigate('/'); }}
-              className="logout-btn brutal-btn"
-              style={{
-                background: 'transparent', color: theme.textMain, border: `2px solid ${theme.textMain}`,
-                padding: '12px 30px', fontFamily: "'Space Mono', monospace", fontWeight: '700',
-                cursor: 'pointer', transition: '0.2s', width: '100%'
-              }}
-            >
-              [ DISCONNECT ]
-            </button>
-          </div>
-        </header>
-
-        {/* SIDEBAR NAVIGATION */}
-      <div className="dashboard-layout" style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-        
-        {/* Navigation Panel */}
-        <div className="sidebar-nav" style={{
-          width: '280px', background: theme.surface, borderRight: `3px solid ${theme.border}`,
-          padding: '30px 20px', display: 'flex', flexDirection: 'column', gap: '40px',
-          boxShadow: '5px 0 15px rgba(0,0,0,0.02)'
-        }}>
+        <motion.header initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}
+          className="dashboard-header" style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            background: 'white', padding: '30px 40px', borderRadius: '24px',
+            border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+          }}>
           
-          {user?.mustChangePassword && (
-            <div style={{ background: theme.danger, color: 'white', padding: '10px', fontSize: '12px', fontFamily: "'Space Mono', monospace", fontWeight: 'bold' }}>
-              ⚠️ YOU MUST CHANGE YOUR GENERATED PASSWORD TO CONTINUE.
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{ width: '50px', height: '50px', background: '#F9F8F3', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+              <img src="/awaastech-logo.png" alt="Logo" style={{ width: '26px', height: '26px', objectFit: 'contain' }} />
             </div>
-          )}
-
-          <div className="sidebar-menu" style={{ width: '250px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', opacity: 0.5, width: '100%' }}>// NAVIGATION</span>
-            {[
-              { id: 'overview', label: 'Overview', icon: '📊' },
-              { id: 'profile', label: 'My Profile', icon: '👤' },
-              { id: 'registry', label: 'Member Registry', icon: '👥' },
-              { id: 'notices', label: 'Notice Board', icon: '📢' },
-              { id: 'meetings', label: 'Global Meetings', icon: '🗓️' },
-              { id: 'bills', label: 'Billing System', icon: '🧾' },
-              { id: 'complaints', label: 'Complaints', icon: '🗳️' },
-              { id: 'expenses', label: 'Society Expenses', icon: '💰' },
-              { id: 'analytics', label: 'Analytics Reports', icon: '📈' },
-            ].map((tab) => {
-              const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => !isDisabled && setActiveTab(tab.id)}
-                  disabled={isDisabled}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '15px', padding: '15px 20px',
-                    background: activeTab === tab.id ? theme.textMain : 'transparent',
-                    color: activeTab === tab.id ? 'white' : theme.textMain,
-                    border: `2px solid ${activeTab === tab.id ? theme.textMain : 'transparent'}`,
-                    fontFamily: "'Space Mono', monospace", fontSize: '14px', fontWeight: '700',
-                    cursor: isDisabled ? 'not-allowed' : 'pointer', textAlign: 'left', transition: 'all 0.2s',
-                    opacity: isDisabled ? 0.4 : 1
-                  }}
-                  onMouseOver={(e) => {
-                    if (activeTab !== tab.id && !isDisabled) {
-                      e.currentTarget.style.border = `2px dashed ${theme.textMain}`;
-                      e.currentTarget.style.background = '#f5f5f5';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (activeTab !== tab.id && !isDisabled) {
-                      e.currentTarget.style.border = '2px solid transparent';
-                      e.currentTarget.style.background = 'transparent';
-                    }
-                  }}
-                >
-                  <span style={{ fontSize: '18px' }}>{tab.icon}</span>
-                  {tab.label}
-                </button>
-              );
-            })}
+            <div style={{ zIndex: 10 }}>
+              <h1 style={{ fontFamily: "'Cormorant Garamond', serif", margin: '0 0 4px 0', fontSize: '32px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>
+                <AnimatedText text={user.societyName || 'Awaastech Administration'} />
+              </h1>
+              <p style={{ margin: 0, fontSize: '15px', fontWeight: '400', color: theme.textSec }}>
+                Welcome back, <span style={{ color: theme.accent, fontWeight: '600' }}>{user.name}</span> (Administrator)
+              </p>
+            </div>
           </div>
-        </div>
 
-          {/* MAIN CONTENT PORTAL */}
-          <div className="main-content" style={{ flex: 1, minWidth: 0, minHeight: 0, paddingLeft: '40px', display: 'flex', flexDirection: 'column' }}>
-            {activeTab === 'overview' && <DashboardOverview onNavigate={setActiveTab} />}
-            {activeTab === 'profile' && <Profile />}
-            {activeTab === 'registry' && (
-              <section style={{
-                padding: 'clamp(15px, 5vw, 40px)', background: theme.surface,
-                border: `3px solid ${theme.border}`, boxShadow: '10px 10px 0px rgba(0,0,0,0.05)'
-              }}>
-                <div style={{ marginBottom: '30px', borderBottom: `2px solid ${theme.textMain}`, paddingBottom: '15px' }}>
-                  <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(20px, 6vw, 1.8rem)', textTransform: 'uppercase' }}>
-                    MEMBER_OPERATIONS
-                  </h2>
-                </div>
-                <div style={{ display: 'grid', gap: 'clamp(20px, 5vw, 40px)' }}>
-                  <div style={{ background: '#f9f9f9', padding: 'clamp(15px, 4vw, 20px)', border: `1px dashed ${theme.border}`, minWidth: 0 }}>
-                    <span className="mono-label" style={{ display: 'block', marginBottom: '15px' }}>[01] INTAKE_FORM</span>
-                    <AddMember />
-                  </div>
-                  <div style={{ minWidth: 0 }}>
-                    <span className="mono-label" style={{ display: 'block', marginBottom: '15px' }}>[02] REGISTRY_DATABASE</span>
-                    <UserList />
-                  </div>
-                </div>
-              </section>
+          <motion.button whileHover={{ scale: 1.02, backgroundColor: '#F9F8F3' }} whileTap={{ scale: 0.98 }}
+            onClick={() => { logout(); navigate('/'); }}
+            style={{
+              background: 'white', color: theme.textMain, border: `1px solid ${theme.border}`, borderRadius: '12px',
+              padding: '12px 20px', fontFamily: "'Outfit', sans-serif", fontWeight: '500', fontSize: '14px',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+              transition: 'all 0.2s'
+            }}
+          >
+            <LogOut size={16} /> Sign Out
+          </motion.button>
+        </motion.header>
+
+        {/* --- MAIN LAYOUT --- */}
+        <div className="dashboard-layout" style={{ display: 'flex', flex: 1, minHeight: 0, gap: '30px' }}>
+          
+          {/* NAVIGATION SIDEBAR */}
+          <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }}
+            className="sidebar-nav" style={{
+            width: '280px', background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`,
+            padding: '30px 20px', display: 'flex', flexDirection: 'column', gap: '20px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.02)', height: 'fit-content'
+          }}>
+            
+            {user?.mustChangePassword && (
+              <div style={{ background: '#FEF2F2', color: '#B91C1C', padding: '15px', borderRadius: '12px', fontSize: '13px', fontWeight: '500', display: 'flex', gap: '10px', alignItems: 'flex-start', border: '1px solid #FEE2E2', marginBottom: '10px' }}>
+                <ShieldAlert size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+                <span>You must change your generated password to continue accessing other modules.</span>
+              </div>
             )}
 
-            {activeTab === 'notices' && <NoticeBoard />}
-            {activeTab === 'meetings' && <Meetings />}
-            {activeTab === 'bills' && <MaintenanceBills />}
-            {activeTab === 'complaints' && <ComplaintBox />}
-            {activeTab === 'expenses' && <ExpenseTracker />}
-            {activeTab === 'analytics' && <Analytics />}
-          </div>
+            <div className="sidebar-menu" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <span style={{ fontSize: '12px', fontWeight: '600', color: theme.textSec, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', paddingLeft: '10px' }}>Menu</span>
+              
+              {navItems.map((tab) => {
+                const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
+                const isActive = activeTab === tab.id;
+                const Icon = tab.icon;
+                
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => !isDisabled && setActiveTab(tab.id)}
+                    disabled={isDisabled}
+                    className={isActive ? "nav-btn-active" : "nav-btn"}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px',
+                      background: isActive ? theme.accent : 'transparent',
+                      color: isActive ? 'white' : theme.textMain,
+                      border: 'none', borderRadius: '14px',
+                      fontFamily: "'Outfit', sans-serif", fontSize: '15px', fontWeight: isActive ? '600' : '500',
+                      cursor: isDisabled ? 'not-allowed' : 'pointer', textAlign: 'left', transition: 'all 0.2s ease',
+                      opacity: isDisabled ? 0.4 : 1,
+                      boxShadow: isActive ? '0 4px 12px rgba(217,115,78,0.2)' : 'none'
+                    }}
+                  >
+                    <Icon size={18} color={isActive ? 'white' : theme.textSec} style={{ transition: 'color 0.2s' }} />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* CONTENT PORTAL */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
+            className="main-content" style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            
+            {activeTab === 'overview' && <DashboardOverview onNavigate={setActiveTab} />}
+            {activeTab === 'profile' && <Profile />}
+            
+            {activeTab === 'registry' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+                  <h2 style={{ margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '32px', color: theme.textMain }}>Onboard New Resident</h2>
+                  <AddMember />
+                </div>
+                <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+                  <h2 style={{ margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '32px', color: theme.textMain }}>Registry Database</h2>
+                  <UserList />
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'notices' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><NoticeBoard /></div>}
+            {activeTab === 'meetings' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Meetings /></div>}
+            {activeTab === 'bills' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><MaintenanceBills /></div>}
+            {activeTab === 'complaints' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ComplaintBox /></div>}
+            {activeTab === 'visitors' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><VisitorLogs /></div>}
+            {activeTab === 'security-staff' && <div style={{ flex: 1 }}><SecurityStaff /></div>}
+            {activeTab === 'expenses' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ExpenseTracker /></div>}
+            {activeTab === 'analytics' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Analytics /></div>}
+            
+          </motion.div>
 
         </div>
-
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;

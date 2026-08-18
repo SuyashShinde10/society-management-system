@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
+import { AlertCircle } from 'lucide-react';
 
 const ComplaintBox = () => {
   const { user } = useContext(AuthContext);
@@ -92,20 +93,22 @@ const ComplaintBox = () => {
   const hasMore = paginatedComplaints.length < filteredComplaints.length;
 
   return (
-    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* HEADER */}
-      <div style={{ background: theme.textMain, color: 'white', padding: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span style={{ fontSize: '20px' }}>🗳️</span>
-        <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px' }}>
-          Incident_Logs
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 10px' }}>
+        <div style={{ background: '#FEE2E2', padding: '10px', borderRadius: '12px' }}>
+          <AlertCircle size={24} color="#DC2626" />
+        </div>
+        <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', color: theme.textMain }}>
+          Incident Logs
         </h3>
       </div>
 
-      <div style={{ padding: '25px' }}>
+      <div style={{ padding: '0' }}>
         {/* MEMBER INPUT SECTION */}
         {user && user.role !== 'admin' && (
-          <form onSubmit={handlePost} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '40px', background: '#F9F9F9', padding: '20px', border: `1px dashed ${theme.border}` }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700' }}>// INITIALIZE_NEW_REPORT</span>
+          <form onSubmit={handlePost} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '30px', background: 'white', padding: '24px', borderRadius: '20px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', fontWeight: '600', color: theme.textSec }}>File New Incident</span>
             <input
               placeholder="INCIDENT_TITLE"
               value={form.title}
@@ -127,16 +130,16 @@ const ComplaintBox = () => {
               className="incident-input"
             />
             {form.attachment && (
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', color: theme.accent, marginTop: '-5px' }}>
+              <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: '11px', color: theme.accent, marginTop: '-5px' }}>
                 // FILE_ATTACHED_READY_FOR_UPLOAD
               </div>
             )}
             <button type="submit" style={{
-              background: theme.textMain, color: 'white', border: 'none', padding: '14px',
-              fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer',
-              boxShadow: `6px 6px 0px ${theme.accent}`
-            }}>
-              FILE_INCIDENT_REPORT
+              background: theme.textMain, color: 'white', border: 'none', padding: '14px', borderRadius: '12px',
+              fontFamily: "'Outfit', sans-serif", fontWeight: '600', fontSize: '15px', cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)', transition: 'transform 0.2s'
+            }} onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}>
+              File Incident Report
             </button>
           </form>
         )}
@@ -147,10 +150,10 @@ const ComplaintBox = () => {
             placeholder="SEARCH INCIDENTS..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="brutal-input" 
-            style={{ flex: 1, padding: '10px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}
+            className="organic-input" 
+            style={{ flex: 1, padding: '10px', boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif" }}
           />
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="brutal-input" style={{ padding: '10px', fontFamily: "'Space Mono', monospace" }}>
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="organic-input" style={{ padding: '10px', fontFamily: "'Outfit', sans-serif" }}>
             <option value="All">STATUS: ALL</option>
             <option value="Pending">STATUS: PENDING</option>
             <option value="Resolved">STATUS: RESOLVED</option>
@@ -158,30 +161,32 @@ const ComplaintBox = () => {
           </select>
         </div>
 
-        <div style={{ overflowY: 'auto', maxHeight: '60vh', border: `1px solid ${theme.border}` }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh', paddingRight: '10px' }}>
           {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-              <img src="/awaastech-logo.png" alt="Loading" className="brutal-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
+              <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
           ) : paginatedComplaints.length === 0 ? (
-            <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', fontFamily: "'Space Mono', monospace", fontSize: '12px' }}>
-              // NO_INCIDENTS_ON_RECORD
+            <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, fontFamily: "'Outfit', sans-serif", fontSize: '14px' }}>
+              No incidents on record.
             </div>
           ) : (
             paginatedComplaints.map((c) => (
               <div
                 key={c._id}
                 style={{
-                  borderBottom: `2px solid ${theme.textMain}`, padding: '25px', transition: 'all 0.2s',
-                  borderLeft: `12px solid ${c.status === 'Resolved' ? theme.resolved : c.status === 'Declined' ? theme.declined : theme.pending}`
+                  background: 'white', borderRadius: '20px', padding: '24px',
+                  border: `1px solid ${theme.border}`, transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  borderLeft: `6px solid ${c.status === 'Resolved' ? theme.resolved : c.status === 'Declined' ? theme.declined : theme.pending}`
                 }}
+                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
-                  <h4 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: theme.textMain, textTransform: 'uppercase' }}>
+                  <h4 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: theme.textMain, fontWeight: '600' }}>
                     {c.title}
                   </h4>
                   <span style={{
-                    fontFamily: "'Space Mono', monospace", fontSize: '10px', fontWeight: '700',
+                    fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700',
                     padding: '4px 10px', border: `1px solid ${theme.textMain}`, textTransform: 'uppercase',
                     background: c.status === 'Resolved' ? theme.resolved : c.status === 'Declined' ? theme.declined : theme.pending,
                     color: c.status === 'Pending' ? theme.textMain : 'white'
@@ -190,7 +195,7 @@ const ComplaintBox = () => {
                   </span>
                 </div>
 
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', marginBottom: '15px' }}>
+                <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: '12px', marginBottom: '15px' }}>
                   <div style={{ color: theme.textMain, fontWeight: '700' }}>
                     [ ORIGIN: {c.user?.name?.toUpperCase() || 'UNKNOWN'} ]
                   </div>
@@ -205,7 +210,7 @@ const ComplaintBox = () => {
                 </div>
 
                 <p style={{
-                  fontFamily: "'Space Mono', monospace", fontSize: '13px', color: theme.textSec,
+                  fontFamily: "'Outfit', sans-serif", fontSize: '13px', color: theme.textSec,
                   lineHeight: '1.6', background: '#F5F5F4', padding: '15px', border: '1px solid #E7E5E4'
                 }}>
                   {c.description}
@@ -213,14 +218,14 @@ const ComplaintBox = () => {
 
                 {c.attachment && (
                   <div style={{ marginTop: '15px' }}>
-                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', fontWeight: '700', color: theme.textMain }}>
+                    <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '12px', fontWeight: '700', color: theme.textMain }}>
                       // EVIDENCE_ATTACHED:
                     </span>
                     <div style={{ marginTop: '10px' }}>
                       {c.attachment.startsWith('data:image') ? (
-                        <img src={c.attachment} alt="Evidence" style={{ maxWidth: '100%', maxHeight: '300px', border: `2px solid ${theme.border}` }} />
+                        <img src={c.attachment} alt="Evidence" style={{ maxWidth: '100%', maxHeight: '300px', border: `1px solid ${theme.border}` }} />
                       ) : (
-                        <a href={c.attachment} download="evidence_file" style={{ color: theme.accent, textDecoration: 'underline', fontFamily: "'Space Mono', monospace", fontSize: '13px' }}>
+                        <a href={c.attachment} download="evidence_file" style={{ color: theme.accent, textDecoration: 'underline', fontFamily: "'Outfit', sans-serif", fontSize: '13px' }}>
                           [ DOWNLOAD_ATTACHED_FILE ]
                         </a>
                       )}
@@ -230,18 +235,20 @@ const ComplaintBox = () => {
 
                 {/* Admin Actions */}
                 {user && user.role === 'admin' && c.status === 'Pending' && (
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
                     <button
                       onClick={() => handleStatusUpdate(c._id, 'Resolved')}
-                      style={{ flex: 1, padding: '10px', background: theme.resolved, color: 'white', border: 'none', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer' }}
+                      style={{ flex: 1, padding: '12px', background: theme.resolved, color: 'white', border: 'none', borderRadius: '10px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', transition: 'opacity 0.2s' }}
+                      onMouseOver={(e) => e.target.style.opacity = '0.9'} onMouseOut={(e) => e.target.style.opacity = '1'}
                     >
-                      [ APPROVE_RESOLVE ]
+                      Approve & Resolve
                     </button>
                     <button
                       onClick={() => handleStatusUpdate(c._id, 'Declined')}
-                      style={{ flex: 1, padding: '10px', background: theme.declined, color: 'white', border: 'none', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer' }}
+                      style={{ flex: 1, padding: '12px', background: theme.declined, color: 'white', border: 'none', borderRadius: '10px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', transition: 'opacity 0.2s' }}
+                      onMouseOver={(e) => e.target.style.opacity = '0.9'} onMouseOut={(e) => e.target.style.opacity = '1'}
                     >
-                      [ DECLINE_ISSUE ]
+                      Decline Issue
                     </button>
                   </div>
                 )}
@@ -251,8 +258,8 @@ const ComplaintBox = () => {
         </div>
 
         {hasMore && (
-          <button onClick={() => setPage(page + 1)} style={{ width: '100%', marginTop: '20px', padding: '10px', background: 'transparent', border: `2px dashed ${theme.border}`, fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer' }}>
-            LOAD_MORE_RECORDS
+          <button onClick={() => setPage(page + 1)} style={{ width: '100%', marginTop: '20px', padding: '12px', background: 'white', borderRadius: '12px', border: `1px dashed ${theme.border}`, color: theme.textMain, fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'white'}>
+            Load More Records
           </button>
         )}
       </div>

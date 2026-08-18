@@ -10,6 +10,9 @@ import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import MemberDashboard from './pages/MemberDashboard';
 import Profile from './pages/Profile';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import SecurityDashboard from './pages/SecurityDashboard';
+import ForgotPassword from './pages/ForgotPassword';
 
 // Guards
 import PrivateRoute from './components/PrivateRoute';
@@ -30,6 +33,7 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+            <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
 
             {/* Protected: both roles */}
             <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
@@ -53,6 +57,30 @@ const App = () => {
                 <PrivateRoute>
                   <RoleRoute role="member">
                     <MemberDashboard />
+                  </RoleRoute>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Superadmin dashboard */}
+            <Route
+              path="/superadmin"
+              element={
+                <PrivateRoute>
+                  <RoleRoute role="superadmin">
+                    <SuperAdminDashboard />
+                  </RoleRoute>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Security dashboard */}
+            <Route
+              path="/security"
+              element={
+                <PrivateRoute>
+                  <RoleRoute role="security">
+                    <SecurityDashboard />
                   </RoleRoute>
                 </PrivateRoute>
               }

@@ -1,132 +1,85 @@
 /* ============================================================
-   GLOBAL STYLES — Awaastech Society Management System
-   All shared CSS classes consolidated here to avoid duplicate
-   <style> tags injected on every component render.
+   GLOBAL STYLES — Awaastech Society Management System (Organic Minimalist)
    ============================================================ */
 
 :root {
   --primary: #2563eb;
   --secondary: #475569;
-  --accent: #22c55e;
-  --danger: #ef4444;
-  --bg: #F2F2F2;
-  --card-bg: #ffffff;
-  --text: #1A1A1A;
-  --text-sec: #4A4A4A;
-  --border: #1A1A1A;
+  --accent: #D9734E;
+  --danger: #C05746;
+  --bg: #F9F8F3;
+  --card-bg: #FFFDF9;
+  --text: #2C2C2C;
+  --text-sec: #6B6B6B;
+  --border: #E8E4D9;
 }
 
 * {
   box-sizing: border-box;
   overflow-wrap: break-word;
   word-wrap: break-word;
+  scrollbar-width: thin;
+  scrollbar-color: #C4C4C4 transparent;
 }
 
 body {
   margin: 0;
-  font-family: 'Space Mono', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
 }
 
 /* ============================================================
-   BRUTALIST INPUT SYSTEM
-   Shared across Login, Register, AddMember, UserList, etc.
+   ORGANIC INPUT SYSTEM
    ============================================================ */
 
-.brutal-input {
-  font-family: 'Space Mono', monospace;
-  transition: all 0.2s;
-  border: 1px solid #1A1A1A;
+.organic-input, .registry-input, .ledger-input, .incident-input {
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   outline: none;
   width: 100%;
   padding: 14px;
-  background: #E8E8E8;
+  background: var(--card-bg);
   box-sizing: border-box;
+  color: var(--text);
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
-.brutal-input:focus {
-  background: #fff;
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0px #1A1A1A;
-}
-
-/* Registry-style inputs (AddMember / UserList) */
-.registry-input {
-  font-family: 'Space Mono', monospace;
-  border: 1px solid #1A1A1A;
-  background: #F2F2F2;
-  padding: 12px;
-  outline: none;
-  font-size: 13px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.registry-input:focus {
-  background: #fff;
-  box-shadow: 4px 4px 0px #1A1A1A;
+.organic-input:focus, .registry-input:focus, .ledger-input:focus, .incident-input:focus {
+  background: #FFFFFF;
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(217, 115, 78, 0.1);
+  transform: translateY(-1px);
 }
 
 .registry-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  color: #1A1A1A;
-  text-transform: uppercase;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sec);
   display: block;
   margin-bottom: 8px;
 }
 
-/* Ledger-style inputs (ExpenseTracker) */
-.ledger-input {
-  font-family: 'Space Mono', monospace;
-  border: 1px solid #1A1A1A;
-  background: #F2F2F2;
-  padding: 10px;
-  outline: none;
-  font-size: 13px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.ledger-input:focus {
-  background: #fff;
-  box-shadow: 4px 4px 0px #1A1A1A;
-}
-
-/* Incident/complaint inputs */
-.incident-input {
-  font-family: 'Space Mono', monospace;
-  border: 1px solid #1A1A1A;
-  background: #F2F2F2;
-  padding: 12px;
-  outline: none;
-  font-size: 13px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.incident-input:focus {
-  background: #fff;
-  box-shadow: 4px 4px 0px #1A1A1A;
-}
-
 /* ============================================================
-   BRUTALIST CARDS
+   ORGANIC CARDS
    ============================================================ */
 
-.brutal-card {
-  background: #fff;
-  border: 3px solid #1A1A1A;
-  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+.organic-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.brutal-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 12px 12px 0px rgba(0, 0, 0, 0.1);
+.organic-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
 }
 
 /* ============================================================
@@ -134,86 +87,82 @@ body {
    ============================================================ */
 
 .mono-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text-sec);
 }
 
 /* ============================================================
    BUTTON STATES
    ============================================================ */
 
+.logout-btn {
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
 .logout-btn:hover {
-  background-color: #ef4444 !important;
-  color: white !important;
+  background-color: #FEE2E2 !important;
+  color: var(--danger) !important;
 }
 
 .auth-link:hover {
-  color: #1A1A1A !important;
-  text-decoration: underline !important;
+  color: var(--accent) !important;
 }
 
 /* ============================================================
-   NAVBAR (legacy)
+   ORGANIC BUTTONS
    ============================================================ */
 
-nav {
-  background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.organic-btn {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 12px;
+  border: none;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
 }
 
-nav h2 {
-  margin: 0;
-  color: var(--primary);
-  font-size: 1.5rem;
+.organic-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(217, 115, 78, 0.2);
 }
 
-/* ============================================================
-   LOADING SPINNERS
-   ============================================================ */
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid #1A1A1A;
-  border-bottom-color: transparent;
-  border-radius: 50%;
-  display: inline-block;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.brutal-btn {
-  transition: all 0.2s;
-}
-
-.brutal-btn:active {
-  transform: translate(2px, 2px) !important;
-  box-shadow: 2px 2px 0px var(--accent) !important;
+.organic-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 /* ============================================================
    LOGO ANIMATION
    ============================================================ */
-@keyframes brutal-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+@keyframes organic-pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
 }
-.brutal-pulse {
-  animation: brutal-pulse 1.5s infinite ease-in-out;
+.organic-pulse {
+  animation: organic-pulse 2s infinite ease-in-out;
 }
+
+/* ============================================================
+   MODERN SCROLLBAR (WEBKIT)
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #C4C4C4;
+  border-radius: 10px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-sec);
+}

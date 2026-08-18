@@ -8,7 +8,7 @@ const {
 
 const { protect, admin } = require('../middleware/authMiddleware');
 
-router.get('/', protect, admin, getExpenses);
+router.get('/', protect, getExpenses);
 router.post('/', protect, admin, addExpense);
 
 // This line was crashing because deleteExpense was undefined

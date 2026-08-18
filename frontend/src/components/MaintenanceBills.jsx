@@ -4,6 +4,7 @@ import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { jsPDF } from 'jspdf';
+import { FileText, Download } from 'lucide-react';
 
 const MaintenanceBills = () => {
   const { user } = useContext(AuthContext);
@@ -200,29 +201,31 @@ const MaintenanceBills = () => {
   const hasMore = paginatedBills.length < filteredBills.length;
 
   return (
-    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: theme.textMain, color: 'white', padding: '15px 20px', display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ flex: '1 1 100px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '20px' }}>🧾</span>
-          <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px', wordBreak: 'break-all' }}>
-            Maintenance_Dues
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', alignItems: 'center', padding: '0 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ background: '#EFF6FF', padding: '10px', borderRadius: '12px' }}>
+            <FileText size={24} color="#3B82F6" />
+          </div>
+          <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', color: theme.textMain }}>
+            Maintenance Bills
           </h3>
         </div>
         {user?.role === 'admin' && (
           <button onClick={() => setShowGenerateForm(!showGenerateForm)} style={{
-            flex: '0 0 auto', background: theme.accent, color: 'white', border: 'none', padding: '6px 12px',
-            fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
+            background: showGenerateForm ? '#FEE2E2' : theme.accent, color: showGenerateForm ? '#DC2626' : 'white', border: 'none', padding: '10px 16px', borderRadius: '10px',
+            fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '14px', transition: 'background 0.2s', boxShadow: showGenerateForm ? 'none' : '0 4px 12px rgba(217,115,78,0.2)'
           }}>
-            {showGenerateForm ? '[-] CANCEL' : '[+] GEN_ALL_BILLS'}
+            {showGenerateForm ? 'Cancel' : 'Generate Bills'}
           </button>
         )}
       </div>
 
       {showGenerateForm && (
-        <form onSubmit={handleGenerateBills} style={{ padding: '20px', background: theme.fieldBg, borderBottom: `2px dashed ${theme.border}`, display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <form onSubmit={handleGenerateBills} style={{ padding: '24px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.02)', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end', margin: '0 10px' }}>
           <div>
             <label className="registry-label">Target Audience</label>
-            <select value={generateData.targetType} onChange={e => setGenerateData({...generateData, targetType: e.target.value})} className="registry-input">
+            <select value={generateData.targetType} onChange={e => setGenerateData({...generateData, targetType: e.target.value})} className="organic-input">
               <option value="All">All Members</option>
               <option value="Specific">Particular Member</option>
             </select>
@@ -230,7 +233,7 @@ const MaintenanceBills = () => {
           {generateData.targetType === 'Specific' && (
             <div>
               <label className="registry-label">Select Member</label>
-              <select value={generateData.targetUserId} onChange={e => setGenerateData({...generateData, targetUserId: e.target.value})} className="registry-input" required>
+              <select value={generateData.targetUserId} onChange={e => setGenerateData({...generateData, targetUserId: e.target.value})} className="organic-input" required>
                 <option value="">-- Choose Member --</option>
                 {users.map(u => (
                   <option key={u._id} value={u._id}>{u.name} (Flat {u.flatDetails?.wing}-{u.flatDetails?.flatNumber})</option>
@@ -240,36 +243,36 @@ const MaintenanceBills = () => {
           )}
           <div>
             <label className="registry-label">Reason / Title</label>
-            <input type="text" placeholder="e.g. Monthly Maintenance" value={generateData.title} onChange={e => setGenerateData({...generateData, title: e.target.value})} className="registry-input" required />
+            <input type="text" placeholder="e.g. Monthly Maintenance" value={generateData.title} onChange={e => setGenerateData({...generateData, title: e.target.value})} className="organic-input" required />
           </div>
           <div>
             <label className="registry-label">Amount (₹)</label>
-            <input type="number" min="0" value={generateData.amount} onChange={e => setGenerateData({...generateData, amount: e.target.value})} className="registry-input" required />
+            <input type="number" min="0" value={generateData.amount} onChange={e => setGenerateData({...generateData, amount: e.target.value})} className="organic-input" required />
           </div>
           <div>
             <label className="registry-label">Due Date</label>
-            <input type="date" value={generateData.dueDate} onChange={e => setGenerateData({...generateData, dueDate: e.target.value})} className="registry-input" required />
+            <input type="date" value={generateData.dueDate} onChange={e => setGenerateData({...generateData, dueDate: e.target.value})} className="organic-input" required />
           </div>
           <button type="submit" disabled={loading} style={{
-            background: theme.textMain, color: 'white', padding: '12px 20px', border: 'none', height: '42px',
-            fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px', boxShadow: `4px 4px 0px ${theme.border}`
-          }}>
-            {loading ? 'GENERATING...' : 'CONFIRM GENERATION'}
+            background: theme.textMain, color: 'white', padding: '12px 24px', border: 'none', height: '42px', borderRadius: '12px',
+            fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', transition: 'transform 0.2s'
+          }} onMouseOver={(e) => !loading && (e.target.style.transform = 'translateY(-2px)')} onMouseOut={(e) => !loading && (e.target.style.transform = 'translateY(0)')}>
+            {loading ? 'Generating...' : 'Confirm'}
           </button>
         </form>
       )}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <div style={{ padding: '20px 20px 0 20px' }}>
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <div style={{ padding: '0 10px' }}>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <input 
             type="text" 
             placeholder="SEARCH BILLS..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="brutal-input" 
-            style={{ flex: 2, padding: '10px', fontFamily: "'Space Mono', monospace", minWidth: '200px' }}
+            className="organic-input" 
+            style={{ flex: 2, padding: '10px', fontFamily: "'Outfit', sans-serif", minWidth: '200px' }}
           />
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="brutal-input" style={{ flex: 1, padding: '10px', fontFamily: "'Space Mono', monospace", minWidth: '150px' }}>
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="organic-input" style={{ flex: 1, padding: '10px', fontFamily: "'Outfit', sans-serif", minWidth: '150px' }}>
             <option value="All">STATUS: ALL</option>
             <option value="Pending">STATUS: PENDING</option>
             <option value="Under Verification">STATUS: VERIFYING</option>
@@ -279,47 +282,48 @@ const MaintenanceBills = () => {
           </div>
         </div>
 
-        <div style={{ overflowY: 'auto', maxHeight: '60vh', padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <div style={{ overflowY: 'auto', maxHeight: '60vh', padding: '0 10px 20px 10px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-              <img src="/awaastech-logo.png" alt="Loading" className="brutal-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
+              <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
           ) : paginatedBills.length === 0 ? (
-            <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', textAlign: 'center', color: theme.textSec }}>// NO_BILLS_FOUND</p>
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', textAlign: 'center', color: theme.textSec, background: 'white', padding: '40px', borderRadius: '20px', border: `1px solid ${theme.border}` }}>No bills found.</p>
           ) : (
             paginatedBills.map(b => (
               <div key={b._id} style={{
-                border: `2px solid ${theme.textMain}`, padding: '15px',
-                borderLeft: `8px solid ${b.status === 'Paid' ? theme.resolved : b.status === 'Pending' ? theme.pending : theme.declined}`
-              }}>
+                background: 'white', border: `1px solid ${theme.border}`, padding: '24px', borderRadius: '20px',
+                borderLeft: `6px solid ${b.status === 'Paid' ? theme.resolved : b.status === 'Pending' ? theme.pending : theme.declined}`,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.02)', transition: 'transform 0.2s, box-shadow 0.2s'
+              }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Space Mono', monospace", fontSize: '16px' }}>{b.title}</h4>
+                    <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '600' }}>{b.title}</h4>
                     {user?.role === 'admin' && (
-                      <p style={{ margin: '0 0 5px 0', fontSize: '12px', fontFamily: "'Space Mono', monospace" }}>
+                      <p style={{ margin: '0 0 5px 0', fontSize: '13px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
                         TO: {b.userId?.name} (W_{b.userId?.flatDetails?.wing} F_{b.userId?.flatDetails?.flatNumber})
                       </p>
                     )}
-                    <span style={{ fontSize: '12px', fontFamily: "'Space Mono', monospace", color: theme.textSec }}>
+                    <span style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
                       DUE: {new Date(b.dueDate).toLocaleDateString()}
                     </span>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '20px', fontWeight: '700', fontFamily: "'Space Mono', monospace", color: theme.textMain }}>
+                    <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: "'Outfit', sans-serif", color: theme.textMain }}>
                       ₹{b.amount.toLocaleString()}
                     </div>
                     <span style={{
-                      fontSize: '10px', fontWeight: '700', fontFamily: "'Space Mono', monospace", padding: '2px 6px',
-                      background: b.status === 'Paid' ? theme.resolved : (b.status === 'Pending' || b.status === 'Overdue' ? theme.pending : '#E35205'),
-                      color: 'white'
+                      fontSize: '11px', fontWeight: '600', fontFamily: "'Outfit', sans-serif", padding: '4px 8px', borderRadius: '20px',
+                      background: b.status === 'Paid' ? '#DCFCE7' : (b.status === 'Pending' || b.status === 'Overdue' ? '#FEF9C3' : '#FFEDD5'),
+                      color: b.status === 'Paid' ? '#166534' : (b.status === 'Pending' || b.status === 'Overdue' ? '#854D0E' : '#C2410C')
                     }}>
-                      {b.status?.toUpperCase() || 'UNKNOWN'}
+                      {b.status || 'Unknown'}
                     </span>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div style={{ marginTop: '15px', borderTop: `1px dashed ${theme.border}`, paddingTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <div style={{ marginTop: '20px', borderTop: `1px dashed ${theme.border}`, paddingTop: '15px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   
                   {/* Admin Verification Options */}
                   {b.status === 'Under Verification' && user?.role === 'admin' && (
@@ -329,20 +333,20 @@ const MaintenanceBills = () => {
                           handleMarkPaid(b._id, b.paymentMode, 'approve');
                         }
                       }} style={{
-                        background: theme.resolved, color: 'white', padding: '8px 16px', border: 'none',
-                        fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
+                        background: theme.resolved, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
+                        fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
                       }}>
-                        [ VERIFY_PAYMENT ]
+                        Verify Payment
                       </button>
                       <button onClick={() => {
                         if (window.confirm('Are you sure you want to REJECT this payment? The member will have to submit their payment details again.')) {
                           handleMarkPaid(b._id, null, 'reject');
                         }
                       }} style={{
-                        background: theme.declined, color: 'white', padding: '8px 16px', border: 'none',
-                        fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
+                        background: theme.declined, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
+                        fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
                       }}>
-                        [ REJECT ]
+                        Reject
                       </button>
                     </div>
                   )}
@@ -350,28 +354,29 @@ const MaintenanceBills = () => {
                   {/* Member Payment Options */}
                   {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId !== b._id && (
                     <button onClick={() => setPayingBillId(b._id)} style={{
-                      background: theme.textMain, color: 'white', padding: '8px 16px', border: 'none',
-                      fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
+                      background: theme.textMain, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
+                      fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
                     }}>
-                      {user?.role === 'admin' ? '[ MARK_AS_PAID ]' : '[ PAY_BILL ]'}
+                      {user?.role === 'admin' ? 'Mark As Paid' : 'Pay Bill'}
                     </button>
                   )}
                   
                   {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId === b._id && (
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', background: theme.fieldBg, padding: '5px 10px', border: `1px dashed ${theme.textMain}` }}>
-                      <span style={{ fontSize: '12px', fontFamily: "'Space Mono', monospace", fontWeight: 'bold' }}>PAY_VIA:</span>
-                      <button onClick={() => handleMarkPaid(b._id, 'UPI')} style={{ background: '#0070BA', color: 'white', padding: '6px 12px', border: 'none', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '11px' }}>[ UPI ]</button>
-                      <button onClick={() => handleMarkPaid(b._id, 'Net Banking')} style={{ background: '#E35205', color: 'white', padding: '6px 12px', border: 'none', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '11px' }}>[ NET_BANK ]</button>
-                      <button onClick={() => handleMarkPaid(b._id, 'Cash')} style={{ background: '#28A745', color: 'white', padding: '6px 12px', border: 'none', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '11px' }}>[ CASH ]</button>
-                      <button onClick={() => setPayingBillId(null)} style={{ background: 'transparent', color: theme.textMain, border: 'none', fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '11px', textDecoration: 'underline' }}>CANCEL</button>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', background: '#F9F8F3', padding: '8px 12px', borderRadius: '12px', border: `1px solid ${theme.border}` }}>
+                      <span style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', marginRight: '5px' }}>Pay via:</span>
+                      <button onClick={() => handleMarkPaid(b._id, 'UPI')} style={{ background: '#0070BA', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>UPI</button>
+                      <button onClick={() => handleMarkPaid(b._id, 'Net Banking')} style={{ background: '#E35205', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>Net Bank</button>
+                      <button onClick={() => handleMarkPaid(b._id, 'Cash')} style={{ background: '#28A745', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>Cash</button>
+                      <button onClick={() => setPayingBillId(null)} style={{ background: 'transparent', color: theme.textSec, border: 'none', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px', padding: '8px' }}>Cancel</button>
                     </div>
                   )}
                   
                   <button onClick={() => handleDownloadInvoice(b)} style={{
-                    background: 'transparent', color: theme.textMain, padding: '8px 16px', border: `2px solid ${theme.textMain}`,
-                    fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', fontSize: '12px'
-                  }}>
-                    {b.status === 'Paid' ? '[ DOWNLOAD_RECEIPT ]' : '[ DOWNLOAD_BILL ]'}
+                    background: 'transparent', color: theme.textMain, padding: '10px 16px', border: `1px solid ${theme.border}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px',
+                    fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px', transition: 'background 0.2s'
+                  }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'transparent'}>
+                    <Download size={16} />
+                    {b.status === 'Paid' ? 'Receipt' : 'Invoice'}
                   </button>
                 </div>
               </div>
@@ -381,10 +386,10 @@ const MaintenanceBills = () => {
 
         {hasMore && (
           <button onClick={() => setPage(page + 1)} style={{
-            width: '100%', marginTop: '20px', padding: '10px', background: 'transparent', border: `2px dashed ${theme.border}`,
-            fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer', flexShrink: 0
-          }}>
-            LOAD_MORE_RECORDS
+            width: '100%', marginTop: '20px', padding: '12px', background: 'white', borderRadius: '12px', border: `1px dashed ${theme.border}`, color: theme.textMain,
+            fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', flexShrink: 0, transition: 'background 0.2s'
+          }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'white'}>
+            Load More Records
           </button>
         )}
       </div>

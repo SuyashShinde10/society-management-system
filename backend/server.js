@@ -98,6 +98,7 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'TOO_MANY_REQUESTS — Try again in 15 minutes.' },
+  skip: (req, res) => process.env.NODE_ENV !== 'production'
 });
 
 const generalLimiter = rateLimit({
@@ -106,6 +107,7 @@ const generalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'TOO_MANY_REQUESTS — Try again in 15 minutes.' },
+  skip: (req, res) => process.env.NODE_ENV !== 'production'
 });
 
 app.use('/api/auth/login', authLimiter);
@@ -123,6 +125,8 @@ app.use('/api/bills', require('./routes/billRoutes'));
 
 app.use('/api/meetings', require('./routes/meetingRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/superadmin', require('./routes/superAdminRoutes'));
+app.use('/api/visitors', require('./routes/visitorRoutes'));
 
 // -------------------------------------------------------
 // HEALTH CHECK

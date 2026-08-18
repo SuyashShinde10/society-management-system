@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const SecurityStaff = require('../models/SecurityStaff');
 
 const protect = async (req, res, next) => {
   let token;
@@ -11,6 +12,9 @@ const protect = async (req, res, next) => {
       
       // Select societyId so we can use it in controllers
       req.user = await User.findById(decoded.id).select('-password');
+      if (!req.user) {
+        req.user = await SecurityStaff.findById(decoded.id).select('-password');
+      }
       
       if (!req.user) {
         return res.status(401).json({ message: 'Not authorized, user not found' });
@@ -37,4 +41,20 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin };
+const superadmin = (req, res, next) => {
+  if (req.user && req.user.role === 'superadmin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Not authorized as a superadmin' });
+  }
+};
+
+const securityGuard = (req, res, next) => {
+  if (req.user && req.user.role === 'security') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Not authorized as a security guard' });
+  }
+};
+
+module.exports = { protect, admin, superadmin, securityGuard };

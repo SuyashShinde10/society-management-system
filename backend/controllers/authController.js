@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const SecurityStaff = require('../models/SecurityStaff');
 const Society = require('../models/Society');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -16,6 +17,14 @@ const sendOTP = async (req, res) => {
     if (!email) return res.status(400).json({ message: 'EMAIL_REQUIRED' });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // --- DEV MODE HELPER: Print OTP to console since email might fail ---
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`\n=========================================`);
+      console.log(`🔑 DEV MODE OTP FOR ${email}: ${otp}`);
+      console.log(`=========================================\n`);
+    }
+
     await Otp.deleteMany({ email });
     await Otp.create({ email, otp });
 
@@ -66,7 +75,7 @@ const verifyOTP = async (req, res) => {
       return res.status(400).json({ message: 'INVALID_OTP' });
     }
 
-    await Otp.deleteOne({ email }); // Clear after successful verify
+    // We don't delete the OTP here so that registerUser can verify it one final time securely.
     res.json({ success: true, message: 'EMAIL_VERIFIED' });
   } catch (error) {
     console.error('// VERIFY_OTP_FAULT:', error);
@@ -81,7 +90,7 @@ const registerUser = async (req, res) => {
       name, email, password, role, secretCode,
       societyName, address, regNumber, wings, floors, flatsPerFloor,
       city, state, pincode, maintenanceAmount,
-      societyId, flatDetails
+      societyId, flatDetails, otp
     } = req.body;
 
     if (!name || !email || !password) {
@@ -93,7 +102,7 @@ const registerUser = async (req, res) => {
     }
     const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!strongPassword.test(password)) {
-      return res.status(400).json({ message: 'PASSWORD_COMPLEXITY_REQUIRED' });
+      return res.status(400).json({ message: 'Password must contain at least 8 characters, one uppercase, one lowercase, and one number.' });
     }
 
     const userExists = await User.findOne({ email });
@@ -102,8 +111,23 @@ const registerUser = async (req, res) => {
     if (role !== 'admin') {
       return res.status(403).json({ message: 'ONLY_ADMIN_REGISTRATION_ALLOWED' });
     }
-    if (secretCode !== process.env.ADMIN_SECRET_CODE) {
-      return res.status(403).json({ message: 'INVALID_ADMIN_SECRET_CODE' });
+    if (role === 'admin') {
+      const storedOtp = await Otp.findOne({ email });
+      if (!storedOtp) return res.status(400).json({ message: 'OTP_NOT_REQUESTED_OR_EXPIRED' });
+      
+      if (storedOtp.attempts >= 5) {
+        await Otp.deleteOne({ email });
+        return res.status(429).json({ message: 'OTP_MAX_ATTEMPTS_EXCEEDED' });
+      }
+
+      if (storedOtp.otp !== otp) {
+        storedOtp.attempts += 1;
+        await storedOtp.save();
+        return res.status(400).json({ message: 'INVALID_OTP' });
+      }
+
+      // Valid OTP
+      await Otp.deleteOne({ email });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -130,8 +154,7 @@ const registerUser = async (req, res) => {
         maintenanceAmount: Number(maintenanceAmount) || 0,
       });
       assignedSocietyId = newSociety._id;
-      assignedSocietyId = newSociety._id;
-
+    }
     const user = await User.create({
       name,
       email,
@@ -163,7 +186,7 @@ const memberSelfRegister = async (req, res) => {
     }
     const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!strongPassword.test(password)) {
-      return res.status(400).json({ message: 'PASSWORD_COMPLEXITY_REQUIRED' });
+      return res.status(400).json({ message: 'Password must contain at least 8 characters, one uppercase, one lowercase, and one number.' });
     }
 
     const userExists = await User.findOne({ email });
@@ -219,17 +242,28 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'EMAIL_AND_PASSWORD_REQUIRED' });
     }
 
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
+    let isSecurity = false;
+
+    if (!user) {
+      user = await SecurityStaff.findOne({ email });
+      if (user) isSecurity = true;
+    }
+
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: 'CREDENTIALS_REJECTED' });
     }
 
     // Block inactive (pending approval) accounts
-    if (user.isActive === false) {
+    if (user.isActive === false && !isSecurity) {
       return res.status(403).json({ message: 'ACCOUNT_PENDING_APPROVAL — Contact your society admin.' });
     }
 
-    await user.populate('societyId', 'name city maintenanceAmount');
+    await user.populate('societyId', 'name city maintenanceAmount isActive');
+
+    if (user.societyId && user.societyId.isActive === false) {
+      return res.status(403).json({ message: 'SOCIETY_SUSPENDED — Please contact platform administrator.' });
+    }
 
     const token = jwt.sign(
       { id: user._id, role: user.role, societyId: user.societyId?._id },
@@ -252,6 +286,7 @@ const loginUser = async (req, res) => {
         parkingSlot: user.parkingSlot,
         vehicleNumber: user.vehicleNumber,
         mustChangePassword: user.mustChangePassword,
+        isSecurity
       }
     });
   } catch (error) {
@@ -265,13 +300,20 @@ const updateProfile = async (req, res) => {
   try {
     const { name, phone, parkingSlot, vehicleNumber, currentPassword, newPassword } = req.body;
 
-    const user = await User.findById(req.user._id);
+    let user = await User.findById(req.user._id);
+    if (!user) {
+      user = await SecurityStaff.findById(req.user._id);
+    }
     if (!user) return res.status(404).json({ message: 'USER_NOT_FOUND' });
 
     if (name) user.name = name;
     if (phone !== undefined) user.phone = phone;
-    if (parkingSlot !== undefined) user.parkingSlot = parkingSlot;
-    if (vehicleNumber !== undefined) user.vehicleNumber = vehicleNumber;
+    
+    // Only update parkingSlot and vehicleNumber for regular members
+    if (user.role !== 'security' && user.role !== 'superadmin') {
+      if (parkingSlot !== undefined) user.parkingSlot = parkingSlot;
+      if (vehicleNumber !== undefined) user.vehicleNumber = vehicleNumber;
+    }
 
     // Password change
     if (newPassword) {
@@ -285,7 +327,7 @@ const updateProfile = async (req, res) => {
       }
       const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
       if (!strongPassword.test(newPassword)) {
-        return res.status(400).json({ message: 'PASSWORD_COMPLEXITY_REQUIRED' });
+        return res.status(400).json({ message: 'Password must contain at least 8 characters, one uppercase, one lowercase, and one number.' });
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -311,6 +353,19 @@ const getAllUsers = async (req, res) => {
     res.json(users);
   } catch (error) {
     console.error('// GET_USERS_FAULT:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
+// ─── 5B. GET SECURITY STAFF (Admin) ───────────────────────────────────────────
+const getSecurityStaff = async (req, res) => {
+  try {
+    const staff = await SecurityStaff.find({ societyId: req.user.societyId })
+      .select('-password')
+      .sort({ createdAt: -1 });
+    res.json(staff);
+  } catch (error) {
+    console.error('// GET_STAFF_FAULT:', error);
     res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
   }
 };
@@ -402,7 +457,7 @@ const deleteUser = async (req, res) => {
 // ─── 10. ADD MEMBER (Admin) ───────────────────────────────────────────────────
 const addMember = async (req, res) => {
   try {
-    const { name, email, wing, floor, flatNumber, residentType, phone } = req.body;
+    const { name, email, wing, floor, flatNumber, residentType, phone, role, age, address, joinDate, shift } = req.body;
 
     if (!name || !email) {
       return res.status(400).json({ message: 'NAME_AND_EMAIL_REQUIRED' });
@@ -419,16 +474,28 @@ const addMember = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(generatedPassword, salt);
 
-    const user = await User.create({
+    let userData = {
       name, email,
       password: hashedPassword,
-      role: 'member',
+      role: role && role === 'security' ? 'security' : 'member',
       societyId: req.user.societyId,
       phone,
       isActive: true,
       mustChangePassword: true,
       flatDetails: { wing, floor: Number(floor), flatNumber, residentType: residentType || 'Owner' }
-    });
+    };
+
+    if (role === 'security') {
+      userData.securityDetails = {
+        age: age ? Number(age) : undefined,
+        address: address || '',
+        joinDate: joinDate ? new Date(joinDate) : new Date(),
+        shift: shift || 'Day',
+        status: 'Active'
+      };
+    }
+
+    const user = await User.create(userData);
 
     const adminUser = await User.findById(req.user._id).populate('societyId');
     const societyName = adminUser.societyId?.name || 'Awaastech Society';
@@ -454,11 +521,64 @@ const addMember = async (req, res) => {
     });
 
     res.status(201).json({ 
-      message: 'MEMBER_ADDED_TO_REGISTRY'
+      message: 'MEMBER_ADDED_TO_REGISTRY',
+      generatedPassword
     });
   } catch (error) {
     console.error('// ADD_MEMBER_FAULT:', error);
-    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+    res.status(500).json({ message: error.message || 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
+// ─── 10B. ADD SECURITY STAFF (Admin) ──────────────────────────────────────────
+const addSecurityStaff = async (req, res) => {
+  try {
+    const { name, email, phone, age, address, joinDate, shift } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({ message: 'NAME_AND_EMAIL_REQUIRED' });
+    }
+
+    const userExists = await User.findOne({ email });
+    const staffExists = await SecurityStaff.findOne({ email });
+    if (userExists || staffExists) return res.status(400).json({ message: 'EMAIL_ALREADY_IN_USE' });
+
+    const firstName = name.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '');
+    const randomNums = Math.floor(1000 + Math.random() * 9000);
+    const generatedPassword = `${firstName}@${randomNums}`;
+    
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(generatedPassword, salt);
+
+    const staff = await SecurityStaff.create({
+      name, email, phone, age, address, shift, joinDate,
+      password: hashedPassword,
+      societyId: req.user.societyId,
+    });
+
+    const adminUser = await User.findById(req.user._id).populate('societyId');
+    const societyName = adminUser.societyId?.name || 'Awaastech Society';
+
+    const html = getProfessionalEmailTemplate({
+      subtitle: `SECURITY ONBOARDING - ${societyName.toUpperCase()}`,
+      greeting: `Hello ${staff.name},`,
+      bodyText: `Your security staff account has been created by the administrator. Use the credentials below to log into the security portal. <strong>You must change your password immediately.</strong>`,
+      highlightBox: `${staff.email}<br><span style="font-size: 20px;">Pass: ${generatedPassword}</span>`,
+      highlightBoxLabel: 'Your Login Credentials',
+      warningText: 'Do not share this password with anyone.',
+    });
+
+    sendEmail({
+      email: staff.email,
+      subject: 'Welcome to Security Portal',
+      message: `Login Email: ${staff.email}\nTemporary Password: ${generatedPassword}`,
+      html
+    });
+
+    res.status(201).json({ message: 'SECURITY_STAFF_ADDED', generatedPassword });
+  } catch (error) {
+    console.error('// ADD_SECURITY_FAULT:', error);
+    res.status(500).json({ message: error.message || 'INTERNAL_SERVER_ERROR' });
   }
 };
 
@@ -495,6 +615,53 @@ const updateMember = async (req, res) => {
     res.json({ message: 'RECORD_MODIFIED', user: safeUser });
   } catch (error) {
     console.error('// UPDATE_MEMBER_FAULT:', error);
+    res.status(500).json({ message: error.message || 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
+// ─── 11B. UPDATE SECURITY STAFF (Admin) ───────────────────────────────────────
+const updateSecurityStaff = async (req, res) => {
+  try {
+    const { name, phone, age, address, shift } = req.body;
+    const staff = await SecurityStaff.findById(req.params.id);
+    if (!staff) return res.status(404).json({ message: 'STAFF_NOT_FOUND' });
+
+    if (staff.societyId.toString() !== req.user.societyId.toString()) {
+      return res.status(403).json({ message: 'AUTH_DOMAIN_MISMATCH' });
+    }
+
+    if (name) staff.name = name;
+    if (phone) staff.phone = phone;
+    if (age) staff.age = Number(age);
+    if (address) staff.address = address;
+    if (shift) staff.shift = shift;
+
+    await staff.save();
+    res.json({ message: 'STAFF_UPDATED', staff });
+  } catch (error) {
+    console.error('// UPDATE_STAFF_FAULT:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
+// ─── 11C. TERMINATE SECURITY STAFF (Admin) ────────────────────────────────────
+const terminateSecurityStaff = async (req, res) => {
+  try {
+    const staff = await SecurityStaff.findById(req.params.id);
+    if (!staff) return res.status(404).json({ message: 'STAFF_NOT_FOUND' });
+
+    if (staff.societyId.toString() !== req.user.societyId.toString()) {
+      return res.status(403).json({ message: 'AUTH_DOMAIN_MISMATCH' });
+    }
+
+    staff.status = 'Left';
+    staff.leaveDate = new Date();
+    staff.isActive = false; // Revoke login access
+
+    await staff.save();
+    res.json({ message: 'STAFF_TERMINATED', staff });
+  } catch (error) {
+    console.error('// TERMINATE_STAFF_FAULT:', error);
     res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
   }
 };
@@ -511,9 +678,136 @@ const getSocietyLimits = async (req, res) => {
   }
 };
 
+const seedSuperAdmin = async (req, res) => {
+  try {
+    const { email, password, secretCode } = req.body;
+    if (secretCode !== process.env.ADMIN_SECRET_CODE) {
+      return res.status(403).json({ message: 'Invalid admin secret code' });
+    }
+    let user = await User.findOne({ email });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    if (!user) {
+      user = await User.create({
+        name: 'Super Admin',
+        email,
+        password: hashedPassword,
+        role: 'superadmin'
+      });
+    } else {
+      user.role = 'superadmin';
+      user.password = hashedPassword;
+      await user.save();
+    }
+    res.json({ message: 'Superadmin access granted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── 13. FORGOT PASSWORD ────────────────────────────────────────────────────────
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'EMAIL_REQUIRED' });
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await SecurityStaff.findOne({ email });
+    }
+    
+    if (!user) return res.status(404).json({ message: 'USER_NOT_FOUND' });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // --- DEV MODE HELPER: Print OTP to console since email might fail ---
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`\n=========================================`);
+      console.log(`🔑 DEV MODE PASSWORD RESET OTP FOR ${email}: ${otp}`);
+      console.log(`=========================================\n`);
+    }
+
+    await Otp.deleteMany({ email });
+    await Otp.create({ email, otp });
+
+    const html = getProfessionalEmailTemplate({
+      subtitle: 'PASSWORD RECOVERY PROTOCOL',
+      greeting: `Hello ${user.name},`,
+      bodyText: 'We received a request to reset your password. Use the verification code below to authorize the password reset process.',
+      highlightBox: otp,
+      highlightBoxLabel: 'Verification Code',
+      warningText: 'This code expires in exactly 120 seconds.',
+    });
+
+    await sendEmail({
+      email,
+      subject: 'Awaastech Society - Password Reset Code',
+      message: `Your password reset code is: ${otp}\n\nThis code expires in 120 seconds.`,
+      html
+    });
+
+    res.json({ message: 'OTP_SENT_SUCCESSFULLY' });
+  } catch (error) {
+    console.error('// FORGOT_PASSWORD_FAULT:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
+// ─── 14. RESET PASSWORD ───────────────────────────────────────────────────────
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: 'ALL_FIELDS_REQUIRED' });
+    }
+
+    const storedOtp = await Otp.findOne({ email });
+    if (!storedOtp) return res.status(400).json({ message: 'OTP_NOT_REQUESTED_OR_EXPIRED' });
+
+    if (storedOtp.attempts >= 5) {
+      await Otp.deleteOne({ email });
+      return res.status(429).json({ message: 'OTP_MAX_ATTEMPTS_EXCEEDED' });
+    }
+
+    if (storedOtp.otp !== otp) {
+      storedOtp.attempts += 1;
+      await storedOtp.save();
+      return res.status(400).json({ message: 'INVALID_OTP' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: 'PASSWORD_MIN_8_CHARS' });
+    }
+    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!strongPassword.test(newPassword)) {
+      return res.status(400).json({ message: 'Password must contain at least 8 characters, one uppercase, one lowercase, and one number.' });
+    }
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await SecurityStaff.findOne({ email });
+    }
+    if (!user) return res.status(404).json({ message: 'USER_NOT_FOUND' });
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    user.mustChangePassword = false;
+    await user.save();
+
+    await Otp.deleteOne({ email });
+
+    res.json({ message: 'PASSWORD_RESET_SUCCESSFULLY' });
+  } catch (error) {
+    console.error('// RESET_PASSWORD_FAULT:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
 module.exports = {
   sendOTP, verifyOTP,
   registerUser, loginUser, updateProfile,
-  getAllUsers, getPendingMembers, approveMember,
-  deleteUser, addMember, updateMember, getSocietyLimits
+  getAllUsers, getSecurityStaff, getPendingMembers, deleteUser, addMember, addSecurityStaff, updateMember, updateSecurityStaff, terminateSecurityStaff, getSocietyLimits, approveMember, seedSuperAdmin,
+  forgotPassword, resetPassword
 };

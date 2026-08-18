@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
+import { Bell } from 'lucide-react';
 
 const NoticeBoard = () => {
   const { user } = useContext(AuthContext);
@@ -106,26 +107,28 @@ const NoticeBoard = () => {
   const hasMore = paginatedNotices.length < filteredNotices.length;
 
   return (
-    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, padding: '0' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* HEADER */}
-      <div style={{ background: theme.textMain, color: 'white', padding: '15px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <span style={{ fontSize: '20px' }}>📢</span>
-        <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px' }}>
-          Official_Dispatches
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 10px' }}>
+        <div style={{ background: '#F9F8F3', padding: '10px', borderRadius: '12px' }}>
+          <Bell size={24} color={theme.accent} />
+        </div>
+        <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', color: theme.textMain }}>
+          Notice Board
         </h3>
       </div>
 
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '0' }}>
         {user && user.role === 'admin' && (
-          <form onSubmit={handlePost} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '30px', borderBottom: `4px double ${theme.border}`, paddingBottom: '30px' }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: '700' }}>// COMPOSE_NEW_BROADCAST</span>
+          <form onSubmit={handlePost} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '30px', background: 'white', padding: '24px', borderRadius: '20px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', fontWeight: '600', color: theme.textSec }}>Compose New Broadcast</span>
             
             <div style={{ display: 'flex', gap: '10px' }}>
               <select 
                 value={targetType} 
                 onChange={e => setTargetType(e.target.value)} 
                 className="dispatch-input"
-                style={{ flex: 1, fontFamily: "'Space Mono', monospace", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px' }}
+                style={{ flex: 1, fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px' }}
               >
                 <option value="All">TARGET: ALL MEMBERS</option>
                 <option value="Specific">TARGET: SPECIFIC MEMBER</option>
@@ -136,7 +139,7 @@ const NoticeBoard = () => {
                   value={targetUserId} 
                   onChange={e => setTargetUserId(e.target.value)} 
                   className="dispatch-input"
-                  style={{ flex: 1, fontFamily: "'Space Mono', monospace", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px' }}
+                  style={{ flex: 1, fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px' }}
                   required
                 >
                   <option value="">-- Choose Member --</option>
@@ -152,20 +155,20 @@ const NoticeBoard = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="dispatch-input"
-              style={{ fontFamily: "'Space Mono', monospace", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
+              style={{ fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
             />
             <textarea
               placeholder="BODY_CONTENT"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              style={{ fontFamily: "'Space Mono', monospace", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px', minHeight: '80px', width: '100%', boxSizing: 'border-box' }}
+              style={{ fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px', minHeight: '80px', width: '100%', boxSizing: 'border-box' }}
             />
             <button type="submit" style={{
-              background: theme.accent, color: 'white', border: 'none', padding: '12px',
-              fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer',
-              boxShadow: `4px 4px 0px ${theme.textMain}`
-            }}>
-              EXECUTE_POST
+              background: theme.accent, color: 'white', border: 'none', padding: '14px', borderRadius: '12px',
+              fontFamily: "'Outfit', sans-serif", fontWeight: '600', fontSize: '15px', cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(217,115,78,0.2)', transition: 'transform 0.2s'
+            }} onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}>
+              Post Notice
             </button>
           </form>
         )}
@@ -175,24 +178,24 @@ const NoticeBoard = () => {
           placeholder="SEARCH NOTICES..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="brutal-input" 
-          style={{ width: '100%', padding: '10px', marginBottom: '20px', boxSizing: 'border-box', fontFamily: "'Space Mono', monospace" }}
+          className="organic-input" 
+          style={{ width: '100%', padding: '10px', marginBottom: '20px', boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif" }}
         />
 
-        <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '60vh', overflowY: 'auto', border: `1px solid ${theme.border}` }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '60vh', overflowY: 'auto', paddingRight: '10px' }}>
           {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-              <img src="/awaastech-logo.png" alt="Loading" className="brutal-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
+              <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
           ) : paginatedNotices.length === 0 ? (
-            <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '12px', padding: '20px', textAlign: 'center' }}>
-              // NO_DATA_AVAILABLE
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', padding: '40px', textAlign: 'center', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, color: theme.textSec }}>
+              No notices available.
             </p>
           ) : (
             paginatedNotices.map((n) => (
-              <div key={n._id} style={{ borderBottom: `1px solid ${theme.textMain}`, padding: '20px', transition: 'background 0.2s' }}>
+              <div key={n._id} style={{ background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, padding: '24px', transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h4 style={{ margin: '0 0 10px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', textTransform: 'uppercase', color: theme.textMain }}>
+                  <h4 style={{ margin: '0 0 10px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: theme.textMain, fontWeight: '600' }}>
                     {n.title}
                   </h4>
                   {user?.role === 'admin' && (
@@ -201,14 +204,14 @@ const NoticeBoard = () => {
                     </button>
                   )}
                 </div>
-                <p style={{ margin: 0, fontFamily: "'Space Mono', monospace", fontSize: '13px', color: theme.textSec, lineHeight: '1.4' }}>
+                <p style={{ margin: 0, fontFamily: "'Outfit', sans-serif", fontSize: '13px', color: theme.textSec, lineHeight: '1.4' }}>
                   {n.content}
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', alignItems: 'center' }}>
-                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', fontWeight: '700', background: '#E8E8E8', padding: '2px 6px' }}>
+                  <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700', background: '#E8E8E8', padding: '2px 6px' }}>
                     DATE: {new Date(n.createdAt).toLocaleDateString()}
                   </span>
-                  <span style={{ fontSize: '10px', fontFamily: "'Space Mono', monospace", opacity: 0.4 }}>
+                  <span style={{ fontSize: '10px', fontFamily: "'Outfit', sans-serif", opacity: 0.4 }}>
                     ID: {n._id.substring(0, 8)}
                   </span>
                 </div>
@@ -218,8 +221,8 @@ const NoticeBoard = () => {
         </div>
         
         {hasMore && (
-          <button onClick={() => setPage(page + 1)} style={{ width: '100%', marginTop: '20px', padding: '10px', background: 'transparent', border: `2px dashed ${theme.border}`, fontFamily: "'Space Mono', monospace", fontWeight: '700', cursor: 'pointer' }}>
-            LOAD_MORE_RECORDS
+          <button onClick={() => setPage(page + 1)} style={{ width: '100%', marginTop: '20px', padding: '12px', background: 'white', borderRadius: '12px', border: `1px dashed ${theme.border}`, color: theme.textMain, fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'white'}>
+            Load More Records
           </button>
         )}
       </div>

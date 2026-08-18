@@ -15,7 +15,9 @@ const PublicRoute = ({ children }) => {
 
   // If user exists, system state is AUTHENTICATED. Redirect to their dashboard.
   if (user) {
-    const correctPath = user.role === 'admin' ? '/dashboard' : '/resident';
+    let correctPath = '/resident';
+    if (user.role === 'admin') correctPath = '/dashboard';
+    if (user.role === 'superadmin') correctPath = '/superadmin';
     return <Navigate to={correctPath} replace />;
   }
 

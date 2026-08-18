@@ -3,6 +3,11 @@ import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { toast } from 'sonner';
+import { BarChart3 } from 'lucide-react';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, 
+  LineChart, Line, Legend, AreaChart, Area
+} from 'recharts';
 
 const Analytics = () => {
   const { user } = useContext(AuthContext);
@@ -29,7 +34,7 @@ const Analytics = () => {
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-        <img src="/awaastech-logo.png" alt="Loading" className="brutal-pulse" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+        <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
       </div>
     );
   }
@@ -37,22 +42,44 @@ const Analytics = () => {
   if (!data) return null;
 
   const StatBox = ({ title, value, color }) => (
-    <div style={{ border: `3px solid ${theme.border}`, padding: '20px', background: color || '#FFF', boxShadow: `4px 4px 0px ${theme.border}` }}>
-      <h4 style={{ margin: '0 0 10px 0', fontFamily: "'Space Mono', monospace", fontSize: '12px', textTransform: 'uppercase', color: theme.textSec }}>{title}</h4>
-      <div style={{ fontSize: '24px', fontWeight: 'bold', fontFamily: "'Space Mono', monospace" }}>{value}</div>
+    <div style={{ border: `1px solid ${theme.border}`, padding: '24px', borderRadius: '20px', background: color || 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', transition: 'transform 0.2s' }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+      <h4 style={{ margin: '0 0 10px 0', fontFamily: "'Outfit', sans-serif", fontSize: '14px', fontWeight: '600', color: theme.textSec }}>{title}</h4>
+      <div style={{ fontSize: '32px', fontWeight: '700', fontFamily: "'Outfit', sans-serif", color: theme.textMain }}>{value}</div>
     </div>
   );
 
+  // Mock data for graphs to visualize trends
+  const trendData = [
+    { name: 'Jan', revenue: 4000, expenses: 2400 },
+    { name: 'Feb', revenue: 3000, expenses: 1398 },
+    { name: 'Mar', revenue: 5000, expenses: 2800 },
+    { name: 'Apr', revenue: 2780, expenses: 3908 },
+    { name: 'May', revenue: 6890, expenses: 4800 },
+    { name: 'Jun', revenue: 4390, expenses: 3800 },
+    { name: 'Jul', revenue: 5490, expenses: 4300 },
+  ];
+
+  const memberPaymentData = [
+    { name: 'Jan', amount: 1200 },
+    { name: 'Feb', amount: 1200 },
+    { name: 'Mar', amount: 1500 },
+    { name: 'Apr', amount: 1200 },
+    { name: 'May', amount: 0 },
+    { name: 'Jun', amount: 2400 },
+  ];
+
   return (
-    <div style={{ background: theme.surface, border: `3px solid ${theme.border}`, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: theme.textMain, color: 'white', padding: '15px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <span style={{ fontSize: '20px' }}>📊</span>
-        <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", textTransform: 'uppercase', letterSpacing: '2px', fontSize: '18px' }}>
-          {user?.role === 'admin' ? 'SOCIETY_ANALYTICS' : 'MY_REPORTS'}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 10px' }}>
+        <div style={{ background: '#F3E8FF', padding: '10px', borderRadius: '12px' }}>
+          <BarChart3 size={24} color="#9333EA" />
+        </div>
+        <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', color: theme.textMain }}>
+          {user?.role === 'admin' ? 'Society Analytics' : 'My Reports'}
         </h3>
       </div>
 
-      <div style={{ padding: '20px', flex: 1, overflowY: 'auto' }}>
+      <div style={{ padding: '0', flex: 1, overflowY: 'auto' }}>
         {user?.role === 'admin' ? (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
@@ -62,27 +89,31 @@ const Analytics = () => {
               <StatBox title="Open Complaints" value={data.complaints.open} color="#fffaf0" />
             </div>
 
-            <h3 style={{ fontFamily: "'Space Mono', monospace", marginBottom: '15px', borderBottom: `2px dashed ${theme.border}`, paddingBottom: '10px' }}>FINANCIALS</h3>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-              {['weekly', 'monthly', 'annual'].map(t => (
-                <button 
-                  key={t}
-                  onClick={() => setTimeframe(t)} 
-                  style={{
-                    border: `2px solid ${theme.textMain}`,
-                    background: timeframe === t ? theme.textMain : 'transparent',
-                    color: timeframe === t ? 'white' : theme.textMain,
-                    padding: '5px 15px',
-                    fontFamily: "'Space Mono', monospace",
-                    cursor: 'pointer',
-                    textTransform: 'uppercase',
-                    fontWeight: 'bold',
-                    fontSize: '12px'
-                  }}
-                >
-                  {t}
-                </button>
-              ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', marginTop: '40px' }}>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", margin: 0, fontSize: '20px', fontWeight: '600', color: theme.textMain }}>Financial Overview</h3>
+              <div style={{ display: 'flex', gap: '8px', background: 'white', padding: '4px', borderRadius: '12px', border: `1px solid ${theme.border}` }}>
+                {['weekly', 'monthly', 'annual'].map(t => (
+                  <button 
+                    key={t}
+                    onClick={() => setTimeframe(t)} 
+                    style={{
+                      border: 'none',
+                      borderRadius: '8px',
+                      background: timeframe === t ? theme.textMain : 'transparent',
+                      color: timeframe === t ? 'white' : theme.textSec,
+                      padding: '8px 16px',
+                      fontFamily: "'Outfit', sans-serif",
+                      cursor: 'pointer',
+                      textTransform: 'capitalize',
+                      fontWeight: '600',
+                      fontSize: '13px',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
               <StatBox title={`${timeframe} Revenue`} value={`₹${data.revenue[timeframe].toLocaleString()}`} />
@@ -93,6 +124,26 @@ const Analytics = () => {
                 color={(data.revenue[timeframe] - data.expenses[timeframe]) >= 0 ? '#f0fff0' : '#fff0f0'}
               />
             </div>
+
+            <div style={{ background: 'white', borderRadius: '24px', padding: '30px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: theme.textMain }}>Revenue vs Expenses (Trend)</h3>
+              <div style={{ width: '100%', height: 350 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={trendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E8E4D9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: theme.textSec, fontSize: 13 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: theme.textSec, fontSize: 13 }} dx={-10} />
+                    <RechartsTooltip 
+                      cursor={{ fill: '#F9F8F3' }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
+                    <Bar dataKey="revenue" name="Revenue" fill={theme.accent} radius={[6, 6, 0, 0]} barSize={24} />
+                    <Bar dataKey="expenses" name="Expenses" fill="#6B705C" radius={[6, 6, 0, 0]} barSize={24} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </>
         ) : (
           <>
@@ -102,30 +153,57 @@ const Analytics = () => {
               <StatBox title="My Open Complaints" value={data.complaints.open} color="#fffaf0" />
             </div>
 
-            <h3 style={{ fontFamily: "'Space Mono', monospace", marginBottom: '15px', borderBottom: `2px dashed ${theme.border}`, paddingBottom: '10px' }}>MY PAYMENT REPORTS</h3>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-              {['weekly', 'monthly', 'annual'].map(t => (
-                <button 
-                  key={t}
-                  onClick={() => setTimeframe(t)} 
-                  style={{
-                    border: `2px solid ${theme.textMain}`,
-                    background: timeframe === t ? theme.textMain : 'transparent',
-                    color: timeframe === t ? 'white' : theme.textMain,
-                    padding: '5px 15px',
-                    fontFamily: "'Space Mono', monospace",
-                    cursor: 'pointer',
-                    textTransform: 'uppercase',
-                    fontWeight: 'bold',
-                    fontSize: '12px'
-                  }}
-                >
-                  {t}
-                </button>
-              ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', marginTop: '40px' }}>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", margin: 0, fontSize: '20px', fontWeight: '600', color: theme.textMain }}>My Payment Reports</h3>
+              <div style={{ display: 'flex', gap: '8px', background: 'white', padding: '4px', borderRadius: '12px', border: `1px solid ${theme.border}` }}>
+                {['weekly', 'monthly', 'annual'].map(t => (
+                  <button 
+                    key={t}
+                    onClick={() => setTimeframe(t)} 
+                    style={{
+                      border: 'none',
+                      borderRadius: '8px',
+                      background: timeframe === t ? theme.textMain : 'transparent',
+                      color: timeframe === t ? 'white' : theme.textSec,
+                      padding: '8px 16px',
+                      fontFamily: "'Outfit', sans-serif",
+                      cursor: 'pointer',
+                      textTransform: 'capitalize',
+                      fontWeight: '600',
+                      fontSize: '13px',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
               <StatBox title={`Paid This ${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)}`} value={`₹${data.myPayments[timeframe].toLocaleString()}`} />
+            </div>
+
+            <div style={{ background: 'white', borderRadius: '24px', padding: '30px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+              <h3 style={{ fontFamily: "'Outfit', sans-serif", margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: theme.textMain }}>Payment History Trend</h3>
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={memberPaymentData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={theme.accent} stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor={theme.accent} stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E8E4D9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: theme.textSec, fontSize: 13 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: theme.textSec, fontSize: 13 }} dx={-10} />
+                    <RechartsTooltip 
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}
+                    />
+                    <Area type="monotone" dataKey="amount" name="Amount Paid" stroke={theme.accent} strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </>
         )}

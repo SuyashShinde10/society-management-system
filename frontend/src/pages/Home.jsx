@@ -1,320 +1,325 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowRight, ShieldCheck, FileText, CreditCard, Heart, Users, Activity, UserPlus, Settings, CheckCircle } from 'lucide-react';
+
+// --- DOODLES ---
+
+const SquiggleDoodle = ({ style }) => (
+  <svg width="120" height="20" viewBox="0 0 120 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={style || { position: 'absolute', bottom: '-10px', left: '0' }}>
+    <motion.path d="M2 10C15 -5 25 25 40 10C55 -5 65 25 80 10C95 -5 105 25 118 10" stroke="#D9734E" strokeWidth="3" strokeLinecap="round" 
+      initial={{ pathLength: 0, opacity: 0 }} whileInView={{ pathLength: 1, opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, delay: 0.5, ease: "easeInOut" }} />
+  </svg>
+);
+
+const ArrowDoodle = ({ style }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={style || { position: 'absolute', top: '-15px', right: '-45px', transform: 'rotate(15deg)' }}>
+    <motion.path d="M5 35 Q 20 10 35 15 M 25 5 L 35 15 L 25 25" stroke="#6B705C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 1, delay: 1 }} />
+  </svg>
+);
+
+const StarburstDoodle = ({ style }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={style || { position: 'absolute', top: '-20px', left: '-30px' }}>
+    <motion.path d="M20 0L23 17L40 20L23 23L20 40L17 23L0 20L17 17L20 0Z" fill="#D9734E" 
+      initial={{ scale: 0, rotate: -90 }} whileInView={{ scale: 1, rotate: 0 }} viewport={{ once: true }} transition={{ type: "spring", stiffness: 200, delay: 1.2 }} />
+  </svg>
+);
+
+const SwirlDoodle = ({ style }) => (
+  <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" style={style || { position: 'absolute', bottom: '-20px', right: '-20px' }}>
+    <motion.path d="M30 5C45 5 55 15 55 30C55 45 45 55 30 55C15 55 5 45 5 30C5 20 15 15 25 20C35 25 30 40 20 35" stroke="#D9734E" strokeWidth="2" strokeLinecap="round" fill="transparent"
+      initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 2, ease: "easeOut" }} />
+  </svg>
+);
+
+const HighlightDoodle = ({ children }) => (
+  <span style={{ position: 'relative', display: 'inline-block' }}>
+    <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', top: 0, left: 0, zIndex: -1, overflow: 'visible' }}>
+      <motion.path d="M-5 80 Q 50 20 105 80" vectorEffect="non-scaling-stroke" stroke="#E8E4D9" strokeWidth="12" strokeLinecap="round" fill="none"
+        initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 1 }} />
+    </svg>
+    {children}
+  </span>
+);
+
+const AnimatedText = ({ text }) => {
+  const words = text.split(" ");
+  return (
+    <motion.div style={{ display: "inline-flex", flexWrap: "wrap", justifyContent: "center" }} 
+      initial="hidden" whileInView="visible" viewport={{ once: true }}
+      variants={{ visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } }, hidden: {} }}>
+      {words.map((word, index) => (
+        <motion.span key={index} style={{ marginRight: "12px", paddingBottom: "10px" }}
+          variants={{
+            visible: { opacity: 1, y: 0, transition: { type: "spring", damping: 12, stiffness: 100 } },
+            hidden: { opacity: 0, y: 20 }
+          }}>
+          {word}
+        </motion.span>
+      ))}
+    </motion.div>
+  );
+};
+
+const BlobBackground = () => (
+  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}>
+    <motion.div animate={{ scale: [1, 1.05, 1], rotate: [0, 5, -5, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      style={{ position: 'absolute', top: '-10%', right: '-10%', width: '60vw', height: '60vw', background: 'radial-gradient(circle, rgba(217,115,78,0.04) 0%, rgba(249,248,243,0) 70%)', borderRadius: '50%' }} />
+    <motion.div animate={{ scale: [1, 1.1, 1], rotate: [0, -5, 5, 0] }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+      style={{ position: 'absolute', bottom: '20%', left: '-10%', width: '50vw', height: '50vw', background: 'radial-gradient(circle, rgba(107,112,92,0.05) 0%, rgba(249,248,243,0) 70%)', borderRadius: '50%' }} />
+  </div>
+);
+
+// --- COMPONENT ---
 
 const Home = () => {
-  const theme = {
-    bg: '#F2F2F2',      // Cold Bone
-    surface: '#FFFFFF', 
-    textMain: '#1A1A1A', // Sharp Ink
-    textSec: '#4A4A4A',  
-    border: '#1A1A1A',   // Brutalist thick borders
-    accent: '#2563EB',   // Electric Cobalt
-  };
+  const theme = { bg: '#F9F8F3', surface: '#FFFDF9', textMain: '#2C2C2C', textSec: '#6B6B6B', border: '#E8E4D9', accent: '#D9734E', mutedOlive: '#6B705C' };
 
   return (
-    <div style={{ backgroundColor: theme.bg, minHeight: '100vh', color: theme.textMain, width: '100%', overflowX: 'hidden' }}>
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Space+Mono:wght@400;700&display=swap');
-          
-          * {
-            box-sizing: border-box;
-          }
-
-          .brutal-btn {
-            font-family: 'Space Mono', monospace;
-            transition: all 0.2s ease;
-          }
-
-          .brutal-btn:hover {
-            transform: translate(-3px, -3px);
-            box-shadow: 8px 8px 0px #1A1A1A !important;
-          }
-
-          .brutal-card:hover {
-            background-color: #fff !important;
-            transform: translateY(-5px);
-            box-shadow: 12px 12px 0px rgba(0,0,0,0.1);
-          }
-
-          @media (max-width: 900px) {
-            .hero-section {
-              flex-direction: column !important;
-              padding: 60px 30px !important;
-            }
-            .nav-section {
-              padding: 20px 30px !important;
-            }
-            .hero-content {
-              padding: 20px !important;
-              border-left: 6px solid #1A1A1A !important;
-            }
-            h1 {
-              font-size: clamp(40px, 10vw, 60px) !important;
-            }
-            .features-section {
-              padding: 60px 30px !important;
-            }
-            .hero-buttons {
-              flex-direction: column !important;
-              width: 100%;
-            }
-            .hero-buttons a {
-              text-align: center;
-              width: 100%;
-              box-sizing: border-box;
-            }
-            .nav-section {
-              flex-direction: column;
-              gap: 20px;
-              padding: 20px !important;
-            }
-            .footer-links {
-              flex-direction: column !important;
-              gap: 15px !important;
-              text-align: center;
-            }
-            .features-grid {
-              grid-template-columns: 1fr !important;
-            }
-            .feature-card {
-              padding: 30px !important;
-            }
-            .walkthrough-container {
-              padding: 0 !important;
-              margin-top: 20px;
-            }
-            .walkthrough-step {
-              padding: 15px !important;
-              flex-direction: column;
-              text-align: center;
-            }
-          }
-        `}
-      </style>
-
-      {/* --- NAVIGATION --- */}
-      <nav className="nav-section" style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        padding: '30px 60px', 
-        borderBottom: `3px solid ${theme.border}`, 
-        background: theme.surface 
-      }}>
-        <h2 style={{ 
-          margin: 0, 
-          fontFamily: "'Cormorant Garamond', serif", 
-          fontSize: '32px', 
-          fontWeight: '600', 
-          textTransform: 'uppercase' 
-        }}>
-          AwaasTech.
-        </h2>
-        <div style={{ display: 'flex', gap: '30px', alignItems: 'center', fontFamily: "'Space Mono', monospace" }}>
-          <Link to="/login" style={{ textDecoration: 'none', color: theme.textMain, fontWeight: '700', fontSize: '14px' }}>[ LOGIN ]</Link>
+    <div style={{ backgroundColor: theme.bg, minHeight: '100vh', color: theme.textMain, width: '100%', overflowX: 'hidden', position: 'relative', fontFamily: "'Outfit', sans-serif" }}>
+      <BlobBackground />
+      
+      {/* NAVIGATION */}
+      <motion.nav initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }}
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '25px 60px', position: 'relative', zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <img src="/awaastech-logo.png" alt="Awaastech" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
+          <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', letterSpacing: '1px' }}>Awaastech</h2>
         </div>
-      </nav>
+        <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+          <Link to="/login" style={{ textDecoration: 'none', color: theme.textSec, fontWeight: '500', fontSize: '15px', transition: 'color 0.2s' }} onMouseOver={e => e.target.style.color = theme.accent} onMouseOut={e => e.target.style.color = theme.textSec}>Log In</Link>
+          <Link to="/register" style={{ textDecoration: 'none', background: theme.textMain, color: 'white', padding: '10px 24px', borderRadius: '30px', fontWeight: '500', fontSize: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.1)' }}>Get Started</Link>
+        </div>
+      </motion.nav>
 
-      {/* --- HERO SECTION --- */}
-      <header className="hero-section" style={{ 
-        padding: '120px 60px', 
-        borderBottom: `3px solid ${theme.border}`,
-        position: 'relative',
-        overflow: 'hidden',
-        background: `linear-gradient(90deg, ${theme.bg} 21px, transparent 1%) center, linear-gradient(${theme.bg} 21px, transparent 1%) center, #e5e5e5`,
-        backgroundSize: '22px 22px',
-        display: 'flex',
-        gap: '40px',
-        alignItems: 'center'
-      }}>
-        {/* Left Side: Hero Text */}
-        <div className="hero-content" style={{ flex: '1', maxWidth: '800px', borderLeft: `12px solid ${theme.textMain}`, background: theme.bg, padding: '30px 40px', border: `3px solid ${theme.border}`, boxShadow: `8px 8px 0px rgba(0,0,0,0.1)` }}>
-          <p style={{ fontFamily: "'Space Mono', monospace", fontWeight: '700', fontSize: '14px', color: theme.accent, marginBottom: '20px' }}>
-            // INFRASTRUCTURE_MANAGEMENT_V2.0
-          </p>
-          <h1 style={{ 
-            fontFamily: "'Cormorant Garamond', serif", 
-            fontSize: 'clamp(50px, 8vw, 90px)', 
-            fontWeight: '600', 
-            lineHeight: '0.85', 
-            textTransform: 'uppercase',
-            margin: '0 0 30px 0' 
-          }}>
-            Society <br /> Living. <br /> <span style={{ color: theme.accent }}>Coded.</span>
+      {/* HERO SECTION */}
+      <header style={{ padding: '100px 60px 140px 60px', position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          
+          <div style={{ background: 'white', padding: '8px 20px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', color: theme.mutedOlive, border: `1px solid ${theme.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.03)', marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ width: '8px', height: '8px', background: theme.accent, borderRadius: '50%', display: 'inline-block' }}></span>
+            Introducing Society Management 2.0
+          </div>
+
+          <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(50px, 8vw, 85px)', fontWeight: '500', lineHeight: '1', margin: '0 0 30px 0', color: theme.textMain }}>
+            <AnimatedText text="Living spaces," />
+            <br/>
+            <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8, duration: 0.8 }} style={{ position: 'relative', display: 'inline-block', fontStyle: 'italic', color: theme.accent }}>
+              <StarburstDoodle /> beautifully managed. <SquiggleDoodle />
+            </motion.span>
           </h1>
-          <p style={{ 
-            fontFamily: "'Space Mono', monospace", 
-            fontSize: '16px', 
-            color: theme.textSec, 
-            lineHeight: '1.5',
-            marginBottom: '40px'
-          }}>
-            Unified protocol for managing housing assets. Digital notice dissemination, financial auditing, and resident verification. Strictly optimized for efficiency.
-          </p>
-          <div className="hero-buttons" style={{ display: 'flex', gap: '20px' }}>
-            <Link to="/register" className="brutal-btn" style={{ 
-              textDecoration: 'none', 
-              background: theme.accent, 
-              color: 'white', 
-              padding: '16px 30px', 
-              fontWeight: '700',
-              fontFamily: "'Space Mono', monospace",
-              boxShadow: `6px 6px 0px ${theme.textMain}`
-            }}>
-              CREATE_SOCIETY
-            </Link>
-            <Link to="/login" className="brutal-btn" style={{ 
-              textDecoration: 'none', 
-              background: 'transparent', 
-              color: theme.textMain, 
-              border: `3px solid ${theme.border}`,
-              padding: '16px 30px', 
-              fontWeight: '700',
-              fontFamily: "'Space Mono', monospace"
-            }}>
-              MEMBER_AUTH
-            </Link>
-          </div>
-        </div>
 
-        {/* Right Side: Walkthrough Guide */}
-        <div className="walkthrough-container" style={{ flex: '1', display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px', width: '100%' }}>
-          <div className="walkthrough-step" style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
-            <div style={{ background: theme.accent, color: 'white', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", borderRadius: '50%', flexShrink: 0 }}>
-              01
-            </div>
-            <div>
-              <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>Initialize Society</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: theme.textSec, fontFamily: "'Space Mono', monospace" }}>Admin registers the society and defines infrastructure (Wings & Flats).</p>
-            </div>
+          <p style={{ fontSize: '18px', color: theme.textSec, lineHeight: '1.6', maxWidth: '600px', marginBottom: '50px', fontWeight: '300' }}>
+            Awaastech brings harmony to housing societies with seamless communication, transparent financials, and effortless resident onboarding.
+          </p>
+
+          <div style={{ display: 'flex', gap: '20px', position: 'relative' }}>
+            <Link to="/register" style={{ textDecoration: 'none', background: theme.accent, color: 'white', padding: '18px 40px', borderRadius: '40px', fontWeight: '500', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 8px 24px rgba(217, 115, 78, 0.25)', transition: 'transform 0.2s ease' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
+              Start for free <ArrowRight size={18} />
+            </Link>
+            <ArrowDoodle />
           </div>
-          
-          <div className="walkthrough-step" style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
-            <div style={{ background: theme.textMain, color: 'white', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", borderRadius: '50%', flexShrink: 0 }}>
-              02
-            </div>
-            <div>
-              <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>Onboard Members</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: theme.textSec, fontFamily: "'Space Mono', monospace" }}>Admin securely adds residents and provides them with one-time credentials.</p>
-            </div>
-          </div>
-          
-          <div className="walkthrough-step" style={{ display: 'flex', alignItems: 'center', gap: '15px', background: theme.surface, border: `2px solid ${theme.border}`, padding: '20px', boxShadow: `4px 4px 0px ${theme.textMain}` }}>
-            <div style={{ background: theme.accent, color: 'white', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontFamily: "'Space Mono', monospace", borderRadius: '50%', flexShrink: 0 }}>
-              03
-            </div>
-            <div>
-              <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>Manage Operations</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: theme.textSec, fontFamily: "'Space Mono', monospace" }}>Track visitors, generate maintenance bills, and resolve resident complaints.</p>
-            </div>
-          </div>
-        </div>
+        </motion.div>
       </header>
 
-      {/* --- FEATURES SECTION --- */}
-      <section className="features-section" style={{ padding: '80px 60px', display: 'flex', justifyContent: 'center' }}>
-        <div className="features-grid" style={{ 
-          width: '100%',
-          maxWidth: '1200px',
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-          gap: '30px'
-        }}>
-          
+      {/* FEATURES GRID */}
+      <section style={{ padding: '0 60px 140px 60px', position: 'relative', zIndex: 10 }}>
+        <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8 }}
+          style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
           <FeatureCard 
-            id="01"
-            title="Notice_Protocol" 
-            desc="Zero-latency dissemination of critical society updates, meeting minutes, and maintenance schedules." 
+            delay={0.1}
+            doodle={<svg width="150" height="150" style={{position: 'absolute', top: '-50px', right: '-50px', opacity: 0.3}}><circle cx="75" cy="75" r="50" fill="none" stroke="#D9734E" strokeWidth="2" strokeDasharray="10 10"/></svg>}
+            icon={<FileText size={28} color={theme.accent} />} 
+            title="Notice Protocol" 
+            desc="Instant dissemination of critical society updates and meeting minutes to all residents." 
           />
           <FeatureCard 
-            id="02"
-            title="Financial_Ledger" 
-            desc="Automated audit trails for society spending. Real-time transparency for all verified stakeholders." 
+            delay={0.3}
+            doodle={<svg width="100" height="100" style={{position: 'absolute', bottom: '-20px', left: '-20px', opacity: 0.3}}><rect x="20" y="20" width="60" height="60" rx="10" fill="none" stroke="#6B705C" strokeWidth="2" transform="rotate(15 50 50)"/></svg>}
+            icon={<CreditCard size={28} color={theme.mutedOlive} />} 
+            title="Financial Ledger" 
+            desc="Automated audit trails for society spending and simple maintenance bill generation." 
           />
           <FeatureCard 
-            id="03"
-            title="Security_Firewall" 
-            desc="Restricted access environment. Modern encryption standards to secure resident metadata." 
+            delay={0.5}
+            doodle={<svg width="120" height="120" style={{position: 'absolute', top: '10px', right: '-30px', opacity: 0.3}}><path d="M10 60 Q 60 10 110 60 T 210 60" fill="none" stroke="#4A90E2" strokeWidth="3"/></svg>}
+            icon={<ShieldCheck size={28} color="#4A90E2" />} 
+            title="Secure Ecosystem" 
+            desc="Restricted access environment ensuring resident metadata is fully encrypted." 
           />
+        </motion.div>
+      </section>
 
+      {/* WALKTHROUGH SECTION */}
+      <section style={{ padding: '0 60px 140px 60px', position: 'relative', zIndex: 10 }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '80px', position: 'relative' }}>
+            <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, margin: '0 0 15px 0' }}>
+              How it works
+            </motion.h2>
+            <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
+              style={{ fontSize: '18px', color: theme.textSec, fontWeight: '300', margin: 0 }}>
+              Three simple steps to digitize your society.
+            </motion.p>
+            <StarburstDoodle style={{ position: 'absolute', top: '-10px', right: '20%', transform: 'scale(0.7)' }} />
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', position: 'relative' }}>
+            {/* Dashed connector line */}
+            <svg width="4" height="100%" style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 0, opacity: 0.2 }}><line x1="2" y1="0" x2="2" y2="100%" stroke="#D9734E" strokeWidth="2" strokeDasharray="8 8" /></svg>
+            
+            {/* Step 1 */}
+            <WalkthroughStep 
+              number="1"
+              icon={<Settings size={32} color={theme.accent} />}
+              title="Set Up Your Society"
+              desc="The admin registers the society, sets up the financial structure, and generates a secure society code."
+              align="left"
+              doodle={<SwirlDoodle style={{ position: 'absolute', top: '-10px', right: '-10px', opacity: 0.4 }} />}
+            />
+            
+            {/* Step 2 */}
+            <WalkthroughStep 
+              number="2"
+              icon={<UserPlus size={32} color={theme.mutedOlive} />}
+              title="Onboard Residents"
+              desc="Residents download the app, enter the society code, and are instantly connected to the digital ecosystem."
+              align="right"
+              doodle={<SquiggleDoodle style={{ position: 'absolute', bottom: '-15px', right: '0', opacity: 0.4 }} />}
+            />
+
+            {/* Step 3 */}
+            <WalkthroughStep 
+              number="3"
+              icon={<CheckCircle size={32} color="#4A90E2" />}
+              title="Manage Everything"
+              desc="Collect maintenance, broadcast notices, and track visitor logs seamlessly from one intuitive dashboard."
+              align="left"
+              doodle={<ArrowDoodle style={{ position: 'absolute', top: '-15px', left: '-40px', opacity: 0.4, transform: 'rotate(130deg)' }} />}
+            />
+          </div>
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
-      <footer style={{ 
-        borderTop: `3px solid ${theme.border}`, 
-        padding: '60px', 
-        background: theme.textMain, 
-        color: 'white',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '20px'
-      }}>
-        <h2 style={{ 
-          margin: 0, 
-          fontFamily: "'Cormorant Garamond', serif", 
-          fontSize: '28px', 
-          fontWeight: '600', 
-          textTransform: 'uppercase' 
-        }}>
-          AwaasTech.
-        </h2>
-        <div className="footer-links" style={{ display: 'flex', gap: '30px', fontFamily: "'Space Mono', monospace", fontSize: '12px' }}>
-          <a href="#" style={{ color: 'white', textDecoration: 'none' }}>[ DOCUMENTATION ]</a>
-          <a href="#" style={{ color: 'white', textDecoration: 'none' }}>[ SYSTEM_STATUS ]</a>
-          <a href="#" style={{ color: 'white', textDecoration: 'none' }}>[ TERMS_OF_SERVICE ]</a>
+      {/* ABOUT US SECTION */}
+      <section style={{ padding: '100px 60px', backgroundColor: 'white', position: 'relative', zIndex: 10, borderTop: `1px solid ${theme.border}`, borderBottom: `1px solid ${theme.border}` }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '60px' }}>
+          <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ flex: 1, minWidth: '300px' }}>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', fontWeight: '500', color: theme.textMain, margin: '0 0 20px 0' }}>
+              We build <HighlightDoodle>communities,</HighlightDoodle> <br/> not just software.
+            </h2>
+            <p style={{ fontSize: '18px', color: theme.textSec, lineHeight: '1.8', fontWeight: '300', marginBottom: '30px' }}>
+              Our mission is to eliminate the friction of cooperative living. By providing a transparent, beautifully designed platform, we empower society committees to govern effortlessly, while giving residents peace of mind.
+            </p>
+            <div style={{ display: 'flex', gap: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Heart color={theme.accent} size={20} /> <span style={{ fontWeight: '500' }}>Built with Care</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Users color={theme.mutedOlive} size={20} /> <span style={{ fontWeight: '500' }}>For Everyone</span></div>
+            </div>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
+            style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
+            <div style={{ padding: '40px', background: theme.bg, borderRadius: '30px', border: `1px solid ${theme.border}`, position: 'relative' }}>
+              <SwirlDoodle />
+              <Activity size={40} color={theme.accent} style={{ marginBottom: '20px' }} />
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', margin: '0 0 10px 0' }}>Real-time transparency.</h3>
+              <p style={{ color: theme.textSec, lineHeight: '1.6', margin: 0 }}>Every maintenance request, every bill, every notice is tracked and updated in real-time. No more chasing the secretary.</p>
+            </div>
+          </motion.div>
         </div>
-        <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', color: theme.textSec, marginTop: '20px' }}>
-          © {new Date().getFullYear()} AwaasTech Inc. All Rights Reserved. // SYSTEM_V2.0.26
-        </p>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ padding: '80px 60px', backgroundColor: theme.textMain, color: 'white', position: 'relative', zIndex: 10 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '60px' }}>
+          
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+              <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img src="/awaastech-logo.png" alt="Awaastech" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
+              </div>
+              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600' }}>Awaastech</span>
+            </div>
+            <p style={{ color: '#A0A0A0', lineHeight: '1.6', fontSize: '15px', fontWeight: '300' }}>
+              The premium operating system for modern housing societies.
+            </p>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '18px', margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif" }}>Product</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <li><Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Features</Link></li>
+              <li><Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Pricing</Link></li>
+              <li><Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Security</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '18px', margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif" }}>Company</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <li><Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>About Us</Link></li>
+              <li><Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Careers</Link></li>
+              <li><Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Contact</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '18px', margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif" }}>Stay Updated</h4>
+            <p style={{ color: '#A0A0A0', fontSize: '14px', marginBottom: '15px' }}>Subscribe to our newsletter for product updates.</p>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input type="email" placeholder="Email address" style={{ padding: '12px 16px', borderRadius: '8px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', width: '100%', outline: 'none' }} />
+              <button style={{ padding: '12px 20px', borderRadius: '8px', border: 'none', background: theme.accent, color: 'white', fontWeight: '600', cursor: 'pointer' }}>Join</button>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ maxWidth: '1200px', margin: '60px auto 0 auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#A0A0A0', fontSize: '14px' }}>
+          <p>© {new Date().getFullYear()} AwaasTech Inc. All Rights Reserved.</p>
+          <div style={{ display: 'flex', gap: '20px' }}>
+            <Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Privacy</Link>
+            <Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Terms</Link>
+          </div>
+        </div>
       </footer>
     </div>
   );
 };
 
-// --- SUB-COMPONENTS ---
-
-const FeatureCard = ({ id, title, desc }) => (
-  <div className="brutal-card feature-card" style={{ 
-    padding: '40px', 
-    border: '3px solid #1A1A1A', 
-    background: '#FFFFFF',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.1)',
-    transition: '0.3s',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center'
-  }}>
-    <div style={{ 
-      fontFamily: "'Space Mono', monospace", 
-      fontSize: '14px', 
-      fontWeight: '700', 
-      color: '#2563EB',
-      marginBottom: '20px' 
-    }}>
-      [{id}]
+const FeatureCard = ({ icon, title, desc, delay = 0, doodle }) => (
+  <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.6, delay: delay }}
+    whileHover={{ y: -8, boxShadow: '0 12px 30px rgba(0,0,0,0.06)' }}
+    style={{ padding: '40px', borderRadius: '24px', background: '#FFFDF9', border: '1px solid #E8E4D9', boxShadow: '0 4px 15px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '20px', position: 'relative', overflow: 'hidden' }}>
+    {doodle}
+    <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: '#F9F8F3', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
+      {icon}
     </div>
-    <h3 style={{ 
-      fontFamily: "'Cormorant Garamond', serif", 
-      fontSize: '28px', 
-      textTransform: 'uppercase',
-      marginBottom: '15px' 
-    }}>
-      {title}
-    </h3>
-    <p style={{ 
-      fontFamily: "'Space Mono', monospace", 
-      fontSize: '14px', 
-      lineHeight: '1.6', 
-      color: '#4A4A4A',
-      margin: 0
-    }}>
-      {desc}
-    </p>
-  </div>
+    <div style={{ position: 'relative', zIndex: 1 }}>
+      <h3 style={{ margin: '0 0 10px 0', fontSize: '22px', fontWeight: '500', color: '#2C2C2C', fontFamily: "'Cormorant Garamond', serif" }}>{title}</h3>
+      <p style={{ margin: 0, fontSize: '15px', lineHeight: '1.6', color: '#6B6B6B', fontWeight: '300' }}>{desc}</p>
+    </div>
+  </motion.div>
+);
+
+const WalkthroughStep = ({ number, icon, title, desc, align, doodle }) => (
+  <motion.div initial={{ opacity: 0, x: align === 'left' ? -30 : 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.8 }}
+    style={{ display: 'flex', flexDirection: align === 'left' ? 'row' : 'row-reverse', flexWrap: 'wrap', alignItems: 'center', gap: '30px', background: '#FFFDF9', padding: '40px', borderRadius: '24px', border: '1px solid #E8E4D9', boxShadow: '0 8px 30px rgba(0,0,0,0.03)', position: 'relative', zIndex: 1 }}>
+    
+    {doodle}
+
+    <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#F9F8F3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 1, border: '1px solid #E8E4D9' }}>
+      {icon}
+      <div style={{ position: 'absolute', top: '-12px', [align === 'left' ? 'left' : 'right']: '-12px', background: '#D9734E', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '600', color: 'white', boxShadow: '0 4px 10px rgba(217,115,78,0.3)' }}>
+        {number}
+      </div>
+    </div>
+    
+    <div style={{ textAlign: align === 'left' ? 'left' : 'right', zIndex: 1, flex: '1 1 250px' }}>
+      <h3 style={{ margin: '0 0 12px 0', fontSize: '26px', fontWeight: '600', color: '#2C2C2C', fontFamily: "'Cormorant Garamond', serif" }}>{title}</h3>
+      <p style={{ margin: 0, fontSize: '16px', lineHeight: '1.6', color: '#6B6B6B', fontWeight: '300' }}>{desc}</p>
+    </div>
+  </motion.div>
 );
 
 export default Home;

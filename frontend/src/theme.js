@@ -3,17 +3,17 @@
 // instead of declaring a local `theme` object.
 // -------------------------------------------------------
 export const theme = {
-  bg: '#F2F2F2',
-  surface: '#FFFFFF',
-  textMain: '#1A1A1A',
-  textSec: '#4A4A4A',
-  border: '#1A1A1A',
-  accent: '#2563EB',
-  fieldBg: '#E8E8E8',
-  resolved: '#10b981',
-  declined: '#ef4444',
-  pending: '#f59e0b',
-  danger: '#ef4444',
+  bg: '#F9F8F3', // Warm Cream
+  surface: '#FFFDF9', // Soft Alabaster
+  textMain: '#2C2C2C', // Deep Charcoal
+  textSec: '#6B6B6B', // Muted Gray
+  border: '#E8E4D9', // Soft organic border
+  accent: '#D9734E', // Terracotta
+  fieldBg: '#F2F0E6', // Very soft beige for inputs
+  resolved: '#6B705C', // Muted Olive
+  declined: '#C05746', // Muted Red
+  pending: '#D4A373', // Muted Mustard
+  danger: '#C05746',
 };
 
 export default theme;

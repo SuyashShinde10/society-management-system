@@ -8,10 +8,10 @@ const Navbar = () => {
 
   const theme = {
     bg: '#FFFFFF',
-    textMain: '#1A1A1A',
-    textSec: '#4A4A4A',
-    border: '#1A1A1A',
-    accent: '#2563EB',
+    textMain: '#1e293b',
+    textSec: '#64748b',
+    border: '#f1f5f9',
+    accent: '#D9734E',
   };
 
   const handleLogout = () => {
@@ -27,7 +27,8 @@ const Navbar = () => {
       display: 'flex', 
       justifyContent: 'space-between', 
       alignItems: 'center',
-      borderBottom: `4px solid ${theme.border}`,
+      borderBottom: `1px solid ${theme.border}`,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
       height: '80px',
       position: 'sticky',
       top: 0,
@@ -38,48 +39,54 @@ const Navbar = () => {
           @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Space+Mono:wght@400;700&display=swap');
           
           .nav-link {
-            font-family: 'Space Mono', monospace;
-            text-transform: uppercase;
-            font-size: 13px;
-            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
             text-decoration: none;
-            color: #1A1A1A;
+            color: #1e293b;
             transition: all 0.2s;
             padding: 8px 16px;
+            border-radius: 8px;
           }
 
           .nav-link:hover {
-            background: #1A1A1A;
-            color: #FFFFFF !important;
+            background: #f8fafc;
+            color: #D9734E !important;
           }
 
           .system-status {
-            font-family: 'Space Mono', monospace;
-            font-size: 11px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 8px;
-            background: #F2F2F2;
-            padding: 4px 12px;
-            border: 1px solid #1A1A1A;
+            background: #f8fafc;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
           }
 
           .logout-trigger {
-            font-family: 'Space Mono', monospace;
-            font-size: 12px;
-            font-weight: 700;
-            background: #1A1A1A;
-            color: #FFFFFF;
-            border: none;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            background: #fff0eb;
+            color: #D9734E;
+            border: 1px solid #ffdec2;
             padding: 10px 20px;
+            border-radius: 12px;
             cursor: pointer;
-            box-shadow: 4px 4px 0px #2563EB;
-            transition: all 0.1s;
+            transition: all 0.2s;
           }
 
+          .logout-trigger:hover {
+            background: #ffe3d3;
+            transform: translateY(-2px);
+          }
           .logout-trigger:active {
-            transform: translate(2px, 2px);
-            box-shadow: 0px 0px 0px #2563EB;
+            transform: translateY(0);
           }
         `}
       </style>
@@ -91,9 +98,10 @@ const Navbar = () => {
           fontFamily: "'Cormorant Garamond', serif", 
           fontSize: '28px', 
           fontWeight: '600',
-          letterSpacing: '1px'
+          letterSpacing: '0.5px',
+          color: theme.textMain
         }}>
-          AWAAS_TECH.
+          AwaasTech
         </h2>
       </Link>
 
@@ -103,29 +111,30 @@ const Navbar = () => {
           <>
             <div className="system-status">
               <span style={{ 
-                height: '8px', width: '8px', background: theme.accent, borderRadius: '0' 
+                height: '8px', width: '8px', background: '#22c55e', borderRadius: '50%' 
               }}></span>
-              <span>STATE: <span style={{fontWeight: '700'}}>{user.role?.toUpperCase() || 'USER'}</span></span>
+              <span>Role: <span style={{fontWeight: '600', color: theme.textMain}}>{user.role?.charAt(0).toUpperCase() + user.role?.slice(1) || 'User'}</span></span>
             </div>
             
             <span style={{ 
-              fontFamily: "'Space Mono', monospace", 
-              fontSize: '13px', 
-              fontWeight: '400',
-              borderLeft: `1px solid ${theme.border}`,
-              paddingLeft: '24px'
+              fontFamily: "'Outfit', sans-serif", 
+              fontSize: '14px', 
+              fontWeight: '500',
+              borderLeft: `1px solid #e2e8f0`,
+              paddingLeft: '24px',
+              color: theme.textSec
             }}>
-              ID: <span style={{fontWeight: '700'}}>{user.name?.toUpperCase() || 'UNKNOWN'}</span>
+              Welcome, <span style={{fontWeight: '600', color: theme.textMain}}>{user.name || 'Resident'}</span>
             </span>
 
             <button onClick={handleLogout} className="logout-trigger">
-              [ TERMINATE_SESSION ]
+              Logout
             </button>
           </>
         ) : (
           <div style={{ display: 'flex', gap: '10px' }}>
-            <Link to="/login" className="nav-link">[ LOGIN ]</Link>
-            <Link to="/register" className="nav-link" style={{ background: theme.accent, color: '#fff' }}>[ JOIN_CORE ]</Link>
+            <Link to="/login" className="nav-link">Login</Link>
+            <Link to="/register" className="nav-link" style={{ background: theme.accent, color: '#fff' }}>Join Now</Link>
           </div>
         )}
       </div>
