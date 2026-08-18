@@ -175,6 +175,9 @@ const MaintenanceBills = () => {
       if (isPaid) {
         doc.setTextColor(0, 128, 0); // Green
         doc.text('PAID IN FULL', 105, 147, null, null, 'center');
+      } else if (bill.status === 'Under Verification') {
+        doc.setTextColor(220, 100, 0); // Orange
+        doc.text('PAYMENT UNDER VERIFICATION', 105, 147, null, null, 'center');
       } else {
         doc.setTextColor(255, 0, 0); // Red
         doc.text('PAYMENT PENDING', 105, 147, null, null, 'center');
@@ -334,13 +337,15 @@ const MaintenanceBills = () => {
           </div>
         )}
         
-        <button onClick={() => handleDownloadInvoice(b)} style={{
-          background: 'transparent', color: theme.textMain, padding: '10px 16px', border: `1px solid ${theme.border}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px',
-          fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px', transition: 'background 0.2s'
-        }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'transparent'}>
-          <Download size={16} />
-          {b.status === 'Paid' ? 'Receipt' : 'Invoice'}
-        </button>
+        {(b.status === 'Paid' || user?.role === 'admin') && (
+          <button onClick={() => handleDownloadInvoice(b)} style={{
+            background: 'transparent', color: theme.textMain, padding: '10px 16px', border: `1px solid ${theme.border}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px',
+            fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px', transition: 'background 0.2s'
+          }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'transparent'}>
+            <Download size={16} />
+            {b.status === 'Paid' ? 'Download Receipt' : 'Download Invoice'}
+          </button>
+        )}
       </div>
     </div>
   );
