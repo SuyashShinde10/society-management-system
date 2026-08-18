@@ -27,6 +27,20 @@ const getAnalytics = async (req, res) => {
       // 1. Members
       const totalMembers = await User.countDocuments({ societyId, role: 'member' });
 
+      // Trend Data Initialization (Last 6 Months)
+      const trendData = [];
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        trendData.push({
+          name: monthNames[d.getMonth()],
+          month: d.getMonth(),
+          year: d.getFullYear(),
+          revenue: 0,
+          expenses: 0
+        });
+      }
+
       // 2. Revenue (Bills Paid)
       const allBills = await MaintenanceBill.find({ societyId });
       
@@ -39,6 +53,9 @@ const getAnalytics = async (req, res) => {
           if (paidDate >= startOfWeek) revWeekly += b.amount;
           if (paidDate >= startOfMonth) revMonthly += b.amount;
           if (paidDate >= startOfYear) revAnnual += b.amount;
+
+          const trendItem = trendData.find(t => t.month === paidDate.getMonth() && t.year === paidDate.getFullYear());
+          if (trendItem) trendItem.revenue += b.amount;
         } else if (!b.isPaid && b.status === 'Pending') {
           pendingBillsCount++;
           pendingBillsAmount += b.amount;
@@ -55,6 +72,9 @@ const getAnalytics = async (req, res) => {
         if (expDate >= startOfWeek) expWeekly += e.amount;
         if (expDate >= startOfMonth) expMonthly += e.amount;
         if (expDate >= startOfYear) expAnnual += e.amount;
+
+        const trendItem = trendData.find(t => t.month === expDate.getMonth() && t.year === expDate.getFullYear());
+        if (trendItem) trendItem.expenses += e.amount;
       });
 
       // 4. Complaints
@@ -69,7 +89,8 @@ const getAnalytics = async (req, res) => {
         revenue: { weekly: revWeekly, monthly: revMonthly, annual: revAnnual },
         pendingBills: { count: pendingBillsCount, amount: pendingBillsAmount },
         expenses: { weekly: expWeekly, monthly: expMonthly, annual: expAnnual },
-        complaints: { total: totalComplaints, open: openComplaints }
+        complaints: { total: totalComplaints, open: openComplaints },
+        trendData
       });
 
     } else {
@@ -77,6 +98,18 @@ const getAnalytics = async (req, res) => {
       const totalMembers = await User.countDocuments({ societyId, role: 'member' });
       const pastMembers = 0;
       
+      const memberPaymentData = [];
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        memberPaymentData.push({
+          name: monthNames[d.getMonth()],
+          month: d.getMonth(),
+          year: d.getFullYear(),
+          amount: 0
+        });
+      }
+
       const userBills = await MaintenanceBill.find({ societyId, userId });
       
       let paidWeekly = 0, paidMonthly = 0, paidAnnual = 0, totalPaid = 0;
@@ -89,6 +122,9 @@ const getAnalytics = async (req, res) => {
           if (paidDate >= startOfWeek) paidWeekly += b.amount;
           if (paidDate >= startOfMonth) paidMonthly += b.amount;
           if (paidDate >= startOfYear) paidAnnual += b.amount;
+
+          const trendItem = memberPaymentData.find(t => t.month === paidDate.getMonth() && t.year === paidDate.getFullYear());
+          if (trendItem) trendItem.amount += b.amount;
         } else if (!b.isPaid && b.status === 'Pending') {
           pendingAmount += b.amount;
         }
@@ -102,7 +138,8 @@ const getAnalytics = async (req, res) => {
         pastMembers,
         myPayments: { weekly: paidWeekly, monthly: paidMonthly, annual: paidAnnual, total: totalPaid },
         pendingAmount,
-        complaints: { total: userComplaints, open: openComplaints }
+        complaints: { total: userComplaints, open: openComplaints },
+        memberPaymentData
       });
     }
   } catch (error) {

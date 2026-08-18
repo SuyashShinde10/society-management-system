@@ -48,25 +48,8 @@ const Analytics = () => {
     </div>
   );
 
-  // Mock data for graphs to visualize trends
-  const trendData = [
-    { name: 'Jan', revenue: 4000, expenses: 2400 },
-    { name: 'Feb', revenue: 3000, expenses: 1398 },
-    { name: 'Mar', revenue: 5000, expenses: 2800 },
-    { name: 'Apr', revenue: 2780, expenses: 3908 },
-    { name: 'May', revenue: 6890, expenses: 4800 },
-    { name: 'Jun', revenue: 4390, expenses: 3800 },
-    { name: 'Jul', revenue: 5490, expenses: 4300 },
-  ];
-
-  const memberPaymentData = [
-    { name: 'Jan', amount: 1200 },
-    { name: 'Feb', amount: 1200 },
-    { name: 'Mar', amount: 1500 },
-    { name: 'Apr', amount: 1200 },
-    { name: 'May', amount: 0 },
-    { name: 'Jun', amount: 2400 },
-  ];
+  const trendData = data.trendData || [];
+  const memberPaymentData = data.memberPaymentData || [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
