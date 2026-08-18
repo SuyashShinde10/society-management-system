@@ -20,6 +20,7 @@ const MaintenanceBills = () => {
   const [users, setUsers] = useState([]);
   const [generateData, setGenerateData] = useState({ title: '', description: '', amount: '', dueDate: '', targetType: 'All', targetUserId: '' });
   const [payingBillId, setPayingBillId] = useState(null);
+  const [expandedGroup, setExpandedGroup] = useState(null);
   const limit = 10;
 
   const isNew = (dateString) => {
@@ -203,9 +204,146 @@ const MaintenanceBills = () => {
     return true;
   });
 
+  const groupedBills = {};
+  if (user?.role === 'admin') {
+    filteredBills.forEach(b => {
+      const key = `${b.title.trim()}_${new Date(b.dueDate).toLocaleDateString()}`;
+      if (!groupedBills[key]) {
+        groupedBills[key] = {
+          id: key,
+          title: b.title,
+          dueDate: b.dueDate,
+          amount: b.amount,
+          createdAt: b.createdAt,
+          total: 0,
+          paid: 0,
+          pending: 0,
+          verifying: 0,
+          totalAmount: 0,
+          collectedAmount: 0,
+          bills: []
+        };
+      }
+      groupedBills[key].total += 1;
+      groupedBills[key].totalAmount += Number(b.amount);
+      groupedBills[key].bills.push(b);
+      if (b.status === 'Paid') {
+        groupedBills[key].paid += 1;
+        groupedBills[key].collectedAmount += Number(b.amount);
+      }
+      else if (b.status === 'Under Verification') groupedBills[key].verifying += 1;
+      else groupedBills[key].pending += 1;
+    });
+  }
+  const adminGroupList = Object.values(groupedBills);
+
   // Pagination Logic
   const paginatedBills = filteredBills.slice(0, page * limit);
-  const hasMore = paginatedBills.length < filteredBills.length;
+  const hasMoreBills = paginatedBills.length < filteredBills.length;
+  
+  const paginatedGroups = adminGroupList.slice(0, page * limit);
+  const hasMoreGroups = paginatedGroups.length < adminGroupList.length;
+
+  const renderBillCard = (b, isNested = false) => (
+    <div key={b._id} style={{
+      background: 'white', border: `1px solid ${theme.border}`, padding: isNested ? '16px' : '24px', borderRadius: '20px',
+      borderLeft: `6px solid ${b.status === 'Paid' ? theme.resolved : b.status === 'Pending' ? theme.pending : theme.declined}`,
+      boxShadow: '0 4px 12px rgba(0,0,0,0.02)', transition: 'transform 0.2s, box-shadow 0.2s',
+      marginBottom: isNested ? '12px' : '0'
+    }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
+            {b.title}
+            {!isNested && isNew(b.createdAt) && (
+              <span style={{
+                fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700',
+                background: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '10px'
+              }}>NEW</span>
+            )}
+          </h4>
+          {user?.role === 'admin' && (
+            <p style={{ margin: '0 0 5px 0', fontSize: '13px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
+              TO: {b.userId?.name} (W_{b.userId?.flatDetails?.wing} F_{b.userId?.flatDetails?.flatNumber})
+            </p>
+          )}
+          <span style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
+            DUE: {new Date(b.dueDate).toLocaleDateString()}
+          </span>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: "'Outfit', sans-serif", color: theme.textMain }}>
+            ₹{b.amount.toLocaleString()}
+          </div>
+          <span style={{
+            fontSize: '11px', fontWeight: '600', fontFamily: "'Outfit', sans-serif", padding: '4px 8px', borderRadius: '20px',
+            background: b.status === 'Paid' ? '#DCFCE7' : (b.status === 'Pending' || b.status === 'Overdue' ? '#FEF9C3' : '#FFEDD5'),
+            color: b.status === 'Paid' ? '#166534' : (b.status === 'Pending' || b.status === 'Overdue' ? '#854D0E' : '#C2410C')
+          }}>
+            {b.status || 'Unknown'}
+          </span>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div style={{ marginTop: '20px', borderTop: `1px dashed ${theme.border}`, paddingTop: '15px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        
+        {/* Admin Verification Options */}
+        {b.status === 'Under Verification' && user?.role === 'admin' && (
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button onClick={() => {
+              if (window.confirm(`Are you sure you want to VERIFY and approve this payment of ₹${b.amount}?`)) {
+                handleMarkPaid(b._id, b.paymentMode, 'approve');
+              }
+            }} style={{
+              background: theme.resolved, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
+              fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
+            }}>
+              Verify Payment
+            </button>
+            <button onClick={() => {
+              if (window.confirm('Are you sure you want to REJECT this payment? The member will have to submit their payment details again.')) {
+                handleMarkPaid(b._id, null, 'reject');
+              }
+            }} style={{
+              background: theme.declined, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
+              fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
+            }}>
+              Reject
+            </button>
+          </div>
+        )}
+
+        {/* Member Payment Options */}
+        {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId !== b._id && (
+          <button onClick={() => setPayingBillId(b._id)} style={{
+            background: theme.textMain, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
+            fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
+          }}>
+            {user?.role === 'admin' ? 'Mark As Paid' : 'Pay Bill'}
+          </button>
+        )}
+        
+        {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId === b._id && (
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', background: '#F9F8F3', padding: '8px 12px', borderRadius: '12px', border: `1px solid ${theme.border}` }}>
+            <span style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', marginRight: '5px' }}>Pay via:</span>
+            <button onClick={() => handleMarkPaid(b._id, 'UPI')} style={{ background: '#0070BA', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>UPI</button>
+            <button onClick={() => handleMarkPaid(b._id, 'Net Banking')} style={{ background: '#E35205', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>Net Bank</button>
+            <button onClick={() => handleMarkPaid(b._id, 'Cash')} style={{ background: '#28A745', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>Cash</button>
+            <button onClick={() => setPayingBillId(null)} style={{ background: 'transparent', color: theme.textSec, border: 'none', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px', padding: '8px' }}>Cancel</button>
+          </div>
+        )}
+        
+        <button onClick={() => handleDownloadInvoice(b)} style={{
+          background: 'transparent', color: theme.textMain, padding: '10px 16px', border: `1px solid ${theme.border}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px',
+          fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px', transition: 'background 0.2s'
+        }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'transparent'}>
+          <Download size={16} />
+          {b.status === 'Paid' ? 'Receipt' : 'Invoice'}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -294,112 +432,64 @@ const MaintenanceBills = () => {
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
               <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
-          ) : paginatedBills.length === 0 ? (
-            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', textAlign: 'center', color: theme.textSec, background: 'white', padding: '40px', borderRadius: '20px', border: `1px solid ${theme.border}` }}>No bills found.</p>
+          ) : user?.role === 'admin' ? (
+            paginatedGroups.length === 0 ? (
+              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', textAlign: 'center', color: theme.textSec, background: 'white', padding: '40px', borderRadius: '20px', border: `1px solid ${theme.border}` }}>No bill batches found.</p>
+            ) : (
+              paginatedGroups.map(group => (
+                <div key={group.id} style={{ background: 'white', border: `1px solid ${theme.border}`, padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', cursor: 'pointer' }} onClick={() => setExpandedGroup(expandedGroup === group.id ? null : group.id)}>
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ margin: '0 0 8px 0', fontFamily: "'Outfit', sans-serif", fontSize: '20px', fontWeight: '700', display: 'flex', alignItems: 'center', color: theme.textMain }}>
+                        {group.title}
+                        {isNew(group.createdAt) && (
+                          <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700', background: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '10px' }}>NEW BATCH</span>
+                        )}
+                      </h4>
+                      <div style={{ fontSize: '13px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
+                        Generated for {group.total} members • Due: {new Date(group.dueDate).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '18px', fontWeight: '700', fontFamily: "'Outfit', sans-serif", color: theme.textMain }}>
+                        ₹{group.collectedAmount.toLocaleString()} / ₹{group.totalAmount.toLocaleString()} Collected
+                      </div>
+                      <div style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", color: theme.textSec, marginTop: '4px' }}>
+                        {group.paid} Paid • {group.verifying} Verifying • {group.pending} Pending
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div style={{ width: '100%', height: '8px', background: '#F1F5F9', borderRadius: '4px', marginTop: '16px', overflow: 'hidden', display: 'flex' }}>
+                    <div style={{ width: `${(group.paid / group.total) * 100}%`, background: theme.resolved, height: '100%' }}></div>
+                    <div style={{ width: `${(group.verifying / group.total) * 100}%`, background: '#F59E0B', height: '100%' }}></div>
+                  </div>
+
+                  <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                     <button onClick={() => setExpandedGroup(expandedGroup === group.id ? null : group.id)} style={{ background: 'none', border: 'none', color: theme.accent, fontFamily: "'Outfit', sans-serif", fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}>
+                       {expandedGroup === group.id ? 'Hide Details ▲' : 'View Details ▼'}
+                     </button>
+                  </div>
+
+                  {expandedGroup === group.id && (
+                    <div style={{ marginTop: '20px', borderTop: `1px solid ${theme.border}`, paddingTop: '20px' }}>
+                      {group.bills.map(b => renderBillCard(b, true))}
+                    </div>
+                  )}
+                </div>
+              ))
+            )
           ) : (
-            paginatedBills.map(b => (
-              <div key={b._id} style={{
-                background: 'white', border: `1px solid ${theme.border}`, padding: '24px', borderRadius: '20px',
-                borderLeft: `6px solid ${b.status === 'Paid' ? theme.resolved : b.status === 'Pending' ? theme.pending : theme.declined}`,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.02)', transition: 'transform 0.2s, box-shadow 0.2s'
-              }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
-                      {b.title}
-                      {isNew(b.createdAt) && (
-                        <span style={{
-                          fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700',
-                          background: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '10px'
-                        }}>NEW</span>
-                      )}
-                    </h4>
-                    {user?.role === 'admin' && (
-                      <p style={{ margin: '0 0 5px 0', fontSize: '13px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
-                        TO: {b.userId?.name} (W_{b.userId?.flatDetails?.wing} F_{b.userId?.flatDetails?.flatNumber})
-                      </p>
-                    )}
-                    <span style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
-                      DUE: {new Date(b.dueDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: "'Outfit', sans-serif", color: theme.textMain }}>
-                      ₹{b.amount.toLocaleString()}
-                    </div>
-                    <span style={{
-                      fontSize: '11px', fontWeight: '600', fontFamily: "'Outfit', sans-serif", padding: '4px 8px', borderRadius: '20px',
-                      background: b.status === 'Paid' ? '#DCFCE7' : (b.status === 'Pending' || b.status === 'Overdue' ? '#FEF9C3' : '#FFEDD5'),
-                      color: b.status === 'Paid' ? '#166534' : (b.status === 'Pending' || b.status === 'Overdue' ? '#854D0E' : '#C2410C')
-                    }}>
-                      {b.status || 'Unknown'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div style={{ marginTop: '20px', borderTop: `1px dashed ${theme.border}`, paddingTop: '15px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                  
-                  {/* Admin Verification Options */}
-                  {b.status === 'Under Verification' && user?.role === 'admin' && (
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button onClick={() => {
-                        if (window.confirm(`Are you sure you want to VERIFY and approve this payment of ₹${b.amount}?`)) {
-                          handleMarkPaid(b._id, b.paymentMode, 'approve');
-                        }
-                      }} style={{
-                        background: theme.resolved, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
-                        fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
-                      }}>
-                        Verify Payment
-                      </button>
-                      <button onClick={() => {
-                        if (window.confirm('Are you sure you want to REJECT this payment? The member will have to submit their payment details again.')) {
-                          handleMarkPaid(b._id, null, 'reject');
-                        }
-                      }} style={{
-                        background: theme.declined, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
-                        fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
-                      }}>
-                        Reject
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Member Payment Options */}
-                  {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId !== b._id && (
-                    <button onClick={() => setPayingBillId(b._id)} style={{
-                      background: theme.textMain, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
-                      fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
-                    }}>
-                      {user?.role === 'admin' ? 'Mark As Paid' : 'Pay Bill'}
-                    </button>
-                  )}
-                  
-                  {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId === b._id && (
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', background: '#F9F8F3', padding: '8px 12px', borderRadius: '12px', border: `1px solid ${theme.border}` }}>
-                      <span style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', marginRight: '5px' }}>Pay via:</span>
-                      <button onClick={() => handleMarkPaid(b._id, 'UPI')} style={{ background: '#0070BA', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>UPI</button>
-                      <button onClick={() => handleMarkPaid(b._id, 'Net Banking')} style={{ background: '#E35205', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>Net Bank</button>
-                      <button onClick={() => handleMarkPaid(b._id, 'Cash')} style={{ background: '#28A745', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px' }}>Cash</button>
-                      <button onClick={() => setPayingBillId(null)} style={{ background: 'transparent', color: theme.textSec, border: 'none', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '12px', padding: '8px' }}>Cancel</button>
-                    </div>
-                  )}
-                  
-                  <button onClick={() => handleDownloadInvoice(b)} style={{
-                    background: 'transparent', color: theme.textMain, padding: '10px 16px', border: `1px solid ${theme.border}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px',
-                    fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px', transition: 'background 0.2s'
-                  }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'transparent'}>
-                    <Download size={16} />
-                    {b.status === 'Paid' ? 'Receipt' : 'Invoice'}
-                  </button>
-                </div>
-              </div>
-            ))
+            paginatedBills.length === 0 ? (
+              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', textAlign: 'center', color: theme.textSec, background: 'white', padding: '40px', borderRadius: '20px', border: `1px solid ${theme.border}` }}>No bills found.</p>
+            ) : (
+              paginatedBills.map(b => renderBillCard(b))
+            )
           )}
         </div>
 
-        {hasMore && (
+        {(user?.role === 'admin' ? hasMoreGroups : hasMoreBills) && (
           <button onClick={() => setPage(page + 1)} style={{
             width: '100%', marginTop: '20px', padding: '12px', background: 'white', borderRadius: '12px', border: `1px dashed ${theme.border}`, color: theme.textMain,
             fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', flexShrink: 0, transition: 'background 0.2s'
