@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Shield, ShieldAlert, Calendar, User, MapPin, Edit2, UserMinus, X, Check } from 'lucide-react';
+import { Shield, ShieldAlert, Calendar, User, MapPin, Edit2, UserMinus, X, Check, Clock } from 'lucide-react';
 import api from '../api';
 import theme from '../theme';
 
@@ -8,21 +8,26 @@ import AddSecurity from './AddSecurity';
 
 const SecurityStaff = () => {
   const [staff, setStaff] = useState([]);
+  const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchStaff = async () => {
+  const fetchStaffAndLogs = async () => {
     try {
-      const { data } = await api.get('/auth/security-staff');
-      setStaff(data);
+      const [staffRes, logsRes] = await Promise.all([
+        api.get('/auth/security-staff'),
+        api.get('/auth/security-logs')
+      ]);
+      setStaff(staffRes.data);
+      setLogs(logsRes.data);
     } catch (error) {
-      console.error('Failed to fetch security staff', error);
+      console.error('Failed to fetch security staff/logs', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchStaff();
+    fetchStaffAndLogs();
   }, []);
 
   const [editingId, setEditingId] = useState(null);
@@ -78,7 +83,7 @@ const SecurityStaff = () => {
       </div>
 
       <div style={{ marginBottom: '40px' }}>
-        <AddSecurity onAdd={fetchStaff} />
+        <AddSecurity onAdd={fetchStaffAndLogs} />
       </div>
 
       {staff.length === 0 ? (
@@ -210,6 +215,62 @@ const SecurityStaff = () => {
           })}
         </div>
       )}
+
+      {/* Security Logs Section */}
+      <div style={{ marginTop: '60px', borderTop: `1px solid ${theme.border}`, paddingTop: '40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ background: '#F1F5F9', padding: '10px', borderRadius: '12px' }}>
+            <Clock size={24} color="#475569" />
+          </div>
+          <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: '600', margin: 0, color: theme.textMain }}>
+            Access Logs (Login / Logout)
+          </h3>
+        </div>
+
+        {logs.length === 0 ? (
+          <p style={{ color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>No recent login activity found.</p>
+        ) : (
+          <div style={{ overflowX: 'auto', borderRadius: '12px', border: `1px solid ${theme.border}` }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'Outfit', sans-serif", fontSize: '14px' }}>
+              <thead style={{ background: '#F8FAFC' }}>
+                <tr>
+                  <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>Guard Name</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>Action</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>Date & Time</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>IP Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logs.map((log) => (
+                  <tr key={log._id} style={{ borderBottom: `1px solid ${theme.border}` }}>
+                    <td style={{ padding: '16px', color: theme.textMain, fontWeight: '500' }}>
+                      {log.performedBy ? log.performedBy.name : 'Unknown Guard'}
+                    </td>
+                    <td style={{ padding: '16px' }}>
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '20px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        background: log.action === 'Security Login' ? '#ECFDF5' : '#FEF2F2',
+                        color: log.action === 'Security Login' ? '#059669' : '#DC2626'
+                      }}>
+                        {log.action}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px', color: theme.textSec }}>
+                      {new Date(log.createdAt).toLocaleString()}
+                    </td>
+                    <td style={{ padding: '16px', color: theme.textSec }}>
+                      {log.ipAddress || 'N/A'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

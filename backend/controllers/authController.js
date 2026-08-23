@@ -9,6 +9,7 @@ const { getProfessionalEmailTemplate } = require('../utils/emailTemplates');
 
 // OTP store
 const Otp = require('../models/Otp');
+const AuditLog = require('../models/AuditLog');
 
 // ─── 0. SEND OTP ─────────────────────────────────────────────────────────────
 const sendOTP = async (req, res) => {
@@ -263,6 +264,17 @@ const loginUser = async (req, res) => {
 
     if (user.societyId && user.societyId.isActive === false) {
       return res.status(403).json({ message: 'SOCIETY_SUSPENDED — Please contact platform administrator.' });
+    }
+
+    if (isSecurity) {
+      await AuditLog.create({
+        action: 'Security Login',
+        performedBy: user._id,
+        targetModel: 'SecurityStaff',
+        details: { societyId: user.societyId?._id },
+        ipAddress: req.ip,
+        status: 'Success'
+      });
     }
 
     const token = jwt.sign(
@@ -805,9 +817,48 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// ─── 15. LOGOUT (Optional for audit logging) ──────────────────────────────────
+const logoutUser = async (req, res) => {
+  try {
+    if (req.user && req.user.role === 'security') {
+      await AuditLog.create({
+        action: 'Security Logout',
+        performedBy: req.user._id,
+        targetModel: 'SecurityStaff',
+        details: { societyId: req.user.societyId },
+        ipAddress: req.ip,
+        status: 'Success'
+      });
+    }
+    res.json({ message: 'LOGGED_OUT' });
+  } catch (error) {
+    console.error('// LOGOUT_FAULT:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
+// ─── 16. GET SECURITY LOGS (Admin) ────────────────────────────────────────────
+const getSecurityLogs = async (req, res) => {
+  try {
+    const logs = await AuditLog.find({
+      'details.societyId': req.user.societyId,
+      targetModel: 'SecurityStaff',
+      action: { $in: ['Security Login', 'Security Logout'] }
+    })
+    .populate('performedBy', 'name email role')
+    .sort({ createdAt: -1 })
+    .limit(100);
+    
+    res.json(logs);
+  } catch (error) {
+    console.error('// GET_SEC_LOGS_FAULT:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
 module.exports = {
   sendOTP, verifyOTP,
   registerUser, loginUser, updateProfile,
   getAllUsers, getSecurityStaff, getPendingMembers, deleteUser, addMember, addSecurityStaff, updateMember, updateSecurityStaff, terminateSecurityStaff, getSocietyLimits, approveMember, seedSuperAdmin,
-  forgotPassword, resetPassword
+  forgotPassword, resetPassword, logoutUser, getSecurityLogs
 };

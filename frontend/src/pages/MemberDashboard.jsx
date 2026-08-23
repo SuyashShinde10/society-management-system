@@ -186,12 +186,12 @@ const MemberDashboard = () => {
             
             {activeTab === 'overview' && <DashboardOverview onNavigate={setActiveTab} />}
             {activeTab === 'profile' && <Profile />}
-            {activeTab === 'notices' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><NoticeBoard /></div>}
-            {activeTab === 'meetings' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Meetings /></div>}
-            {activeTab === 'bills' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><MaintenanceBills /></div>}
-            {activeTab === 'complaints' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ComplaintBox /></div>}
-            {activeTab === 'expenses' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ExpenseTracker /></div>}
-            {activeTab === 'analytics' && <div style={{ background: 'white', borderRadius: '24px', padding: '40px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Analytics /></div>}
+            {activeTab === 'notices' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><NoticeBoard /></div>}
+            {activeTab === 'meetings' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Meetings /></div>}
+            {activeTab === 'bills' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><MaintenanceBills /></div>}
+            {activeTab === 'complaints' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ComplaintBox /></div>}
+            {activeTab === 'expenses' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ExpenseTracker /></div>}
+            {activeTab === 'analytics' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Analytics /></div>}
           </div>
 
         </div>

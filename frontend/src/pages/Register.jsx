@@ -211,11 +211,11 @@ const Register = () => {
       </div>
 
       {/* Right Side - Registration Form */}
-      <div style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', overflowY: 'auto' }}>
+      <div className="p-4 md:p-[40px_20px]" style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'center', overflowY: 'auto' }}>
         <motion.div 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-          className="form-container"
-          style={{ background: 'white', padding: '50px', borderRadius: '24px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)', border: `1px solid ${theme.border}` }}
+          className="form-container p-6 md:p-[50px]"
+          style={{ background: 'white', borderRadius: '24px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)', border: `1px solid ${theme.border}` }}
         >
           <div style={{ marginBottom: '30px' }}>
             <h2 style={{ margin: '0', fontSize: '26px', fontWeight: '600', color: theme.textMain }}>Create Society</h2>

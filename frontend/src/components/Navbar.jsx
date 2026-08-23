@@ -20,19 +20,12 @@ const Navbar = () => {
   };
 
   return (
-    <nav style={{ 
-      padding: '0 40px', 
+    <nav className="px-6 md:px-[40px] flex justify-between items-center sticky top-0 z-[1000]" style={{ 
       background: theme.bg, 
       color: theme.textMain, 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'center',
       borderBottom: `1px solid ${theme.border}`,
       boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
       height: '80px',
-      position: 'sticky',
-      top: 0,
-      zIndex: 1000
     }}>
       <style>
         {`
@@ -106,17 +99,17 @@ const Navbar = () => {
       </Link>
 
       {/* --- USER ACTIONS --- */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+      <div className="flex items-center gap-4 md:gap-6">
         {user ? (
           <>
-            <div className="system-status">
+            <div className="system-status hidden md:flex">
               <span style={{ 
                 height: '8px', width: '8px', background: '#22c55e', borderRadius: '50%' 
               }}></span>
               <span>Role: <span style={{fontWeight: '600', color: theme.textMain}}>{user.role?.charAt(0).toUpperCase() + user.role?.slice(1) || 'User'}</span></span>
             </div>
             
-            <span style={{ 
+            <span className="hidden md:inline" style={{ 
               fontFamily: "'Outfit', sans-serif", 
               fontSize: '14px', 
               fontWeight: '500',

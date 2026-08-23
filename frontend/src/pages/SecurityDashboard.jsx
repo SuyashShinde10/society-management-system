@@ -103,8 +103,8 @@ const SecurityDashboard = () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFC', fontFamily: "'Outfit', sans-serif" }}>
       {/* Header */}
-      <div style={{ 
-        background: 'white', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', 
+      <div className="px-4 md:px-6 py-4" style={{ 
+        background: 'white', display: 'flex', justifyContent: 'space-between', 
         alignItems: 'center', borderBottom: `1px solid ${theme.border}`, position: 'sticky', top: 0, zIndex: 10
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -127,7 +127,7 @@ const SecurityDashboard = () => {
         </button>
       </div>
 
-      <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
+      <div className="p-4 md:p-6" style={{ maxWidth: '800px', margin: '0 auto' }}>
         
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>

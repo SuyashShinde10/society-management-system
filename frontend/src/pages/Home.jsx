@@ -82,7 +82,7 @@ const Home = () => {
       
       {/* NAVIGATION */}
       <motion.nav initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }}
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '25px 60px', position: 'relative', zIndex: 10 }}>
+        className="flex justify-between items-center px-6 md:px-[60px] py-6 relative z-10">
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <img src="/awaastech-logo.png" alt="Awaastech" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
           <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', letterSpacing: '1px' }}>Awaastech</h2>
@@ -94,7 +94,7 @@ const Home = () => {
       </motion.nav>
 
       {/* HERO SECTION */}
-      <header style={{ padding: '100px 60px 140px 60px', position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+      <header className="px-6 md:px-[60px] pt-[80px] pb-[100px] md:pt-[100px] md:pb-[140px] relative z-10 flex flex-col items-center text-center">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
           <div style={{ background: 'white', padding: '8px 20px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', color: theme.mutedOlive, border: `1px solid ${theme.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.03)', marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -102,7 +102,7 @@ const Home = () => {
             Introducing Society Management 2.0
           </div>
 
-          <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(50px, 8vw, 85px)', fontWeight: '500', lineHeight: '1', margin: '0 0 30px 0', color: theme.textMain }}>
+          <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(36px, 8vw, 85px)', fontWeight: '500', lineHeight: '1', margin: '0 0 30px 0', color: theme.textMain }}>
             <AnimatedText text="Living spaces," />
             <br/>
             <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8, duration: 0.8 }} style={{ position: 'relative', display: 'inline-block', fontStyle: 'italic', color: theme.accent }}>
@@ -124,7 +124,7 @@ const Home = () => {
       </header>
 
       {/* FEATURES GRID */}
-      <section style={{ padding: '0 60px 140px 60px', position: 'relative', zIndex: 10 }}>
+      <section className="px-6 md:px-[60px] pb-[80px] md:pb-[140px] relative z-10">
         <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8 }}
           style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
           <FeatureCard 
@@ -152,7 +152,7 @@ const Home = () => {
       </section>
 
       {/* WALKTHROUGH SECTION */}
-      <section style={{ padding: '0 60px 140px 60px', position: 'relative', zIndex: 10 }}>
+      <section className="px-6 md:px-[60px] pb-[80px] md:pb-[140px] relative z-10">
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '80px', position: 'relative' }}>
             <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
@@ -204,9 +204,9 @@ const Home = () => {
       </section>
 
       {/* ABOUT US SECTION */}
-      <section style={{ padding: '100px 60px', backgroundColor: 'white', position: 'relative', zIndex: 10, borderTop: `1px solid ${theme.border}`, borderBottom: `1px solid ${theme.border}` }}>
+      <section className="px-6 md:px-[60px] py-[80px] md:py-[100px] relative z-10 bg-white" style={{ borderTop: `1px solid ${theme.border}`, borderBottom: `1px solid ${theme.border}` }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '60px' }}>
-          <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ flex: 1, minWidth: '300px' }}>
+          <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ flex: 1, minWidth: '100%' }} className="md:min-w-[300px]">
             <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', fontWeight: '500', color: theme.textMain, margin: '0 0 20px 0' }}>
               We build <HighlightDoodle>communities,</HighlightDoodle> <br/> not just software.
             </h2>
@@ -232,7 +232,7 @@ const Home = () => {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ padding: '80px 60px', backgroundColor: theme.textMain, color: 'white', position: 'relative', zIndex: 10 }}>
+      <footer className="px-6 md:px-[60px] py-[60px] md:py-[80px] relative z-10" style={{ backgroundColor: theme.textMain, color: 'white' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '60px' }}>
           
           <div>
@@ -275,7 +275,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div style={{ maxWidth: '1200px', margin: '60px auto 0 auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#A0A0A0', fontSize: '14px' }}>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left" style={{ maxWidth: '1200px', margin: '60px auto 0 auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', color: '#A0A0A0', fontSize: '14px' }}>
           <p>© {new Date().getFullYear()} AwaasTech Inc. All Rights Reserved.</p>
           <div style={{ display: 'flex', gap: '20px' }}>
             <Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Privacy</Link>

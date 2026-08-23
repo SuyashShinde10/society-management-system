@@ -134,12 +134,13 @@ const Login = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+      <div className="p-5 md:p-[40px]" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }} 
           animate={{ opacity: 1, scale: 1 }} 
           transition={{ duration: 0.6, type: 'spring', bounce: 0.4 }}
-          style={{ width: '100%', maxWidth: '440px', background: 'white', padding: '50px', borderRadius: '24px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)', border: `1px solid ${theme.border}` }}
+          className="p-6 md:p-[50px]"
+          style={{ width: '100%', maxWidth: '440px', background: 'white', borderRadius: '24px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)', border: `1px solid ${theme.border}` }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
             <div style={{ background: '#F9F8F3', padding: '12px', borderRadius: '14px', color: theme.accent }}>

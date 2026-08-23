@@ -50,7 +50,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (err) {
+      // Ignore if it fails, we still want to log out locally
+    }
     localStorage.removeItem("userInfo");
     localStorage.removeItem("token");
     setUser(null);

@@ -5,7 +5,7 @@ const {
   sendOTP, verifyOTP,
   registerUser, loginUser, updateProfile,
   getAllUsers, getSecurityStaff, getPendingMembers, deleteUser, addMember, updateMember, getSocietyLimits, approveMember, seedSuperAdmin,
-  forgotPassword, resetPassword, addSecurityStaff, updateSecurityStaff, terminateSecurityStaff
+  forgotPassword, resetPassword, addSecurityStaff, updateSecurityStaff, terminateSecurityStaff, logoutUser, getSecurityLogs
 } = require('../controllers/authController');
 
 const { protect, admin } = require('../middleware/authMiddleware');
@@ -30,6 +30,7 @@ router.post('/seed-superadmin', seedSuperAdmin);
 // ── ANY LOGGED-IN USER ───────────────────────────────────────────────────────
 router.put('/profile', protect, updateProfile);
 router.get('/society-limits', protect, getSocietyLimits);
+router.post('/logout', protect, logoutUser);
 
 // ── ADMIN ONLY ───────────────────────────────────────────────────────────────
 router.get('/users', protect, admin, getAllUsers);
@@ -42,5 +43,6 @@ router.delete('/user/:id', protect, admin, deleteUser);
 router.put('/user/:id', protect, admin, updateMember);
 router.put('/security-staff/:id', protect, admin, updateSecurityStaff);
 router.put('/security-staff/:id/terminate', protect, admin, terminateSecurityStaff);
+router.get('/security-logs', protect, admin, getSecurityLogs);
 
 module.exports = router;
