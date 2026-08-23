@@ -243,39 +243,52 @@ const Home = () => {
 
       {/* SECURITY SECTION */}
       <section id="security" className="px-6 md:px-[60px] py-[80px] md:py-[100px] relative z-10 bg-[#F9F8F3]">
-        <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, marginBottom: '20px' }}>Platform Security</h2>
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
+          style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', position: 'relative' }}
+        >
+          <StarburstDoodle style={{ position: 'absolute', top: '-20px', left: '10%', transform: 'scale(0.8)' }} />
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, marginBottom: '20px' }}>
+            Platform <HighlightDoodle>Security</HighlightDoodle>
+          </h2>
           <p style={{ fontSize: '18px', color: theme.textSec, lineHeight: '1.8' }}>
             At Awaastech, the security of your data and the physical safety of your community are our top priorities. We employ enterprise-grade security protocols with End-to-End Encryption, Role-Based Access Control, and Continuous Monitoring.
           </p>
-        </div>
+        </motion.div>
       </section>
 
       {/* CONTACT SECTION */}
       <section id="contact" className="px-6 md:px-[60px] py-[80px] md:py-[100px] relative z-10 bg-white" style={{ borderTop: `1px solid ${theme.border}` }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
+          style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', position: 'relative' }}
+        >
+          <SquiggleDoodle style={{ position: 'absolute', bottom: '-20px', right: '10%', opacity: 0.5 }} />
           <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, marginBottom: '20px' }}>Contact Us</h2>
           <p style={{ fontSize: '18px', color: theme.textSec, lineHeight: '1.8', marginBottom: '30px' }}>
             Need support or have inquiries? Our team is available to assist you.
           </p>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: '#F9F8F3', padding: '15px 30px', borderRadius: '40px', border: `1px solid ${theme.border}` }}>
+          <motion.div whileHover={{ scale: 1.05 }} style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: '#F9F8F3', padding: '15px 30px', borderRadius: '40px', border: `1px solid ${theme.border}` }}>
             <span style={{ fontWeight: '500', color: theme.textMain }}>Email Support:</span>
             <a href="mailto:support@awaastech.com" style={{ color: theme.accent, textDecoration: 'none', fontWeight: '600' }}>support@awaastech.com</a>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* PRIVACY & TERMS OVERVIEW */}
       <section id="legal" className="px-6 md:px-[60px] py-[60px] relative z-10 bg-[#F9F8F3]" style={{ borderTop: `1px solid ${theme.border}` }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
-          <div id="privacy" style={{ flex: '1 1 300px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '40px', position: 'relative' }}>
+          <ArrowDoodle style={{ position: 'absolute', top: '-10px', left: '45%', opacity: 0.3 }} />
+          
+          <motion.div id="privacy" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ flex: '1 1 300px' }}>
             <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', color: theme.textMain, marginBottom: '15px' }}>Privacy Policy</h3>
             <p style={{ color: theme.textSec, lineHeight: '1.6', fontSize: '15px' }}>We are committed to protecting the privacy and security of your personal information. We never sell your personal data to third parties and take reasonable measures to protect information about you from unauthorized access.</p>
-          </div>
-          <div id="terms" style={{ flex: '1 1 300px' }}>
+          </motion.div>
+          
+          <motion.div id="terms" initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ flex: '1 1 300px' }}>
             <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', color: theme.textMain, marginBottom: '15px' }}>Terms of Service</h3>
             <p style={{ color: theme.textSec, lineHeight: '1.6', fontSize: '15px' }}>By accessing or using our services, you agree to be bound by our Terms. You may use our services only as permitted by law, and we provide our services using a commercially reasonable level of skill and care.</p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
