@@ -260,16 +260,16 @@ const Home = () => {
           <div>
             <h4 style={{ fontSize: '18px', margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif" }}>Product</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <li><Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Features</Link></li>
-              <li><Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Security</Link></li>
+              <li><Link to="/features" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Features</Link></li>
+              <li><Link to="/security" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Security</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 style={{ fontSize: '18px', margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif" }}>Company</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <li><Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>About Us</Link></li>
-              <li><Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Contact</Link></li>
+              <li><Link to="/about" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>About Us</Link></li>
+              <li><Link to="/contact" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Contact</Link></li>
             </ul>
           </div>
 
@@ -278,8 +278,8 @@ const Home = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left" style={{ maxWidth: '1200px', margin: '60px auto 0 auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', color: '#A0A0A0', fontSize: '14px' }}>
           <p>© {new Date().getFullYear()} AwaasTech Inc. All Rights Reserved.</p>
           <div style={{ display: 'flex', gap: '20px' }}>
-            <Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Privacy</Link>
-            <Link to="/" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Terms</Link>
+            <Link to="/privacy" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Privacy</Link>
+            <Link to="/terms" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Terms</Link>
           </div>
         </div>
       </footer>
