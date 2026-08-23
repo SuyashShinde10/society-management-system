@@ -275,14 +275,6 @@ const Home = () => {
             </ul>
           </div>
 
-          <div>
-            <h4 style={{ fontSize: '18px', margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif" }}>Stay Updated</h4>
-            <p style={{ color: '#A0A0A0', fontSize: '14px', marginBottom: '15px' }}>Subscribe to our newsletter for product updates.</p>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <input type="email" placeholder="Email address" style={{ padding: '12px 16px', borderRadius: '8px', border: 'none', background: 'rgba(255,255,255,0.1)', color: 'white', width: '100%', outline: 'none' }} />
-              <button style={{ padding: '12px 20px', borderRadius: '8px', border: 'none', background: theme.accent, color: 'white', fontWeight: '600', cursor: 'pointer' }}>Join</button>
-            </div>
-          </div>
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left" style={{ maxWidth: '1200px', margin: '60px auto 0 auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', color: '#A0A0A0', fontSize: '14px' }}>
