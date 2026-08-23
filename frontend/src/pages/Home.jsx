@@ -270,7 +270,7 @@ const Home = () => {
           </p>
           <motion.div whileHover={{ scale: 1.05 }} style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: '#F9F8F3', padding: '15px 30px', borderRadius: '40px', border: `1px solid ${theme.border}` }}>
             <span style={{ fontWeight: '500', color: theme.textMain }}>Email Support:</span>
-            <a href="mailto:support@awaastech.com" style={{ color: theme.accent, textDecoration: 'none', fontWeight: '600' }}>support@awaastech.com</a>
+            <a href="mailto:awaastech@gmail.com" style={{ color: theme.accent, textDecoration: 'none', fontWeight: '600' }}>awaastech@gmail.com</a>
           </motion.div>
         </motion.div>
       </section>
