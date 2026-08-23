@@ -14,14 +14,6 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SecurityDashboard from './pages/SecurityDashboard';
 import ForgotPassword from './pages/ForgotPassword';
 
-// Static Pages
-import Features from './pages/Features';
-import Security from './pages/Security';
-import AboutUs from './pages/AboutUs';
-import Contact from './pages/Contact';
-import Privacy from './pages/Privacy';
-import Terms from './pages/Terms';
-
 // Guards
 import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
@@ -39,12 +31,6 @@ const App = () => {
           <Routes>
             {/* Public */}
             <Route path="/" element={<Home />} />
-            <Route path="/features" element={<Features />} />
-            <Route path="/security" element={<Security />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
             <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />

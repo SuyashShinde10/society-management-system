@@ -99,7 +99,7 @@ const Login = () => {
           transition={{ duration: 0.8 }}
           style={{ zIndex: 10, marginBottom: 'auto' }}
         >
-          <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: theme.textSec, fontWeight: '500', fontSize: '14px', transition: 'color 0.2s' }} onMouseOver={e => e.target.style.color = theme.accent} onMouseOut={e => e.target.style.color = theme.textSec}>
+          <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: theme.textMain, fontWeight: '600', fontSize: '14px', padding: '8px 16px', background: '#F9F8F3', borderRadius: '20px', border: `1px solid ${theme.border}`, transition: 'all 0.2s' }} onMouseOver={e => e.target.style.background = '#FFFFFF'} onMouseOut={e => e.target.style.background = '#F9F8F3'}>
             <ArrowLeft size={16} /> Back to Home
           </Link>
         </motion.div>
@@ -137,7 +137,7 @@ const Login = () => {
       {/* Right Side - Login Form */}
       <div className="p-5 md:p-[40px]" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: '100%', maxWidth: '440px' }}>
-          <Link to="/" className="show-on-mobile" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: theme.textSec, fontWeight: '500', fontSize: '14px', marginBottom: '20px' }}>
+          <Link to="/" className="show-on-mobile" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: theme.textMain, fontWeight: '600', fontSize: '14px', marginBottom: '20px', padding: '8px 16px', background: '#F9F8F3', borderRadius: '20px', border: `1px solid ${theme.border}`, transition: 'all 0.2s' }}>
             <ArrowLeft size={16} /> Back to Home
           </Link>
           

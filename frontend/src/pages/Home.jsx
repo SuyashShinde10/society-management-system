@@ -124,7 +124,7 @@ const Home = () => {
       </header>
 
       {/* FEATURES GRID */}
-      <section className="px-6 md:px-[60px] pb-[80px] md:pb-[140px] relative z-10">
+      <section id="features" className="px-6 md:px-[60px] pb-[80px] md:pb-[140px] relative z-10">
         <div style={{ textAlign: 'center', marginBottom: '60px', position: 'relative' }}>
           <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
             style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, margin: '0 0 15px 0' }}>
@@ -214,7 +214,7 @@ const Home = () => {
       </section>
 
       {/* ABOUT US SECTION */}
-      <section className="px-6 md:px-[60px] py-[80px] md:py-[100px] relative z-10 bg-white" style={{ borderTop: `1px solid ${theme.border}`, borderBottom: `1px solid ${theme.border}` }}>
+      <section id="about" className="px-6 md:px-[60px] py-[80px] md:py-[100px] relative z-10 bg-white" style={{ borderTop: `1px solid ${theme.border}`, borderBottom: `1px solid ${theme.border}` }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '60px' }}>
           <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ flex: 1, minWidth: '100%' }} className="md:min-w-[300px]">
             <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', fontWeight: '500', color: theme.textMain, margin: '0 0 20px 0' }}>
@@ -241,6 +241,44 @@ const Home = () => {
         </div>
       </section>
 
+      {/* SECURITY SECTION */}
+      <section id="security" className="px-6 md:px-[60px] py-[80px] md:py-[100px] relative z-10 bg-[#F9F8F3]">
+        <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, marginBottom: '20px' }}>Platform Security</h2>
+          <p style={{ fontSize: '18px', color: theme.textSec, lineHeight: '1.8' }}>
+            At Awaastech, the security of your data and the physical safety of your community are our top priorities. We employ enterprise-grade security protocols with End-to-End Encryption, Role-Based Access Control, and Continuous Monitoring.
+          </p>
+        </div>
+      </section>
+
+      {/* CONTACT SECTION */}
+      <section id="contact" className="px-6 md:px-[60px] py-[80px] md:py-[100px] relative z-10 bg-white" style={{ borderTop: `1px solid ${theme.border}` }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, marginBottom: '20px' }}>Contact Us</h2>
+          <p style={{ fontSize: '18px', color: theme.textSec, lineHeight: '1.8', marginBottom: '30px' }}>
+            Need support or have inquiries? Our team is available to assist you.
+          </p>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: '#F9F8F3', padding: '15px 30px', borderRadius: '40px', border: `1px solid ${theme.border}` }}>
+            <span style={{ fontWeight: '500', color: theme.textMain }}>Email Support:</span>
+            <a href="mailto:support@awaastech.com" style={{ color: theme.accent, textDecoration: 'none', fontWeight: '600' }}>support@awaastech.com</a>
+          </div>
+        </div>
+      </section>
+
+      {/* PRIVACY & TERMS OVERVIEW */}
+      <section id="legal" className="px-6 md:px-[60px] py-[60px] relative z-10 bg-[#F9F8F3]" style={{ borderTop: `1px solid ${theme.border}` }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
+          <div id="privacy" style={{ flex: '1 1 300px' }}>
+            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', color: theme.textMain, marginBottom: '15px' }}>Privacy Policy</h3>
+            <p style={{ color: theme.textSec, lineHeight: '1.6', fontSize: '15px' }}>We are committed to protecting the privacy and security of your personal information. We never sell your personal data to third parties and take reasonable measures to protect information about you from unauthorized access.</p>
+          </div>
+          <div id="terms" style={{ flex: '1 1 300px' }}>
+            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', color: theme.textMain, marginBottom: '15px' }}>Terms of Service</h3>
+            <p style={{ color: theme.textSec, lineHeight: '1.6', fontSize: '15px' }}>By accessing or using our services, you agree to be bound by our Terms. You may use our services only as permitted by law, and we provide our services using a commercially reasonable level of skill and care.</p>
+          </div>
+        </div>
+      </section>
+
       {/* FOOTER */}
       <footer className="px-6 md:px-[60px] py-[60px] md:py-[80px] relative z-10" style={{ backgroundColor: theme.textMain, color: 'white' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '60px' }}>
@@ -260,16 +298,16 @@ const Home = () => {
           <div>
             <h4 style={{ fontSize: '18px', margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif" }}>Product</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <li><Link to="/features" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Features</Link></li>
-              <li><Link to="/security" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Security</Link></li>
+              <li><a href="#features" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Features</a></li>
+              <li><a href="#security" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Security</a></li>
             </ul>
           </div>
 
           <div>
             <h4 style={{ fontSize: '18px', margin: '0 0 20px 0', fontFamily: "'Cormorant Garamond', serif" }}>Company</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <li><Link to="/about" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>About Us</Link></li>
-              <li><Link to="/contact" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Contact</Link></li>
+              <li><a href="#about" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>About Us</a></li>
+              <li><a href="#contact" style={{ color: '#A0A0A0', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e=>e.target.style.color='white'} onMouseOut={e=>e.target.style.color='#A0A0A0'}>Contact</a></li>
             </ul>
           </div>
 
@@ -278,8 +316,8 @@ const Home = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left" style={{ maxWidth: '1200px', margin: '60px auto 0 auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', color: '#A0A0A0', fontSize: '14px' }}>
           <p>© {new Date().getFullYear()} AwaasTech Inc. All Rights Reserved.</p>
           <div style={{ display: 'flex', gap: '20px' }}>
-            <Link to="/privacy" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Privacy</Link>
-            <Link to="/terms" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Terms</Link>
+            <a href="#privacy" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Privacy</a>
+            <a href="#terms" style={{ color: '#A0A0A0', textDecoration: 'none' }}>Terms</a>
           </div>
         </div>
       </footer>
