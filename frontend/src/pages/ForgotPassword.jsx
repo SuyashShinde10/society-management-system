@@ -63,6 +63,7 @@ const ForgotPassword = () => {
         <style>
           {`
             @media (max-width: 900px) { .hide-on-mobile { display: none !important; } }
+            @media (min-width: 901px) { .show-on-mobile { display: none !important; } }
           `}
         </style>
         <motion.div 
@@ -102,13 +103,19 @@ const ForgotPassword = () => {
       </div>
 
       {/* Right Side - Form */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }} 
-          animate={{ opacity: 1, scale: 1 }} 
-          transition={{ duration: 0.6, type: 'spring', bounce: 0.4 }}
-          style={{ width: '100%', maxWidth: '440px', background: 'white', padding: '50px', borderRadius: '24px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)', border: `1px solid ${theme.border}` }}
-        >
+      <div className="p-5 md:p-[40px]" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: '440px' }}>
+          <Link to="/login" className="show-on-mobile" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: theme.textMain, fontWeight: '600', fontSize: '14px', marginBottom: '20px', padding: '8px 16px', background: '#F9F8F3', borderRadius: '20px', border: `1px solid ${theme.border}`, transition: 'all 0.2s' }}>
+            <ArrowLeft size={16} /> Back to Login
+          </Link>
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            transition={{ duration: 0.6, type: 'spring', bounce: 0.4 }}
+            className="p-6 md:p-[50px]"
+            style={{ width: '100%', maxWidth: '440px', background: 'white', borderRadius: '24px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)', border: `1px solid ${theme.border}` }}
+          >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
             <div style={{ background: '#F9F8F3', padding: '12px', borderRadius: '14px', color: theme.accent }}>
               {step === 1 ? <Mail size={24} /> : <CheckCircle2 size={24} />}
@@ -244,6 +251,7 @@ const ForgotPassword = () => {
           </AnimatePresence>
 
         </motion.div>
+        </div>
       </div>
 
     </div>
