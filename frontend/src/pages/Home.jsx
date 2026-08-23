@@ -88,8 +88,8 @@ const Home = () => {
           <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: '600', letterSpacing: '1px' }}>Awaastech</h2>
         </div>
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-          <Link to="/login" style={{ textDecoration: 'none', color: theme.textMain, background: 'white', border: `1px solid ${theme.border}`, padding: '8px 20px', borderRadius: '30px', fontWeight: '500', fontSize: '14px', transition: 'all 0.2s' }} onMouseOver={e => e.target.style.background = '#F9F8F3'} onMouseOut={e => e.target.style.background = 'white'}>Log In</Link>
-          <Link to="/register" style={{ textDecoration: 'none', background: theme.textMain, color: 'white', padding: '8px 20px', borderRadius: '30px', fontWeight: '500', fontSize: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.1)' }}>Get Started</Link>
+          <Link to="/login" style={{ display: 'inline-block', textDecoration: 'none', color: theme.textMain, background: 'white', border: `1px solid ${theme.border}`, padding: '8px 20px', borderRadius: '30px', fontWeight: '500', fontSize: '14px', transition: 'all 0.2s' }} onMouseOver={e => e.target.style.background = '#F9F8F3'} onMouseOut={e => e.target.style.background = 'white'}>Log In</Link>
+          <Link to="/register" style={{ display: 'inline-block', textDecoration: 'none', background: theme.textMain, color: 'white', padding: '8px 20px', borderRadius: '30px', fontWeight: '500', fontSize: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.1)' }}>Get Started</Link>
         </div>
       </motion.nav>
 
