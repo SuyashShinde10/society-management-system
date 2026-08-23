@@ -125,6 +125,16 @@ const Home = () => {
 
       {/* FEATURES GRID */}
       <section className="px-6 md:px-[60px] pb-[80px] md:pb-[140px] relative z-10">
+        <div style={{ textAlign: 'center', marginBottom: '60px', position: 'relative' }}>
+          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
+            style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, margin: '0 0 15px 0' }}>
+            Core Platform Features
+          </motion.h2>
+          <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
+            style={{ fontSize: '18px', color: theme.textSec, fontWeight: '300', margin: 0 }}>
+            Everything you need to manage your society, all in one place.
+          </motion.p>
+        </div>
         <motion.div initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8 }}
           style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
           <FeatureCard 
