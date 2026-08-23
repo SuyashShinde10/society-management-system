@@ -90,6 +90,7 @@ const Login = () => {
         <style>
           {`
             @media (max-width: 900px) { .hide-on-mobile { display: none !important; } }
+            @media (min-width: 901px) { .show-on-mobile { display: none !important; } }
           `}
         </style>
         <motion.div 
@@ -134,12 +135,17 @@ const Login = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="p-5 md:p-[40px]" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }} 
-          animate={{ opacity: 1, scale: 1 }} 
-          transition={{ duration: 0.6, type: 'spring', bounce: 0.4 }}
-          className="p-6 md:p-[50px]"
+      <div className="p-5 md:p-[40px]" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: '440px' }}>
+          <Link to="/" className="show-on-mobile" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: theme.textSec, fontWeight: '500', fontSize: '14px', marginBottom: '20px' }}>
+            <ArrowLeft size={16} /> Back to Home
+          </Link>
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            transition={{ duration: 0.6, type: 'spring', bounce: 0.4 }}
+            className="p-6 md:p-[50px]"
           style={{ width: '100%', maxWidth: '440px', background: 'white', borderRadius: '24px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)', border: `1px solid ${theme.border}` }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
@@ -219,6 +225,7 @@ const Login = () => {
             </p>
           </div>
         </motion.div>
+        </div>
       </div>
 
     </div>

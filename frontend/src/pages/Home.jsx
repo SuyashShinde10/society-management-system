@@ -82,14 +82,14 @@ const Home = () => {
       
       {/* NAVIGATION */}
       <motion.nav initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }}
-        className="flex justify-between items-center px-6 md:px-[60px] py-6 relative z-10">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <img src="/awaastech-logo.png" alt="Awaastech" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
-          <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', letterSpacing: '1px' }}>Awaastech</h2>
+        className="flex flex-wrap justify-between items-center px-6 md:px-[60px] py-6 relative z-10 gap-4">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src="/awaastech-logo.png" alt="Awaastech" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+          <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: '600', letterSpacing: '1px' }}>Awaastech</h2>
         </div>
-        <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           <Link to="/login" style={{ textDecoration: 'none', color: theme.textSec, fontWeight: '500', fontSize: '15px', transition: 'color 0.2s' }} onMouseOver={e => e.target.style.color = theme.accent} onMouseOut={e => e.target.style.color = theme.textSec}>Log In</Link>
-          <Link to="/register" style={{ textDecoration: 'none', background: theme.textMain, color: 'white', padding: '10px 24px', borderRadius: '30px', fontWeight: '500', fontSize: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.1)' }}>Get Started</Link>
+          <Link to="/register" style={{ textDecoration: 'none', background: theme.textMain, color: 'white', padding: '8px 20px', borderRadius: '30px', fontWeight: '500', fontSize: '14px', boxShadow: '0 4px 14px rgba(0,0,0,0.1)' }}>Get Started</Link>
         </div>
       </motion.nav>
 

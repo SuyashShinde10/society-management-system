@@ -182,6 +182,7 @@ const Register = () => {
         <style>
           {`
             @media (max-width: 1000px) { .hide-on-mobile { display: none !important; } }
+            @media (min-width: 1001px) { .show-on-mobile { display: none !important; } }
             .form-container { width: 100%; max-width: 500px; }
             @media (max-width: 600px) { .form-container { padding: 30px 20px !important; } }
           `}
@@ -211,12 +212,17 @@ const Register = () => {
       </div>
 
       {/* Right Side - Registration Form */}
-      <div className="p-4 md:p-[40px_20px]" style={{ flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'center', overflowY: 'auto' }}>
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-          className="form-container p-6 md:p-[50px]"
-          style={{ background: 'white', borderRadius: '24px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)', border: `1px solid ${theme.border}` }}
-        >
+      <div className="p-4 md:p-[40px_20px]" style={{ flex: 1.2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflowY: 'auto' }}>
+        <div className="form-container">
+          <Link to="/" className="show-on-mobile" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: theme.textSec, fontWeight: '500', fontSize: '14px', marginBottom: '20px' }}>
+            <ArrowLeft size={16} /> Back to Home
+          </Link>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+            className="p-6 md:p-[50px]"
+            style={{ background: 'white', borderRadius: '24px', boxShadow: '0 12px 40px rgba(0,0,0,0.04)', border: `1px solid ${theme.border}` }}
+          >
           <div style={{ marginBottom: '30px' }}>
             <h2 style={{ margin: '0', fontSize: '26px', fontWeight: '600', color: theme.textMain }}>Create Society</h2>
             <p style={{ margin: '6px 0 0 0', fontSize: '14px', color: theme.textSec }}>Admin profile and infrastructure details</p>
@@ -365,6 +371,7 @@ const Register = () => {
             </p>
           </div>
         </motion.div>
+        </div>
       </div>
 
     </div>
