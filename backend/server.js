@@ -70,20 +70,30 @@ app.use(helmet());
 // -------------------------------------------------------
 // CORS
 // -------------------------------------------------------
-const allowedOrigins =
-  process.env.NODE_ENV === 'production'
-    ? ['https://awaastech.vercel.app', 'https://society-management-system-nine.vercel.app', process.env.FRONTEND_URL].filter(Boolean)
-    : ['http://localhost:5173', 'http://127.0.0.1:5173'];
+const allowedOrigins = [
+  'https://awaastech.vercel.app',
+  'https://society-management-system-nine.vercel.app',
+  'https://society-management-system-flame.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1')
+      ) {
+        return callback(null, true);
+      }
       callback(new Error('Not allowed by CORS'));
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id', 'x-tenant-slug'],
   })
 );
 

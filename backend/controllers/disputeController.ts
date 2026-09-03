@@ -8,12 +8,20 @@ import { z } from 'zod';
 import { HumanMessage, AIMessage } from '@langchain/core/messages';
 import logger from '../utils/logger';
 
-// Initialize Gemini LLM
-const llm = new ChatGoogleGenerativeAI({
-  model: 'gemini-3.6-flash',
-  temperature: 0,
-  apiKey: process.env.GEMINI_API_KEY
-});
+// Lazy Gemini LLM initializer
+const getLLM = () => {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!apiKey) {
+    logger.warn('// GEMINI_API_KEY not configured. Running in fallback mode.');
+    return null;
+  }
+  return new ChatGoogleGenerativeAI({
+    model: 'gemini-1.5-flash',
+    temperature: 0,
+    apiKey
+  });
+};
+
 
 export const initiateDispute = async (req: Request, res: Response) => {
   try {
@@ -71,6 +79,15 @@ export const sendMessage = async (req: Request, res: Response) => {
         schema: z.object({})
       }
     );
+
+    const llm = getLLM();
+    if (!llm) {
+      const fallbackReply = "Your billing dispute has been registered for committee review. AI automated agent is currently awaiting API key configuration.";
+      dispute.chatHistory.push({ role: 'user', content: message, timestamp: new Date() });
+      dispute.chatHistory.push({ role: 'agent', content: fallbackReply, timestamp: new Date() });
+      await dispute.save();
+      return res.status(200).json({ dispute, aiMessage: fallbackReply });
+    }
 
     const agent = createReactAgent({
       llm,
