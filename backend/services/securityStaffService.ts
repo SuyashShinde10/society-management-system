@@ -37,24 +37,27 @@ export const addSecurityStaff = async (data: any, admin: any) => {
   });
 
   const adminUser = await User.findById(admin._id).populate('societyId');
-  if (adminUser) {
-    const societyName = (adminUser.societyId as any)?.name || 'Awaastech Society';
+  const societyName = (adminUser?.societyId as any)?.name || 'Awaastech Society';
 
-    const html = getProfessionalEmailTemplate({
-      subtitle: `SECURITY ONBOARDING - ${societyName.toUpperCase()}`,
-      greeting: `Hello ${staff.name},`,
-      bodyText: `Your security staff account has been created by the administrator. Use the credentials below to log into the security portal. <strong>You must change your password immediately.</strong>`,
-      highlightBox: `${staff.email}<br><span style="font-size: 20px;">Pass: ${generatedPassword}</span>`,
-      highlightBoxLabel: 'Your Login Credentials',
-      warningText: 'Do not share this password with anyone.',
-    });
+  const html = getProfessionalEmailTemplate({
+    subtitle: `SECURITY ONBOARDING - ${societyName.toUpperCase()}`,
+    greeting: `Hello ${staff.name},`,
+    bodyText: `Your security staff account has been created by the administrator. Use the credentials below to log into the security portal. <strong>You must change your password immediately.</strong>`,
+    highlightBox: `${staff.email}<br><span style="font-size: 20px;">Pass: ${generatedPassword}</span>`,
+    highlightBoxLabel: 'Your Login Credentials',
+    warningText: 'Do not share this password with anyone.',
+  });
 
-    sendEmail({
+  try {
+    await sendEmail({
       email: staff.email,
       subject: 'Welcome to Security Portal',
       message: `Login Email: ${staff.email}\nTemporary Password: ${generatedPassword}`,
       html
     });
+    logger.info(`// SECURITY_STAFF_WELCOME_SENT: ${staff.email}`);
+  } catch (emailErr: any) {
+    logger.error('// SECURITY_STAFF_WELCOME_FAULT:', emailErr.message);
   }
 
   return { staff, generatedPassword };

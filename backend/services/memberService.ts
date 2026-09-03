@@ -27,27 +27,31 @@ export const approveMember = async (memberId: string, admin: any) => {
   user.isActive = true;
   await user.save();
 
-  const adminUser = await User.findById(admin._id).populate('societyId');
-  if (adminUser) {
-    const societyName = (adminUser.societyId as any)?.name || 'Awaastech Society';
-    const adminName = adminUser.name;
-    const adminEmail = adminUser.email;
+  const adminId = admin._id || admin.id;
+  const adminUser = await User.findById(adminId).populate('societyId');
+  const societyName = (adminUser?.societyId as any)?.name || 'Awaastech Society';
+  const adminName = adminUser?.name || 'Society Admin';
+  const adminEmail = adminUser?.email || 'admin@awaastech.com';
 
-    const html = getProfessionalEmailTemplate({
-      subtitle: `ACCOUNT APPROVED - ${societyName.toUpperCase()}`,
-      greeting: `Hello ${user.name},`,
-      bodyText: `Great news! Your registration for <strong>${societyName}</strong> has been approved by the society admin (<strong>${adminName}</strong> - <a href="mailto:${adminEmail}">${adminEmail}</a>). You can now log in to the member portal to view bills, notices, and submit complaints.`,
-      highlightBox: 'APPROVED',
-      highlightBoxLabel: 'Account Status',
-      footerText: `Welcome to ${societyName}.`
-    });
+  const html = getProfessionalEmailTemplate({
+    subtitle: `ACCOUNT APPROVED - ${societyName.toUpperCase()}`,
+    greeting: `Hello ${user.name},`,
+    bodyText: `Great news! Your registration for <strong>${societyName}</strong> has been approved by the society admin (<strong>${adminName}</strong> - <a href="mailto:${adminEmail}">${adminEmail}</a>). You can now log in to the member portal to view bills, notices, and submit complaints.`,
+    highlightBox: 'APPROVED',
+    highlightBoxLabel: 'Account Status',
+    footerText: `Welcome to ${societyName}.`
+  });
 
-    sendEmail({
+  try {
+    await sendEmail({
       email: user.email,
       subject: 'Society Registration Approved',
       message: `Hello ${user.name},\n\nYour registration has been approved. You can now log in to the portal.`,
       html
     });
+    logger.info(`// MEMBER_APPROVAL_EMAIL_SENT: ${user.email}`);
+  } catch (emailErr: any) {
+    logger.error('// MEMBER_APPROVAL_EMAIL_FAULT:', emailErr.message);
   }
 
   return user;
@@ -106,31 +110,35 @@ export const addMember = async (data: any, admin: any) => {
 
   const user = await User.create(userData);
 
-  const adminUser = await User.findById(admin._id).populate('societyId');
-  if (adminUser) {
-    const societyName = (adminUser.societyId as any)?.name || 'Awaastech Society';
-    const adminName = adminUser.name;
-    const adminEmail = adminUser.email;
+  const adminId = admin._id || admin.id;
+  const adminUser = await User.findById(adminId).populate('societyId');
+  const societyName = (adminUser?.societyId as any)?.name || 'Awaastech Society';
+  const adminName = adminUser?.name || 'Society Admin';
+  const adminEmail = adminUser?.email || 'admin@awaastech.com';
 
-    const html = getProfessionalEmailTemplate({
-      subtitle: `WELCOME TO ${societyName.toUpperCase()}`,
-      greeting: `Hello ${user.name},`,
-      bodyText: `An account has been created for you by your society admin (<strong>${adminName}</strong>). Please use the following temporary credentials to log in. <strong>You must change your password immediately after logging in.</strong><br><br>If you have any questions, contact your admin at <a href="mailto:${adminEmail}">${adminEmail}</a>.`,
-      highlightBox: `${user.email}<br><span style="font-size: 20px;">Pass: ${generatedPassword}</span>`,
-      highlightBoxLabel: 'Your Login Credentials',
-      warningText: 'Do not share this password with anyone.',
-      footerText: `Sent on behalf of ${societyName}`
-    });
+  const html = getProfessionalEmailTemplate({
+    subtitle: `WELCOME TO ${societyName.toUpperCase()}`,
+    greeting: `Hello ${user.name},`,
+    bodyText: `An account has been created for you by your society admin (<strong>${adminName}</strong>). Please use the following temporary credentials to log in. <strong>You must change your password immediately after logging in.</strong><br><br>If you have any questions, contact your admin at <a href="mailto:${adminEmail}">${adminEmail}</a>.`,
+    highlightBox: `${user.email}<br><span style="font-size: 20px;">Pass: ${generatedPassword}</span>`,
+    highlightBoxLabel: 'Your Login Credentials',
+    warningText: 'Do not share this password with anyone.',
+    footerText: `Sent on behalf of ${societyName}`
+  });
 
-    sendEmail({
+  try {
+    await sendEmail({
       email: user.email,
       subject: 'Welcome to the Society Management System',
       message: `Hello ${user.name},\n\nLogin Email: ${user.email}\nTemporary Password: ${generatedPassword}\n\nPlease log in and change your password immediately.`,
       html
     });
+    logger.info(`// MEMBER_WELCOME_EMAIL_SENT: ${user.email}`);
+  } catch (emailErr: any) {
+    logger.error('// MEMBER_WELCOME_EMAIL_FAULT:', emailErr.message);
   }
 
-  return user;
+  return { user, generatedPassword };
 };
 
 export const updateMember = async (memberId: string, data: any, admin: any) => {

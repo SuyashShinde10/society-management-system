@@ -50,8 +50,12 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const addMember = async (req: Request, res: Response) => {
   try {
-    await memberService.addMember(req.body, (req as any).user);
-    res.status(201).json({ message: 'MEMBER_ADDED_TO_REGISTRY' });
+    const result = await memberService.addMember(req.body, (req as any).user);
+    res.status(201).json({ 
+      message: 'MEMBER_ADDED_TO_REGISTRY',
+      user: result.user,
+      generatedPassword: result.generatedPassword
+    });
   } catch (error: any) {
     if (error.message === 'NAME_AND_EMAIL_REQUIRED') return res.status(400).json({ message: 'NAME_AND_EMAIL_REQUIRED' });
     if (error.message === 'USER_IDENT_ALREADY_EXISTS') return res.status(400).json({ message: 'USER_IDENT_ALREADY_EXISTS' });

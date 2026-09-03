@@ -133,21 +133,23 @@ export const memberSelfRegister = async (req: Request, res: Response) => {
 
     // Notify Admins
     const admins = await User.find({ societyId, role: 'admin' });
-    admins.forEach(admin => {
-      const html = getProfessionalEmailTemplate({
-        subtitle: 'NEW REGISTRATION REQUEST',
-        greeting: 'Hello Admin,',
-        bodyText: `A new member (<strong>${name}</strong>) has registered for Flat <strong>${wing}-${flatNumber}</strong>. Please log in to the admin dashboard to review and approve or decline their request.`,
-        footerText: 'This is an automated system notification.'
-      });
+    await Promise.allSettled(
+      admins.map(admin => {
+        const html = getProfessionalEmailTemplate({
+          subtitle: 'NEW REGISTRATION REQUEST',
+          greeting: 'Hello Admin,',
+          bodyText: `A new member (<strong>${name}</strong>) has registered for Flat <strong>${wing}-${flatNumber}</strong>. Please log in to the admin dashboard to review and approve or decline their request.`,
+          footerText: 'This is an automated system notification.'
+        });
 
-      sendEmail({
-        email: admin.email,
-        subject: 'New Member Registration Request',
-        message: `A new member (${name}) has registered for Flat ${wing}-${flatNumber}. Please approve or decline their request.`,
-        html
-      });
-    });
+        return sendEmail({
+          email: admin.email,
+          subject: 'New Member Registration Request',
+          message: `A new member (${name}) has registered for Flat ${wing}-${flatNumber}. Please approve or decline their request.`,
+          html
+        });
+      })
+    );
 
     res.status(201).json({ message: 'REGISTRATION_PENDING_ADMIN_APPROVAL' });
   } catch (error) {
