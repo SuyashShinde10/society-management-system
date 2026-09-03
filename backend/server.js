@@ -1,3 +1,9 @@
+try {
+  require('ts-node/register/transpile-only');
+} catch (e) {
+  // Ignored if already loaded
+}
+
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -149,6 +155,14 @@ const generalLimiter = rateLimit({
   store: getRateLimitStore(),
   message: { message: 'TOO_MANY_REQUESTS — Try again in 15 minutes.' },
   skip: (req, res) => process.env.NODE_ENV !== 'production'
+});
+
+// Support both /api/... and /api/v1/... for frontend compatibility
+app.use((req, res, next) => {
+  if (req.url.startsWith('/api/') && !req.url.startsWith('/api/v1/')) {
+    req.url = req.url.replace('/api/', '/api/v1/');
+  }
+  next();
 });
 
 app.use('/api/v1/auth/login', authLimiter);

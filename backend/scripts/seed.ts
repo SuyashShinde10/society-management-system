@@ -226,7 +226,7 @@ const seedDatabase = async () => {
       {
         title: 'Clubhouse AC Servicing Completed',
         description: 'AC unit cleaned and gas refilled.',
-        category: 'Maintenance',
+        category: 'Other',
         priority: 'Low',
         status: 'Resolved',
         societyId: society1._id,
@@ -262,7 +262,7 @@ const seedDatabase = async () => {
         wing: 'A',
         flatNumber: '402',
         societyId: society1._id,
-        status: 'In',
+        status: 'Inside',
         checkInTime: new Date(),
       },
       {
@@ -272,7 +272,7 @@ const seedDatabase = async () => {
         wing: 'B',
         flatNumber: '701',
         societyId: society1._id,
-        status: 'Out',
+        status: 'CheckedOut',
         checkInTime: new Date(Date.now() - 4 * 3600 * 1000),
         checkOutTime: new Date(Date.now() - 1 * 3600 * 1000),
       },
