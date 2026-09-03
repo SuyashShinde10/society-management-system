@@ -5,7 +5,14 @@ import axios from 'axios';
 // Set VITE_API_URL in frontend/.env.production for production.
 // Falls back to localhost for local dev.
 // -------------------------------------------------------
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+let baseURL = import.meta.env.VITE_API_URL;
+
+if (!baseURL) {
+  if (import.meta.env.PROD) {
+    console.error('CRITICAL ERROR: VITE_API_URL is missing in production environment. API requests will fail.');
+  }
+  baseURL = 'http://localhost:5000/api/v1';
+}
 
 const api = axios.create({
   baseURL,
@@ -18,8 +25,7 @@ const api = axios.create({
 // Attach JWT on every request
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    // Rely on httpOnly cookies for authentication, no need to send Bearer token explicitly
     return config;
   },
   (error) => Promise.reject(error)
@@ -33,10 +39,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userInfo');
-      // Only redirect if not already on an auth page
-      if (!window.location.pathname.includes('/login')) {
+      // Only redirect if not already on an auth page and not fetching auth state
+      if (!window.location.pathname.includes('/login') && !error.config?.url?.includes('/auth/me')) {
         window.location.href = '/login';
       }
     }

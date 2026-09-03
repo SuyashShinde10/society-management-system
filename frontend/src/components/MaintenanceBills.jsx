@@ -1,27 +1,33 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { toast } from 'sonner';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
-import { jsPDF } from 'jspdf';
-import { FileText, Download } from 'lucide-react';
+import { handleDownloadInvoice } from '../utils/pdfGenerator';
+import getErrorMessage from '../utils/errorHandler';
+
+// Decomposed Subcomponents
+import BillCard from './bills/BillCard';
+import BillBatchCard from './bills/BillBatchCard';
+import BillFilters from './bills/BillFilters';
+import GenerateBillModal from './bills/GenerateBillModal';
+import SplitPaymentModal from './bills/SplitPaymentModal';
+import AIDisputeModal from './AIDisputeModal';
 
 const MaintenanceBills = () => {
   const { user } = useContext(AuthContext);
-  const [bills, setBills] = useState([]);
-  const [loading, setLoading] = useState(false);
-  
-  // Search & Filter state
-  const [filterStatus, setFilterStatus] = useState('All'); // All, Pending, Paid, Overdue
+  const queryClient = useQueryClient();
+
+  // State
+  const [filterStatus, setFilterStatus] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isGroupedView, setIsGroupedView] = useState(user?.role === 'admin');
   const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showGenerateForm, setShowGenerateForm] = useState(false);
-  const [users, setUsers] = useState([]);
-  const [generateData, setGenerateData] = useState({ title: '', description: '', amount: '', dueDate: '', targetType: 'All', targetUserId: '' });
-  const [payingBillId, setPayingBillId] = useState(null);
-  const [splitPayments, setSplitPayments] = useState({ upi: '', cash: '', bank: '' });
-  const [expandedGroup, setExpandedGroup] = useState(null);
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [payingBill, setPayingBill] = useState(null);
+  const [disputeBill, setDisputeBill] = useState(null);
+  const [expandedGroups, setExpandedGroups] = useState({});
   const limit = 10;
 
   const isNew = (dateString) => {
@@ -31,192 +37,122 @@ const MaintenanceBills = () => {
     return diffDays <= 2;
   };
 
-  useEffect(() => {
-    fetchBills();
-    if (user?.role === 'admin') {
-      fetchUsers();
-    }
-    
-    // Vercel-compatible real-time fallback (Short Polling)
-    const interval = setInterval(() => {
-      fetchBills(false);
-    }, 30000); // 30 seconds
-
-    return () => clearInterval(interval);
-  }, [user]);
-
-  const fetchUsers = async () => {
-    try {
-      const { data } = await api.get('/auth/users');
-      setUsers(data);
-    } catch (error) {
-      console.error('Failed to fetch users');
-    }
-  };
-
-  const fetchBills = async (showLoader = true) => {
-    if (showLoader) setIsLoading(true);
-    try {
+  // React Query for Bills
+  const { data: bills = [], isLoading } = useQuery({
+    queryKey: ['bills'],
+    queryFn: async () => {
       const { data } = await api.get('/bills');
-      const mappedData = data.map(b => {
-        let computedStatus = b.status; // Trust backend
+      const billList = data.data?.bills || data.bills || data.data || data;
+      return Array.isArray(billList) ? billList : [];
+    },
+    select: (data) =>
+      data.map((b) => {
+        let computedStatus = b.status;
         if (!b.isPaid && b.status === 'Pending' && b.dueDate && new Date(b.dueDate) < new Date()) {
           computedStatus = 'Overdue';
         }
         return { ...b, status: computedStatus };
+      }),
+    refetchInterval: 30000,
+  });
+
+  // React Query for Users (Admin only)
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const { data } = await api.get('/auth/users');
+      return data.data || data;
+    },
+    enabled: user?.role === 'admin',
+  });
+
+  // Mutations
+  const generateBillsMutation = useMutation({
+    mutationFn: (payload) => api.post('/bills/generate', payload),
+    onSuccess: (data, variables) => {
+      toast.success(
+        variables.targetType === 'All'
+          ? 'Bills generated for all residents.'
+          : 'Bill generated successfully.'
+      );
+      setShowGenerateModal(false);
+      queryClient.invalidateQueries(['bills']);
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Failed to generate bills.'));
+    },
+  });
+
+  const payBillMutation = useMutation({
+    mutationFn: ({ id, method, action }) =>
+      api.put(`/bills/${id}/pay`, { paymentMode: method, action }),
+    onSuccess: (data, variables) => {
+      toast.success(
+        variables.action === 'reject'
+          ? 'Payment rejected.'
+          : `Payment recorded via ${variables.method}.`
+      );
+      setPayingBill(null);
+      queryClient.invalidateQueries(['bills']);
+    },
+    onError: (err) => {
+      toast.error(getErrorMessage(err, 'Payment update failed.'));
+      queryClient.invalidateQueries(['bills']);
+    },
+  });
+
+  const handleMarkPaid = (id, method = 'UPI', action = 'approve') => {
+    // Optimistic cache update
+    queryClient.setQueryData(['bills'], (old) => {
+      if (!old) return old;
+      return old.map((b) => {
+        if (b._id === id) {
+          if (action === 'reject') return { ...b, status: 'Pending', paymentMode: null };
+          if (user?.role === 'admin') return { ...b, status: 'Paid', paymentMode: method };
+          return { ...b, status: 'Under Verification', paymentMode: method };
+        }
+        return b;
       });
-      setBills(mappedData);
-    } catch (error) {
-      console.error('// BILLS_FETCH_ERROR');
-    } finally {
-      if (showLoader) setIsLoading(false);
+    });
+
+    payBillMutation.mutate({ id, method, action });
+  };
+
+  const handleVerify = (b) => {
+    if (window.confirm(`Are you sure you want to VERIFY payment of ₹${b.amount}?`)) {
+      handleMarkPaid(b._id, b.paymentMode, 'approve');
     }
   };
 
-  const handleGenerateBills = async (e) => {
-    e.preventDefault();
-    if (!generateData.title || !generateData.amount || !generateData.dueDate) {
-      toast.error('Please enter title, amount, and due date.');
-      return;
-    }
-    if (generateData.targetType === 'Specific' && !generateData.targetUserId) {
-      toast.error('Please select a specific member.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await api.post('/bills/generate', {
-        title: generateData.title,
-        description: generateData.description,
-        amount: generateData.amount,
-        dueDate: generateData.dueDate,
-        targetType: generateData.targetType,
-        targetUserId: generateData.targetUserId
-      });
-      toast.success(generateData.targetType === 'All' ? 'Bills generated for all residents.' : 'Bill generated successfully.');
-      setShowGenerateForm(false);
-      fetchBills();
-    } catch (error) {
-      toast.error('Failed to generate bills.');
-    } finally {
-      setLoading(false);
+  const handleReject = (b) => {
+    if (window.confirm('Are you sure you want to REJECT this payment?')) {
+      handleMarkPaid(b._id, null, 'reject');
     }
   };
 
-  const handleMarkPaid = async (id, method = 'UPI', action = 'approve') => {
-    try {
-      if (action === 'reject') {
-        setBills(prev => prev.map(b => b._id === id ? { ...b, status: 'Pending', paymentMode: null } : b));
-      } else if (user?.role === 'admin') {
-        setBills(prev => prev.map(b => b._id === id ? { ...b, status: 'Paid', paymentMode: method } : b));
-      } else {
-        setBills(prev => prev.map(b => b._id === id ? { ...b, status: 'Under Verification', paymentMode: method } : b));
-      }
-      setPayingBillId(null);
-      await api.put(`/bills/${id}/pay`, { paymentMode: method, action });
-      toast.success(action === 'reject' ? 'Payment rejected.' : `Payment recorded via ${method}.`);
-      fetchBills();
-    } catch (error) {
-      fetchBills();
-      toast.error('Payment update failed.');
-    }
+  const handleDownload = (b) => {
+    handleDownloadInvoice(b, user);
   };
 
-  const handleDownloadInvoice = (bill) => {
-    try {
-      const doc = new jsPDF();
-      const isPaid = bill.status === 'Paid';
-      const docTitle = isPaid ? 'PAYMENT RECEIPT' : 'MAINTENANCE BILL';
-      
-      // Header Section
-      doc.setFont('courier', 'bold');
-      doc.setFontSize(22);
-      doc.text(docTitle, 105, 20, null, null, 'center');
-      
-      doc.setFontSize(14);
-      const societyName = user?.societyName || 'Awaastech Society';
-      doc.text(societyName.toUpperCase(), 105, 30, null, null, 'center');
-      
-      doc.setFontSize(10);
-      doc.setFont('courier', 'normal');
-      const locationText = user?.societyCity ? `Location: ${user.societyCity}` : 'Authorized Society Document';
-      doc.text(locationText, 105, 36, null, null, 'center');
-      
-      doc.line(20, 42, 190, 42);
-      
-      // Bill Information
-      doc.setFont('courier', 'bold');
-      doc.setFontSize(12);
-      doc.text(`Bill ID: ${bill._id}`, 20, 52);
-      doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 52);
-      
-      // Resident Information
-      doc.setFont('courier', 'normal');
-      doc.text('Billed To:', 20, 67);
-      doc.text(`${bill.userId?.name || 'Resident'}`, 20, 75);
-      if (bill.userId?.flatDetails) {
-        doc.text(`Wing: ${bill.userId.flatDetails.wing} | Flat: ${bill.userId.flatDetails.flatNumber}`, 20, 83);
-      }
-
-      // Bill Details
-      doc.text(`Title: ${bill.title}`, 20, 97);
-      doc.text(`Description: ${bill.description || 'N/A'}`, 20, 105);
-      doc.text(`Due Date: ${new Date(bill.dueDate).toLocaleDateString()}`, 20, 113);
-      
-      // Financials
-      doc.setFont('courier', 'bold');
-      doc.setFontSize(14);
-      doc.text(`Amount Due: Rs. ${bill.amount.toLocaleString()}`, 20, 127);
-      
-      if (bill.paymentMode) {
-        doc.setFontSize(12);
-        doc.text(`Payment Mode: ${bill.paymentMode}`, 20, 137);
-      }
-      
-      doc.setFontSize(12);
-      doc.text(`Status: ${bill.status.toUpperCase()}`, 140, 127);
-
-      // Status Stamp
-      if (isPaid) {
-        doc.setTextColor(0, 128, 0); // Green
-        doc.text('PAID IN FULL', 105, 147, null, null, 'center');
-      } else if (bill.status === 'Under Verification') {
-        doc.setTextColor(220, 100, 0); // Orange
-        doc.text('PAYMENT UNDER VERIFICATION', 105, 147, null, null, 'center');
-      } else {
-        doc.setTextColor(255, 0, 0); // Red
-        doc.text('PAYMENT PENDING', 105, 147, null, null, 'center');
-      }
-
-      // Footer
-      doc.setTextColor(0, 0, 0);
-      doc.setFont('courier', 'normal');
-      doc.setFontSize(10);
-      doc.line(20, 270, 190, 270);
-      doc.text(isPaid ? 'Thank you for your prompt payment!' : 'Please clear your dues before the due date.', 105, 280, null, null, 'center');
-
-      doc.save(`${isPaid ? 'Receipt' : 'Bill'}_${bill.title.replace(/\s+/g, '_')}_${bill._id.slice(-6)}.pdf`);
-    } catch (err) {
-      console.error('PDF Generation Error:', err);
-      toast.error('Failed to generate PDF');
-    }
-  };
-
-  // Filter Logic
-  const filteredBills = bills.filter(b => {
+  // Filtering
+  const filteredBills = bills.filter((b) => {
     if (filterStatus !== 'All' && b.status !== filterStatus) return false;
     if (searchQuery) {
-      return (b.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-             (b.userId?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+      const q = searchQuery.toLowerCase();
+      return (
+        (b.title || '').toLowerCase().includes(q) ||
+        (b.userId?.name || '').toLowerCase().includes(q)
+      );
     }
     return true;
   });
 
+  // Admin Batch Grouping
   const groupedBills = {};
   if (user?.role === 'admin') {
-    filteredBills.forEach(b => {
-      const key = `${b.title.trim()}_${new Date(b.dueDate).toLocaleDateString()}`;
+    filteredBills.forEach((b) => {
+      const dateKey = b.dueDate ? new Date(b.dueDate).toLocaleDateString() : 'NoDueDate';
+      const key = `${(b.title || '').trim()}_${dateKey}`;
       if (!groupedBills[key]) {
         groupedBills[key] = {
           id: key,
@@ -230,332 +166,179 @@ const MaintenanceBills = () => {
           verifying: 0,
           totalAmount: 0,
           collectedAmount: 0,
-          bills: []
+          bills: [],
         };
       }
       groupedBills[key].total += 1;
-      groupedBills[key].totalAmount += Number(b.amount);
+      groupedBills[key].totalAmount += Number(b.amount || 0);
       groupedBills[key].bills.push(b);
       if (b.status === 'Paid') {
         groupedBills[key].paid += 1;
-        groupedBills[key].collectedAmount += Number(b.amount);
+        groupedBills[key].collectedAmount += Number(b.amount || 0);
+      } else if (b.status === 'Under Verification') {
+        groupedBills[key].verifying += 1;
+      } else {
+        groupedBills[key].pending += 1;
       }
-      else if (b.status === 'Under Verification') groupedBills[key].verifying += 1;
-      else groupedBills[key].pending += 1;
     });
   }
-  const adminGroupList = Object.values(groupedBills);
 
-  // Pagination Logic
+  const adminGroupList = Object.values(groupedBills);
   const paginatedBills = filteredBills.slice(0, page * limit);
   const hasMoreBills = paginatedBills.length < filteredBills.length;
-  
   const paginatedGroups = adminGroupList.slice(0, page * limit);
   const hasMoreGroups = paginatedGroups.length < adminGroupList.length;
 
-  const renderBillCard = (b, isNested = false) => (
-    <div key={b._id} style={{
-      background: 'white', border: `1px solid ${theme.border}`, padding: isNested ? '16px' : '24px', borderRadius: '20px',
-      borderLeft: `6px solid ${b.status === 'Paid' ? theme.resolved : b.status === 'Pending' ? theme.pending : theme.declined}`,
-      boxShadow: '0 4px 12px rgba(0,0,0,0.02)', transition: 'transform 0.2s, box-shadow 0.2s',
-      marginBottom: isNested ? '12px' : '0'
-    }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <h4 style={{ margin: '0 0 5px 0', fontFamily: "'Outfit', sans-serif", fontSize: '18px', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
-            {b.title}
-            {!isNested && isNew(b.createdAt) && (
-              <span style={{
-                fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700',
-                background: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '10px'
-              }}>NEW</span>
-            )}
-          </h4>
-          {user?.role === 'admin' && (
-            <p style={{ margin: '0 0 5px 0', fontSize: '13px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
-              TO: {b.userId?.name} (W_{b.userId?.flatDetails?.wing} F_{b.userId?.flatDetails?.flatNumber})
-            </p>
-          )}
-          <span style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
-            DUE: {new Date(b.dueDate).toLocaleDateString()}
-          </span>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: "'Outfit', sans-serif", color: theme.textMain }}>
-            ₹{b.amount.toLocaleString()}
-          </div>
-          <span style={{
-            fontSize: '11px', fontWeight: '600', fontFamily: "'Outfit', sans-serif", padding: '4px 8px', borderRadius: '20px',
-            background: b.status === 'Paid' ? '#DCFCE7' : (b.status === 'Pending' || b.status === 'Overdue' ? '#FEF9C3' : '#FFEDD5'),
-            color: b.status === 'Paid' ? '#166534' : (b.status === 'Pending' || b.status === 'Overdue' ? '#854D0E' : '#C2410C')
-          }}>
-            {b.status || 'Unknown'}
-          </span>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div style={{ marginTop: '20px', borderTop: `1px dashed ${theme.border}`, paddingTop: '15px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-        
-        {/* Admin Verification Options */}
-        {b.status === 'Under Verification' && user?.role === 'admin' && (
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => {
-              if (window.confirm(`Are you sure you want to VERIFY and approve this payment of ₹${b.amount}?`)) {
-                handleMarkPaid(b._id, b.paymentMode, 'approve');
-              }
-            }} style={{
-              background: theme.resolved, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
-              fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
-            }}>
-              Verify Payment
-            </button>
-            <button onClick={() => {
-              if (window.confirm('Are you sure you want to REJECT this payment? The member will have to submit their payment details again.')) {
-                handleMarkPaid(b._id, null, 'reject');
-              }
-            }} style={{
-              background: theme.declined, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
-              fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
-            }}>
-              Reject
-            </button>
-          </div>
-        )}
-
-        {/* Member Payment Options */}
-        {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId !== b._id && (
-          <button onClick={() => { setPayingBillId(b._id); setSplitPayments({ upi: '', cash: '', bank: '' }); }} style={{
-            background: theme.textMain, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '10px',
-            fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px'
-          }}>
-            {user?.role === 'admin' ? 'Mark As Paid' : 'Pay Bill'}
-          </button>
-        )}
-        
-        {(b.status === 'Pending' || b.status === 'Overdue') && payingBillId === b._id && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: '#F9F8F3', padding: '15px', borderRadius: '12px', border: `1px solid ${theme.border}`, marginTop: '10px', width: '100%' }}>
-            <div style={{ fontSize: '13px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', color: theme.textMain }}>
-              Total Amount to Pay: ₹{b.amount.toLocaleString()}
-            </div>
-            <div style={{ fontSize: '12px', color: theme.textSec, marginBottom: '5px' }}>
-              Enter amount for each method used (leave blank if 0):
-            </div>
-            
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <div style={{ flex: 1, minWidth: '100px' }}>
-                <label style={{ fontSize: '11px', fontWeight: '700', color: theme.textSec }}>UPI (₹)</label>
-                <input type="number" min="0" placeholder="0" value={splitPayments.upi} onChange={(e) => setSplitPayments({...splitPayments, upi: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${theme.border}`, borderRadius: '6px', marginTop: '4px', fontFamily: "'Outfit', sans-serif" }} />
-              </div>
-              <div style={{ flex: 1, minWidth: '100px' }}>
-                <label style={{ fontSize: '11px', fontWeight: '700', color: theme.textSec }}>Cash (₹)</label>
-                <input type="number" min="0" placeholder="0" value={splitPayments.cash} onChange={(e) => setSplitPayments({...splitPayments, cash: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${theme.border}`, borderRadius: '6px', marginTop: '4px', fontFamily: "'Outfit', sans-serif" }} />
-              </div>
-              <div style={{ flex: 1, minWidth: '100px' }}>
-                <label style={{ fontSize: '11px', fontWeight: '700', color: theme.textSec }}>Net Bank (₹)</label>
-                <input type="number" min="0" placeholder="0" value={splitPayments.bank} onChange={(e) => setSplitPayments({...splitPayments, bank: e.target.value})} style={{ width: '100%', padding: '8px', border: `1px solid ${theme.border}`, borderRadius: '6px', marginTop: '4px', fontFamily: "'Outfit', sans-serif" }} />
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <button onClick={() => {
-                const u = Number(splitPayments.upi) || 0;
-                const c = Number(splitPayments.cash) || 0;
-                const n = Number(splitPayments.bank) || 0;
-                const total = u + c + n;
-                
-                if (total !== Number(b.amount)) {
-                  toast.error(`Total entered (₹${total}) must match the bill amount (₹${b.amount}).`);
-                  return;
-                }
-                
-                let modes = [];
-                if (u > 0) modes.push(`UPI (₹${u})`);
-                if (c > 0) modes.push(`Cash (₹${c})`);
-                if (n > 0) modes.push(`Net Bank (₹${n})`);
-                
-                if (modes.length === 0) {
-                  toast.error('Please enter payment amounts.');
-                  return;
-                }
-                
-                handleMarkPaid(b._id, modes.join(' + '));
-              }} style={{ background: theme.accent, color: 'white', padding: '10px 16px', border: 'none', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px', flex: 1 }}>
-                Submit Payment Details
-              </button>
-              <button onClick={() => { setPayingBillId(null); setSplitPayments({ upi: '', cash: '', bank: '' }); }} style={{ background: 'transparent', color: theme.textSec, border: `1px solid ${theme.border}`, padding: '10px 16px', borderRadius: '8px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px' }}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-        
-        {(b.status === 'Paid' || user?.role === 'admin') && (
-          <button onClick={() => handleDownloadInvoice(b)} style={{
-            background: 'transparent', color: theme.textMain, padding: '10px 16px', border: `1px solid ${theme.border}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px',
-            fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '13px', transition: 'background 0.2s'
-          }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'transparent'}>
-            <Download size={16} />
-            {b.status === 'Paid' ? 'Download Receipt' : 'Download Invoice'}
-          </button>
-        )}
-      </div>
-    </div>
-  );
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', alignItems: 'center', padding: '0 10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ background: '#EFF6FF', padding: '10px', borderRadius: '12px' }}>
-            <FileText size={24} color="#3B82F6" />
-          </div>
-          <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600', color: theme.textMain }}>
-            Maintenance Bills
-          </h3>
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '10px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div>
+          <h2 style={{ margin: '0 0 6px 0', fontFamily: "'Outfit', sans-serif", fontSize: '28px', fontWeight: '700', color: theme.textMain }}>
+            Maintenance & Utilities
+          </h2>
+          <p style={{ margin: 0, fontSize: '14px', color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>
+            {user?.role === 'admin'
+              ? 'Issue, track collections, and verify payments for society flats'
+              : 'View dues, settle via split payments, and download official receipts'}
+          </p>
         </div>
+
         {user?.role === 'admin' && (
-          <button onClick={() => setShowGenerateForm(!showGenerateForm)} style={{
-            background: showGenerateForm ? '#FEE2E2' : theme.accent, color: showGenerateForm ? '#DC2626' : 'white', border: 'none', padding: '10px 16px', borderRadius: '10px',
-            fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '14px', transition: 'background 0.2s', boxShadow: showGenerateForm ? 'none' : '0 4px 12px rgba(217,115,78,0.2)'
-          }}>
-            {showGenerateForm ? 'Cancel' : 'Generate Bills'}
+          <button
+            onClick={() => setShowGenerateModal(true)}
+            style={{
+              background: theme.accent,
+              color: 'white',
+              border: 'none',
+              padding: '12px 20px',
+              borderRadius: '12px',
+              fontFamily: "'Outfit', sans-serif",
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(217, 115, 78, 0.25)',
+            }}
+          >
+            + Generate Bills
           </button>
         )}
       </div>
 
-      {showGenerateForm && (
-        <form onSubmit={handleGenerateBills} style={{ padding: '24px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.02)', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end', margin: '0 10px' }}>
-          <div>
-            <label className="registry-label">Target Audience</label>
-            <select value={generateData.targetType} onChange={e => setGenerateData({...generateData, targetType: e.target.value})} className="organic-input">
-              <option value="All">All Members</option>
-              <option value="Specific">Particular Member</option>
-            </select>
-          </div>
-          {generateData.targetType === 'Specific' && (
-            <div>
-              <label className="registry-label">Select Member</label>
-              <select value={generateData.targetUserId} onChange={e => setGenerateData({...generateData, targetUserId: e.target.value})} className="organic-input" required>
-                <option value="">-- Choose Member --</option>
-                {users.map(u => (
-                  <option key={u._id} value={u._id}>{u.name} (Flat {u.flatDetails?.wing}-{u.flatDetails?.flatNumber})</option>
-                ))}
-              </select>
-            </div>
-          )}
-          <div>
-            <label className="registry-label">Reason / Title</label>
-            <input type="text" placeholder="e.g. Monthly Maintenance" value={generateData.title} onChange={e => setGenerateData({...generateData, title: e.target.value})} className="organic-input" required />
-          </div>
-          <div>
-            <label className="registry-label">Amount (₹)</label>
-            <input type="number" min="0" value={generateData.amount} onChange={e => setGenerateData({...generateData, amount: e.target.value})} className="organic-input" required />
-          </div>
-          <div>
-            <label className="registry-label">Due Date</label>
-            <input type="date" value={generateData.dueDate} onChange={e => setGenerateData({...generateData, dueDate: e.target.value})} className="organic-input" required />
-          </div>
-          <button type="submit" disabled={loading} style={{
-            background: theme.textMain, color: 'white', padding: '12px 24px', border: 'none', height: '42px', borderRadius: '12px',
-            fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', transition: 'transform 0.2s'
-          }} onMouseOver={(e) => !loading && (e.target.style.transform = 'translateY(-2px)')} onMouseOut={(e) => !loading && (e.target.style.transform = 'translateY(0)')}>
-            {loading ? 'Generating...' : 'Confirm'}
-          </button>
-        </form>
+      {/* Filters Toolbar */}
+      <BillFilters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filterStatus={filterStatus}
+        onFilterChange={setFilterStatus}
+        isGroupedView={isGroupedView}
+        onToggleGroupedView={setIsGroupedView}
+        showBatchToggle={user?.role === 'admin'}
+      />
+
+      {/* Loading Skeleton */}
+      {isLoading && (
+        <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>
+          Loading maintenance bills...
+        </div>
       )}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <div style={{ padding: '0 10px' }}>
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <input 
-            type="text" 
-            placeholder="SEARCH BILLS..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="organic-input" 
-            style={{ flex: 2, padding: '10px', fontFamily: "'Outfit', sans-serif", minWidth: '200px' }}
-          />
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="organic-input" style={{ flex: 1, padding: '10px', fontFamily: "'Outfit', sans-serif", minWidth: '150px' }}>
-            <option value="All">STATUS: ALL</option>
-            <option value="Pending">STATUS: PENDING</option>
-            <option value="Under Verification">STATUS: VERIFYING</option>
-            <option value="Paid">STATUS: PAID</option>
-            <option value="Overdue">STATUS: OVERDUE</option>
-          </select>
-          </div>
+
+      {/* Empty State */}
+      {!isLoading && filteredBills.length === 0 && (
+        <div style={{ background: 'white', border: `1px solid ${theme.border}`, padding: '40px', borderRadius: '18px', textAlign: 'center' }}>
+          <p style={{ margin: 0, fontSize: '16px', color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>
+            No maintenance records found for the selected filter.
+          </p>
         </div>
+      )}
 
-        <div style={{ overflowY: 'auto', maxHeight: '60vh', padding: '0 10px 20px 10px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
-              <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
-            </div>
-          ) : user?.role === 'admin' ? (
-            paginatedGroups.length === 0 ? (
-              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', textAlign: 'center', color: theme.textSec, background: 'white', padding: '40px', borderRadius: '20px', border: `1px solid ${theme.border}` }}>No bill batches found.</p>
-            ) : (
-              paginatedGroups.map(group => (
-                <div key={group.id} style={{ background: 'white', border: `1px solid ${theme.border}`, padding: '24px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', cursor: 'pointer' }} onClick={() => setExpandedGroup(expandedGroup === group.id ? null : group.id)}>
-                    <div style={{ flex: 1 }}>
-                      <h4 style={{ margin: '0 0 8px 0', fontFamily: "'Outfit', sans-serif", fontSize: '20px', fontWeight: '700', display: 'flex', alignItems: 'center', color: theme.textMain }}>
-                        {group.title}
-                        {isNew(group.createdAt) && (
-                          <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '10px', fontWeight: '700', background: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '12px', marginLeft: '10px' }}>NEW BATCH</span>
-                        )}
-                      </h4>
-                      <div style={{ fontSize: '13px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
-                        Generated for {group.total} members • Due: {new Date(group.dueDate).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '18px', fontWeight: '700', fontFamily: "'Outfit', sans-serif", color: theme.textMain }}>
-                        ₹{group.collectedAmount.toLocaleString()} / ₹{group.totalAmount.toLocaleString()} Collected
-                      </div>
-                      <div style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", color: theme.textSec, marginTop: '4px' }}>
-                        {group.paid} Paid • {group.verifying} Verifying • {group.pending} Pending
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div style={{ width: '100%', height: '8px', background: '#F1F5F9', borderRadius: '4px', marginTop: '16px', overflow: 'hidden', display: 'flex' }}>
-                    <div style={{ width: `${(group.paid / group.total) * 100}%`, background: theme.resolved, height: '100%' }}></div>
-                    <div style={{ width: `${(group.verifying / group.total) * 100}%`, background: '#F59E0B', height: '100%' }}></div>
-                  </div>
-
-                  <div style={{ marginTop: '16px', textAlign: 'center' }}>
-                     <button onClick={() => setExpandedGroup(expandedGroup === group.id ? null : group.id)} style={{ background: 'none', border: 'none', color: theme.accent, fontFamily: "'Outfit', sans-serif", fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}>
-                       {expandedGroup === group.id ? 'Hide Details ▲' : 'View Details ▼'}
-                     </button>
-                  </div>
-
-                  {expandedGroup === group.id && (
-                    <div style={{ marginTop: '20px', borderTop: `1px solid ${theme.border}`, paddingTop: '20px' }}>
-                      {group.bills.map(b => renderBillCard(b, true))}
-                    </div>
-                  )}
-                </div>
-              ))
-            )
+      {/* Bills Content */}
+      {!isLoading && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {user?.role === 'admin' && isGroupedView ? (
+            paginatedGroups.map((group) => (
+              <BillBatchCard
+                key={group.id}
+                group={group}
+                user={user}
+                isExpanded={!!expandedGroups[group.id]}
+                onToggleExpand={() =>
+                  setExpandedGroups((prev) => ({ ...prev, [group.id]: !prev[group.id] }))
+                }
+                onVerify={handleVerify}
+                onReject={handleReject}
+                onDownloadInvoice={handleDownload}
+              />
+            ))
           ) : (
-            paginatedBills.length === 0 ? (
-              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', textAlign: 'center', color: theme.textSec, background: 'white', padding: '40px', borderRadius: '20px', border: `1px solid ${theme.border}` }}>No bills found.</p>
-            ) : (
-              paginatedBills.map(b => renderBillCard(b))
-            )
+            paginatedBills.map((b) => (
+              <BillCard
+                key={b._id}
+                bill={b}
+                user={user}
+                isNew={isNew(b.createdAt)}
+                onPayClick={() => setPayingBill(b)}
+                onVerify={handleVerify}
+                onReject={handleReject}
+                onDownloadInvoice={handleDownload}
+                onOpenDispute={() => setDisputeBill(b)}
+              />
+            ))
           )}
         </div>
+      )}
 
-        {(user?.role === 'admin' ? hasMoreGroups : hasMoreBills) && (
-          <button onClick={() => setPage(page + 1)} style={{
-            width: '100%', marginTop: '20px', padding: '12px', background: 'white', borderRadius: '12px', border: `1px dashed ${theme.border}`, color: theme.textMain,
-            fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', flexShrink: 0, transition: 'background 0.2s'
-          }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'white'}>
+      {/* Load More Pagination */}
+      {((user?.role === 'admin' && isGroupedView && hasMoreGroups) ||
+        ((!isGroupedView || user?.role !== 'admin') && hasMoreBills)) && (
+        <div style={{ textAlign: 'center', marginTop: '24px' }}>
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            style={{
+              background: 'white',
+              border: `1px solid ${theme.border}`,
+              color: theme.textMain,
+              padding: '10px 24px',
+              borderRadius: '12px',
+              fontFamily: "'Outfit', sans-serif",
+              fontWeight: '600',
+              cursor: 'pointer',
+            }}
+          >
             Load More Records
           </button>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Generate Bill Modal */}
+      <GenerateBillModal
+        users={users}
+        isOpen={showGenerateModal}
+        onClose={() => setShowGenerateModal(false)}
+        onSubmit={(data) => generateBillsMutation.mutate(data)}
+        isSubmitting={generateBillsMutation.isPending}
+      />
+
+      {/* Split Payment Modal */}
+      <SplitPaymentModal
+        bill={payingBill}
+        user={user}
+        isOpen={!!payingBill}
+        onClose={() => setPayingBill(null)}
+        onSubmit={({ id, method, action }) => handleMarkPaid(id, method, action)}
+        isSubmitting={payBillMutation.isPending}
+      />
+
+      {/* AI Dispute Modal */}
+      {disputeBill && (
+        <AIDisputeModal
+          bill={disputeBill}
+          onClose={() => setDisputeBill(null)}
+          onResolved={() => {
+            setDisputeBill(null);
+            queryClient.invalidateQueries(['bills']);
+          }}
+        />
+      )}
     </div>
   );
 };

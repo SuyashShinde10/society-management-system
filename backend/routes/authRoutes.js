@@ -1,15 +1,29 @@
 const express = require('express');
 const router = express.Router();
 
+const { sendOTP, verifyOTP } = require('../controllers/auth.otp.controller');
+const { registerUser } = require('../controllers/auth.register.controller');
+const { loginUser, getMe, forgotPassword, resetPassword, logoutUser } = require('../controllers/auth.login.controller');
+const { 
+  updateProfile,
+  getSocietyLimits, seedSuperAdmin
+} = require('../controllers/auth.admin.controller');
+
 const {
-  sendOTP, verifyOTP,
-  registerUser, loginUser, updateProfile,
-  getAllUsers, getSecurityStaff, getPendingMembers, deleteUser, addMember, updateMember, getSocietyLimits, approveMember, seedSuperAdmin,
-  forgotPassword, resetPassword, addSecurityStaff, updateSecurityStaff, terminateSecurityStaff, logoutUser, getSecurityLogs
-} = require('../controllers/authController');
+  getAllUsers, getPendingMembers, approveMember, deleteUser,
+  addMember, updateMember
+} = require('../controllers/member.controller');
+
+const {
+  getSecurityStaff, addSecurityStaff, updateSecurityStaff, terminateSecurityStaff,
+  getSecurityLogs
+} = require('../controllers/securityStaff.controller');
 
 const { protect, admin } = require('../middleware/authMiddleware');
 const rateLimit = require('express-rate-limit');
+
+const validateRequest = require('../middleware/validateRequest');
+const { sendOtpSchema, verifyOtpSchema, loginSchema, registerAdminSchema } = require('../validations/schemas');
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -19,15 +33,16 @@ const authLimiter = rateLimit({
 });
 
 // ── PUBLIC ──────────────────────────────────────────────────────────────────
-router.post('/send-otp', authLimiter, sendOTP);
-router.post('/verify-otp', authLimiter, verifyOTP);
-router.post('/register', authLimiter, registerUser);               // Admin creates society
-router.post('/login', authLimiter, loginUser);
+router.post('/send-otp', authLimiter, validateRequest(sendOtpSchema), sendOTP);
+router.post('/verify-otp', authLimiter, validateRequest(verifyOtpSchema), verifyOTP);
+router.post('/register', authLimiter, validateRequest(registerAdminSchema), registerUser);
+router.post('/login', authLimiter, validateRequest(loginSchema), loginUser);
 router.post('/forgot-password', authLimiter, forgotPassword);
 router.post('/reset-password', authLimiter, resetPassword);
-router.post('/seed-superadmin', seedSuperAdmin);
+router.post('/seed-superadmin', authLimiter, seedSuperAdmin);
 
 // ── ANY LOGGED-IN USER ───────────────────────────────────────────────────────
+router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
 router.get('/society-limits', protect, getSocietyLimits);
 router.post('/logout', protect, logoutUser);

@@ -7,10 +7,12 @@ const {
 } = require('../controllers/noticeController');
 
 const { protect, admin } = require('../middleware/authMiddleware');
+const validateRequest = require('../middleware/validateRequest');
+const { createNoticeSchema } = require('../validations/schemas');
 
 // Define Routes
 router.get('/', protect, getNotices);
-router.post('/', protect, admin, addNotice);
+router.post('/', protect, admin, validateRequest(createNoticeSchema), addNotice);
 
 // This line was crashing because deleteNotice was undefined
 router.delete('/:id', protect, admin, deleteNotice); 

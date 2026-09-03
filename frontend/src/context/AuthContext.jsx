@@ -7,45 +7,56 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 2. REMOVED: const API_BASE_URL = "https://mental-wellbeing-app-sandy.vercel.app/api"; 
-  // We don't need this anymore because 'api.js' already knows the URL.
+  const fetchTheme = async () => {
+    try {
+      const { data } = await api.get('/theme');
+      if (data.themeConfig) {
+        document.documentElement.style.setProperty('--theme-accent', data.themeConfig.accentColor);
+        document.documentElement.style.setProperty('--theme-bg', data.themeConfig.bg);
+      }
+    } catch (err) {
+      console.log('Using default theme');
+    }
+  };
 
   useEffect(() => {
-    const userInfo = localStorage.getItem("userInfo");
-    if (userInfo && userInfo !== "undefined") {
+    const fetchUser = async () => {
       try {
-        const parsedUser = JSON.parse(userInfo);
-        setUser(parsedUser);
+        const { data } = await api.get('/auth/me');
+        if (data.user) {
+          setUser(data.user);
+          fetchTheme();
+        }
       } catch (e) {
-        localStorage.removeItem("userInfo");
+        // User not logged in, ignore
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+    fetchUser();
   }, []);
 
   const login = async (email, password) => {
     try {
-      // 3. CHANGE: Use 'api.post' and remove the full URL prefix
       const { data } = await api.post('/auth/login', { email, password });
       
       setUser(data.user);
-      localStorage.setItem("userInfo", JSON.stringify(data.user));
-      localStorage.setItem("token", data.token);
+      
+      fetchTheme();
 
       return { success: true, role: data.user.role };
     } catch (error) {
-      console.error("Login Error:", error); // Added for debugging
+      console.error("Login Error:", error);
       return { success: false, message: error.response?.data?.message || "Login failed" };
     }
   };
 
   const register = async (userData) => {
     try {
-      // 4. CHANGE: Use 'api.post' here too
       await api.post('/auth/register', userData);
       return { success: true };
     } catch (error) {
-      console.error("Register Error:", error); // Added for debugging
+      console.error("Register Error:", error);
       return { success: false, message: error.response?.data?.message || "Registration failed" };
     }
   };
@@ -56,9 +67,9 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       // Ignore if it fails, we still want to log out locally
     }
-    localStorage.removeItem("userInfo");
-    localStorage.removeItem("token");
     setUser(null);
+    document.documentElement.style.removeProperty('--theme-accent');
+    document.documentElement.style.removeProperty('--theme-bg');
   };
 
   return (

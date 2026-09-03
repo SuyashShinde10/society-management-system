@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { toast } from 'sonner';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
@@ -7,16 +8,15 @@ import { Bell } from 'lucide-react';
 
 const NoticeBoard = () => {
   const { user } = useContext(AuthContext);
-  const [notices, setNotices] = useState([]);
-  const [users, setUsers] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [targetType, setTargetType] = useState('All');
   const [targetUserId, setTargetUserId] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
   const limit = 10;
+
+  const queryClient = useQueryClient();
 
   const isNew = (dateString) => {
     if (!dateString) return false;
@@ -25,40 +25,45 @@ const NoticeBoard = () => {
     return diffDays <= 2;
   };
 
-  useEffect(() => {
-    fetchNotices();
-    if (user?.role === 'admin') {
-      fetchUsers();
-    }
-    
-    // Vercel-compatible real-time fallback (Short Polling)
-    const interval = setInterval(() => {
-      fetchNotices(false);
-    }, 10000); // 10 seconds
-
-    return () => clearInterval(interval);
-  }, [user]);
-
-  const fetchUsers = async () => {
-    try {
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
       const { data } = await api.get('/auth/users');
-      setUsers(data);
-    } catch (error) {
-      console.error('Failed to fetch users');
-    }
-  };
+      return data;
+    },
+    enabled: user?.role === 'admin'
+  });
 
-  const fetchNotices = async (showLoader = true) => {
-    if (showLoader) setIsLoading(true);
-    try {
+  const { data: notices = [], isLoading } = useQuery({
+    queryKey: ['notices'],
+    queryFn: async () => {
       const { data } = await api.get('/notices');
-      setNotices(data);
-    } catch (error) {
-      console.error('// DISPATCH_FETCH_ERROR');
-    } finally {
-      if (showLoader) setIsLoading(false);
-    }
-  };
+      return data;
+    },
+    refetchInterval: 10000 // 10 seconds polling
+  });
+
+  const postMutation = useMutation({
+    mutationFn: (newNotice) => api.post('/notices', newNotice),
+    onSuccess: () => {
+      setTitle('');
+      setContent('');
+      setTargetType('All');
+      setTargetUserId('');
+      queryClient.invalidateQueries(['notices']);
+      toast.success('Notice posted successfully.');
+    },
+    onError: () => toast.error('Failed to post notice. Please try again.'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => api.delete(`/notices/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['notices']);
+      toast.success('Notice removed.');
+    },
+    onError: () => toast.error('Failed to delete notice.'),
+  });
 
   const handlePost = async (e) => {
     e.preventDefault();
@@ -74,17 +79,7 @@ const NoticeBoard = () => {
       toast.error('Please select a specific member.');
       return;
     }
-    try {
-      await api.post('/notices', { title, content, targetType, targetUserId });
-      setTitle('');
-      setContent('');
-      setTargetType('All');
-      setTargetUserId('');
-      fetchNotices();
-      toast.success('Notice posted successfully.');
-    } catch (error) {
-      toast.error('Failed to post notice. Please try again.');
-    }
+    postMutation.mutate({ title, content, targetType, targetUserId });
   };
 
   const handleDelete = async (id) => {
@@ -92,13 +87,7 @@ const NoticeBoard = () => {
       action: {
         label: 'Delete',
         onClick: async () => {
-          try {
-            await api.delete(`/notices/${id}`);
-            fetchNotices();
-            toast.success('Notice removed.');
-          } catch (error) {
-            toast.error('Failed to delete notice.');
-          }
+          deleteMutation.mutate(id);
         },
       },
       cancel: { label: 'Cancel', onClick: () => {} },

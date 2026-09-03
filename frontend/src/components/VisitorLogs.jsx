@@ -1,27 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ShieldCheck, Clock, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../api';
 import theme from '../theme';
 
 const VisitorLogs = () => {
-  const [visitors, setVisitors] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchVisitors();
-  }, []);
-
-  const fetchVisitors = async () => {
-    try {
+  const { data: visitors = [], isLoading: loading, isError } = useQuery({
+    queryKey: ['visitors'],
+    queryFn: async () => {
       const { data } = await api.get('/visitors/all');
-      setVisitors(data);
-    } catch (error) {
+      return data;
+    },
+    onError: () => {
       toast.error('Failed to load visitor logs');
-    } finally {
-      setLoading(false);
     }
-  };
+  });
 
   const insideCount = visitors.filter(v => v.status === 'Inside').length;
 
@@ -55,6 +49,8 @@ const VisitorLogs = () => {
 
       {loading ? (
         <p style={{ textAlign: 'center', color: '#64748B' }}>Loading visitor logs...</p>
+      ) : isError ? (
+        <p style={{ textAlign: 'center', color: '#EF4444' }}>Failed to load visitors.</p>
       ) : visitors.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', background: '#F8FAFC', borderRadius: '16px', border: `1px dashed ${theme.border}` }}>
           <p style={{ color: '#64748B', margin: 0 }}>No visitors recorded yet.</p>

@@ -29,6 +29,30 @@ const SecurityDashboard = () => {
   
   const [limits, setLimits] = useState({ wings: [] });
 
+  const [alprPlate, setAlprPlate] = useState('');
+  const [scanningAlpr, setScanningAlpr] = useState(false);
+
+  const handleALPRScan = async (e) => {
+    e.preventDefault();
+    if (!alprPlate) return;
+    setScanningAlpr(true);
+    try {
+      const { data } = await api.post('/parking/alpr', { plateNumber: alprPlate });
+      if (data.authorized) {
+        toast.success(`Success! Barrier Opened. Owner: ${data.owner} (${data.space})`);
+      }
+    } catch (error) {
+      if (error.response?.status === 403) {
+        toast.error('Unauthorized Vehicle. Access Denied.');
+      } else {
+        toast.error('ALPR scan failed');
+      }
+    } finally {
+      setScanningAlpr(false);
+      setAlprPlate('');
+    }
+  };
+
   useEffect(() => {
     fetchVisitors();
     fetchSocietyLimits();
@@ -149,6 +173,27 @@ const SecurityDashboard = () => {
             </div>
             <h2 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: '#EF4444' }}>{insideCount}</h2>
           </div>
+        </div>
+
+        {/* ALPR Quick Scan */}
+        <div style={{ background: '#F8FAFC', padding: '24px', borderRadius: '16px', border: '1px solid #CBD5E1', marginBottom: '24px' }}>
+          <h3 style={{ margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '18px', color: '#0F172A' }}>
+            <Camera size={20} color="#0F172A" /> Edge ALPR Scanner
+          </h3>
+          <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#64748B' }}>Quick scan incoming license plates to verify Resident Parking and automatically open Boom Barrier.</p>
+          <form onSubmit={handleALPRScan} style={{ display: 'flex', gap: '10px' }}>
+            <input 
+              type="text" 
+              placeholder="Enter License Plate (e.g. MH-01-AB-1234)" 
+              value={alprPlate}
+              onChange={(e) => setAlprPlate(e.target.value)}
+              required
+              style={{ flex: 1, padding: '14px', borderRadius: '10px', border: '1px solid #CBD5E1', fontSize: '15px', textTransform: 'uppercase' }}
+            />
+            <button type="submit" disabled={scanningAlpr} style={{ padding: '0 20px', background: '#0F172A', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '600', cursor: scanningAlpr ? 'wait' : 'pointer' }}>
+              {scanningAlpr ? 'Scanning...' : 'SCAN & VERIFY'}
+            </button>
+          </form>
         </div>
 
         {/* Check In Form */}

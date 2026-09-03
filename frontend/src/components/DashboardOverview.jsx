@@ -37,7 +37,7 @@ const DashboardOverview = ({ onNavigate }) => {
 
         setStats({
           notices: noticesRes.data.length,
-          complaints: complaintsRes.data.filter(c => c.status === 'Pending').length,
+          complaints: (complaintsRes.data.complaints || complaintsRes.data).filter(c => c.status === 'Pending').length,
           expenses: expensesRes.data.reduce((acc, curr) => acc + Number(curr.amount), 0),
           bills: billsRes.data.filter(b => !b.isPaid).length,
           totalMembers: analyticsRes.data.totalMembers || 0,

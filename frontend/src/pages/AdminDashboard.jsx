@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, User, Users, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, User, Users, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert, Briefcase, ShieldCheck, MapPin, Cpu, Palette } from 'lucide-react';
 import theme from '../theme';
 
 // Components
@@ -18,6 +18,12 @@ import Meetings from '../components/Meetings';
 import Analytics from '../components/Analytics';
 import VisitorLogs from '../components/VisitorLogs';
 import SecurityStaff from '../components/SecurityStaff';
+import VendorProjects from '../components/VendorProjects';
+import EscrowLedger from '../components/EscrowLedger';
+import SmartParking from '../components/SmartParking';
+import EmergencyProtocol from '../components/EmergencyProtocol';
+import IoTMetering from '../components/IoTMetering';
+import ThemeSettings from '../components/ThemeSettings';
 
 // --- DOODLES & ANIMATIONS ---
 const SparkleDoodle = () => (
@@ -73,6 +79,12 @@ const AdminDashboard = () => {
     { id: 'visitors', label: 'Visitor Logs', icon: ShieldAlert },
     { id: 'security-staff', label: 'Security Staff', icon: ShieldAlert },
     { id: 'expenses', label: 'Society Expenses', icon: Wallet },
+    { id: 'vendors', label: 'Vendor Marketplace', icon: Briefcase },
+    { id: 'escrow', label: 'Escrow Ledger', icon: ShieldCheck },
+    { id: 'parking', label: 'Smart Parking', icon: MapPin },
+    { id: 'emergency', label: 'Emergency Protocol', icon: ShieldAlert },
+    { id: 'iot', label: 'IoT Smart Meters', icon: Cpu },
+    { id: 'theme', label: 'White-Label Theme', icon: Palette },
     { id: 'analytics', label: 'Analytics Reports', icon: PieChart },
   ];
 
@@ -210,6 +222,12 @@ const AdminDashboard = () => {
             {activeTab === 'visitors' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><VisitorLogs /></div>}
             {activeTab === 'security-staff' && <div style={{ flex: 1 }}><SecurityStaff /></div>}
             {activeTab === 'expenses' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ExpenseTracker /></div>}
+            {activeTab === 'vendors' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><VendorProjects /></div>}
+            {activeTab === 'escrow' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><EscrowLedger /></div>}
+            {activeTab === 'parking' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><SmartParking /></div>}
+            {activeTab === 'emergency' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><EmergencyProtocol /></div>}
+            {activeTab === 'iot' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><IoTMetering /></div>}
+            {activeTab === 'theme' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ThemeSettings /></div>}
             {activeTab === 'analytics' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Analytics /></div>}
             
           </motion.div>

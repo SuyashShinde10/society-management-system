@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, User, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, User, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert, Bot, Tag } from 'lucide-react';
 import theme from '../theme';
 
 // Components
@@ -14,6 +14,8 @@ import DashboardOverview from '../components/DashboardOverview';
 import Profile from '../components/Profile';
 import Meetings from '../components/Meetings';
 import Analytics from '../components/Analytics';
+import ResidentChatbot from '../components/ResidentChatbot';
+import LocalOffers from '../components/LocalOffers';
 
 // --- DOODLES & ANIMATIONS ---
 const SparkleDoodle = () => (
@@ -65,6 +67,8 @@ const MemberDashboard = () => {
     { id: 'bills', label: 'My Bills', icon: ReceiptText },
     { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
     { id: 'expenses', label: 'Society Expenses', icon: Wallet },
+    { id: 'offers', label: 'Local Offers', icon: Tag },
+    { id: 'chatbot', label: 'AI Assistant', icon: Bot },
     { id: 'analytics', label: 'Analytics Reports', icon: PieChart },
   ];
 
@@ -191,6 +195,8 @@ const MemberDashboard = () => {
             {activeTab === 'bills' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><MaintenanceBills /></div>}
             {activeTab === 'complaints' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ComplaintBox /></div>}
             {activeTab === 'expenses' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ExpenseTracker /></div>}
+            {activeTab === 'offers' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><LocalOffers /></div>}
+            {activeTab === 'chatbot' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ResidentChatbot /></div>}
             {activeTab === 'analytics' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Analytics /></div>}
           </div>
 

@@ -7,10 +7,12 @@ const {
   getMyVisitors
 } = require('../controllers/visitorController');
 const { protect, admin, securityGuard } = require('../middleware/authMiddleware');
+const validateRequest = require('../middleware/validateRequest');
+const { createVisitorSchema, updateVisitorSchema } = require('../validations/schemas');
 
 // Security Guard routes
-router.post('/check-in', protect, securityGuard, checkInVisitor);
-router.put('/check-out/:id', protect, securityGuard, checkOutVisitor);
+router.post('/check-in', protect, securityGuard, validateRequest(createVisitorSchema), checkInVisitor);
+router.put('/check-out/:id', protect, securityGuard, validateRequest(updateVisitorSchema), checkOutVisitor);
 router.get('/today', protect, securityGuard, getSocietyVisitors);
 
 // Admin routes

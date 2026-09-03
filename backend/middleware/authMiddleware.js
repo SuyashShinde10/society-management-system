@@ -1,29 +1,48 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const SecurityStaff = require('../models/SecurityStaff');
+const getRedis = require('../utils/redis');
+const logger = require('../utils/logger');
+
+const redisClient = getRedis();
 
 const protect = async (req, res, next) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies && req.cookies.token) {
+    token = req.cookies.token;
+  }
+
+  if (token) {
     try {
-      token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       
-      // Select societyId so we can use it in controllers
-      req.user = await User.findById(decoded.id).select('-password');
-      if (!req.user) {
-        req.user = await SecurityStaff.findById(decoded.id).select('-password');
+      if (redisClient && process.env.NODE_ENV !== 'test') {
+        try {
+          const isBlacklisted = await redisClient.get(`bl_${token}`);
+          if (isBlacklisted) {
+            return res.status(401).json({ message: 'Token revoked, please login again' });
+          }
+        } catch (redisErr) {
+          logger.error('Redis check failed in auth middleware:', redisErr.message);
+        }
       }
       
-      if (!req.user) {
-        return res.status(401).json({ message: 'Not authorized, user not found' });
-      }
+      // Trust the JWT payload for standard auth to avoid DB hits
+      // Controllers that explicitly need full user data can query it using req.user.id
+      req.user = {
+        _id: decoded.id,
+        id: decoded.id,
+        role: decoded.role,
+        societyId: decoded.societyId
+      };
 
       next();
       return; // Stop execution
     } catch (error) {
-      if (process.env.NODE_ENV !== 'production') console.error(error);
+      // SECURITY: Never log the full token — only a safe prefix for debugging
+      const tokenHint = token ? `${token.substring(0, 12)}...` : 'none';
+      logger.error('JWT ERROR:', { message: error.message, name: error.name, tokenHint });
       return res.status(401).json({ message: 'Not authorized, token failed' });
     }
   }
@@ -34,7 +53,7 @@ const protect = async (req, res, next) => {
 };
 
 const admin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin')) {
     next();
   } else {
     res.status(403).json({ message: 'Not authorized as an admin' });
@@ -57,4 +76,4 @@ const securityGuard = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin, superadmin, securityGuard };
+module.exports = { protect, admin, adminOnly: admin, superadmin, securityGuard };

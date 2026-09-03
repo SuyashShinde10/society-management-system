@@ -127,7 +127,7 @@ const Home = () => {
       <section id="features" className="px-6 md:px-[60px] pb-[80px] md:pb-[140px] relative z-10">
         <div style={{ textAlign: 'center', marginBottom: '60px', position: 'relative' }}>
           <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, margin: '0 0 15px 0' }}>
+            style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: '600', color: theme.textMain, margin: '0 0 15px 0' }}>
             Core Platform Features
           </motion.h2>
           <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
@@ -166,7 +166,7 @@ const Home = () => {
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '80px', position: 'relative' }}>
             <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, margin: '0 0 15px 0' }}>
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: '600', color: theme.textMain, margin: '0 0 15px 0' }}>
               How it works
             </motion.h2>
             <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
@@ -217,7 +217,7 @@ const Home = () => {
       <section id="about" className="px-6 md:px-[60px] py-[80px] md:py-[100px] relative z-10 bg-white" style={{ borderTop: `1px solid ${theme.border}`, borderBottom: `1px solid ${theme.border}` }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '60px' }}>
           <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ flex: 1, minWidth: '100%' }} className="md:min-w-[300px]">
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '48px', fontWeight: '500', color: theme.textMain, margin: '0 0 20px 0' }}>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(32px, 6vw, 48px)', fontWeight: '500', color: theme.textMain, margin: '0 0 20px 0' }}>
               We build <HighlightDoodle>communities,</HighlightDoodle> <br/> not just software.
             </h2>
             <p style={{ fontSize: '18px', color: theme.textSec, lineHeight: '1.8', fontWeight: '300', marginBottom: '30px' }}>
@@ -234,7 +234,7 @@ const Home = () => {
             <div style={{ padding: '40px', background: theme.bg, borderRadius: '30px', border: `1px solid ${theme.border}`, position: 'relative' }}>
               <SwirlDoodle />
               <Activity size={40} color={theme.accent} style={{ marginBottom: '20px' }} />
-              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', margin: '0 0 10px 0' }}>Real-time transparency.</h3>
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(22px, 4vw, 28px)', margin: '0 0 10px 0' }}>Real-time transparency.</h3>
               <p style={{ color: theme.textSec, lineHeight: '1.6', margin: 0 }}>Every maintenance request, every bill, every notice is tracked and updated in real-time. No more chasing the secretary.</p>
             </div>
           </motion.div>
@@ -248,7 +248,7 @@ const Home = () => {
           style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', position: 'relative' }}
         >
           <StarburstDoodle style={{ position: 'absolute', top: '-20px', left: '10%', transform: 'scale(0.8)' }} />
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, marginBottom: '20px' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: '600', color: theme.textMain, marginBottom: '20px' }}>
             Platform <HighlightDoodle>Security</HighlightDoodle>
           </h2>
           <p style={{ fontSize: '18px', color: theme.textSec, lineHeight: '1.8' }}>
@@ -264,7 +264,7 @@ const Home = () => {
           style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', position: 'relative' }}
         >
           <SquiggleDoodle style={{ position: 'absolute', bottom: '-20px', right: '10%', opacity: 0.5 }} />
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '42px', fontWeight: '600', color: theme.textMain, marginBottom: '20px' }}>Contact Us</h2>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: '600', color: theme.textMain, marginBottom: '20px' }}>Contact Us</h2>
           <p style={{ fontSize: '18px', color: theme.textSec, lineHeight: '1.8', marginBottom: '30px' }}>
             Need support or have inquiries? Our team is available to assist you.
           </p>
@@ -281,12 +281,12 @@ const Home = () => {
           <ArrowDoodle style={{ position: 'absolute', top: '-10px', left: '45%', opacity: 0.3 }} />
           
           <motion.div id="privacy" initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ flex: '1 1 300px' }}>
-            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', color: theme.textMain, marginBottom: '15px' }}>Privacy Policy</h3>
+            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(22px, 4vw, 28px)', color: theme.textMain, marginBottom: '15px' }}>Privacy Policy</h3>
             <p style={{ color: theme.textSec, lineHeight: '1.6', fontSize: '15px' }}>We are committed to protecting the privacy and security of your personal information. We never sell your personal data to third parties and take reasonable measures to protect information about you from unauthorized access.</p>
           </motion.div>
           
           <motion.div id="terms" initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ flex: '1 1 300px' }}>
-            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', color: theme.textMain, marginBottom: '15px' }}>Terms of Service</h3>
+            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(22px, 4vw, 28px)', color: theme.textMain, marginBottom: '15px' }}>Terms of Service</h3>
             <p style={{ color: theme.textSec, lineHeight: '1.6', fontSize: '15px' }}>By accessing or using our services, you agree to be bound by our Terms. You may use our services only as permitted by law, and we provide our services using a commercially reasonable level of skill and care.</p>
           </motion.div>
         </div>
@@ -301,7 +301,7 @@ const Home = () => {
               <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src="/awaastech-logo.png" alt="Awaastech" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
               </div>
-              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '600' }}>Awaastech</span>
+              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(24px, 4vw, 28px)', fontWeight: '600' }}>Awaastech</span>
             </div>
             <p style={{ color: '#A0A0A0', lineHeight: '1.6', fontSize: '15px', fontWeight: '300' }}>
               The premium operating system for modern housing societies.
@@ -347,7 +347,7 @@ const FeatureCard = ({ icon, title, desc, delay = 0, doodle }) => (
       {icon}
     </div>
     <div style={{ position: 'relative', zIndex: 1 }}>
-      <h3 style={{ margin: '0 0 10px 0', fontSize: '22px', fontWeight: '500', color: '#2C2C2C', fontFamily: "'Cormorant Garamond', serif" }}>{title}</h3>
+      <h3 style={{ margin: '0 0 10px 0', fontSize: 'clamp(18px, 3vw, 22px)', fontWeight: '500', color: '#2C2C2C', fontFamily: "'Cormorant Garamond', serif" }}>{title}</h3>
       <p style={{ margin: 0, fontSize: '15px', lineHeight: '1.6', color: '#6B6B6B', fontWeight: '300' }}>{desc}</p>
     </div>
   </motion.div>
@@ -367,7 +367,7 @@ const WalkthroughStep = ({ number, icon, title, desc, align, doodle }) => (
     </div>
     
     <div style={{ textAlign: align === 'left' ? 'left' : 'right', zIndex: 1, flex: '1 1 250px' }}>
-      <h3 style={{ margin: '0 0 12px 0', fontSize: '26px', fontWeight: '600', color: '#2C2C2C', fontFamily: "'Cormorant Garamond', serif" }}>{title}</h3>
+      <h3 style={{ margin: '0 0 12px 0', fontSize: 'clamp(20px, 4vw, 26px)', fontWeight: '600', color: '#2C2C2C', fontFamily: "'Cormorant Garamond', serif" }}>{title}</h3>
       <p style={{ margin: 0, fontSize: '16px', lineHeight: '1.6', color: '#6B6B6B', fontWeight: '300' }}>{desc}</p>
     </div>
   </motion.div>

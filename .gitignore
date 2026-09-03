@@ -29,9 +29,13 @@ dist-ssr
 
 # Secret environment files — NEVER commit these
 .env
-.env.local
-.env.development.local
-.env.staging
+.env.*
+!.env.example
+!.env.production
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env.local
 
 # NOTE: .env.production IS committed intentionally.
 # It only contains VITE_API_URL (a public URL, not a secret).
@@ -42,3 +46,23 @@ dist-ssr
 dist
 build
 Progress.md
+
+# Winston structured log files — contain stack traces and potentially sensitive data
+backend/combined.log
+backend/error.log
+backend/error_log.txt
+backend/test_out.txt
+backend/test_output.txt
+*.log
+
+# Scratch/temp files
+backend/scratch_lean.js
+backend/update_logger.py
+
+# Test coverage
+coverage/
+*.lcov
+.nyc_output
+
+# Docker override files with secrets
+docker-compose.override.yml

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useContext } from 'react';
 import { toast } from 'sonner';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
@@ -7,13 +8,11 @@ import { AlertCircle } from 'lucide-react';
 
 const ComplaintBox = () => {
   const { user } = useContext(AuthContext);
-  const [complaints, setComplaints] = useState([]);
   const [form, setForm] = useState({ title: '', description: '', attachment: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const limit = 10;
+  
+  const queryClient = useQueryClient();
 
   const isNew = (dateString) => {
     if (!dateString) return false;
@@ -22,28 +21,43 @@ const ComplaintBox = () => {
     return diffDays <= 2;
   };
 
-  const fetchComplaints = useCallback(async (showLoader = true) => {
-    if (showLoader) setIsLoading(true);
-    try {
-      const { data } = await api.get('/complaints');
-      setComplaints(data);
-    } catch (error) {
-      console.error('// INCIDENT_FETCH_ERROR');
-    } finally {
-      if (showLoader) setIsLoading(false);
-    }
-  }, []);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['complaints'],
+    queryFn: async ({ pageParam = null }) => {
+      const url = pageParam ? `/complaints?cursor=${pageParam}` : '/complaints';
+      const response = await api.get(url);
+      return response.data;
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
+    refetchInterval: 30000, // Background polling
+  });
 
-  useEffect(() => {
-    fetchComplaints();
-    
-    // Vercel-compatible real-time fallback (Short Polling)
-    const interval = setInterval(() => {
-      fetchComplaints(false);
-    }, 30000); // 30 seconds
+  const complaintsList = data ? data.pages.flatMap(page => page.complaints || page) : [];
 
-    return () => clearInterval(interval);
-  }, [fetchComplaints]);
+  const postMutation = useMutation({
+    mutationFn: (newComplaint) => api.post('/complaints', newComplaint),
+    onSuccess: () => {
+      setForm({ title: '', description: '', attachment: '' });
+      queryClient.invalidateQueries(['complaints']);
+      toast.success('Incident report filed successfully.');
+    },
+    onError: () => toast.error('Failed to submit report. Please try again.'),
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }) => api.put(`/complaints/status/${id}`, { status }),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries(['complaints']);
+      toast.success(`Complaint marked as ${variables.status}.`);
+    },
+    onError: () => toast.error('Failed to update status.'),
+  });
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -75,26 +89,11 @@ const ComplaintBox = () => {
       toast.error('Description must be at least 10 characters long.');
       return;
     }
-    try {
-      await api.post('/complaints', form);
-      setForm({ title: '', description: '', attachment: '' });
-      fetchComplaints();
-      toast.success('Incident report filed successfully.');
-    } catch (error) {
-      toast.error('Failed to submit report. Please try again.');
-    }
+    postMutation.mutate(form);
   };
 
-  const handleStatusUpdate = async (id, newStatus) => {
-    try {
-      setComplaints(prev => prev.map(c => c._id === id ? { ...c, status: newStatus } : c));
-      await api.put(`/complaints/status/${id}`, { status: newStatus });
-      fetchComplaints();
-      toast.success(`Complaint marked as ${newStatus}.`);
-    } catch (error) {
-      fetchComplaints();
-      toast.error('Failed to update status.');
-    }
+  const handleStatusUpdate = (id, newStatus) => {
+    updateStatusMutation.mutate({ id, status: newStatus });
   };
 
   const formatDate = (dateString) => {
@@ -104,14 +103,12 @@ const ComplaintBox = () => {
     }).replace(',', ' //');
   };
 
-  const filteredComplaints = complaints.filter(c => {
+  const filteredComplaints = complaintsList.filter(c => {
     const matchesSearch = c.title.toLowerCase().includes(searchTerm.toLowerCase()) || c.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'All' || c.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
-  const paginatedComplaints = filteredComplaints.slice(0, page * limit);
-  const hasMore = paginatedComplaints.length < filteredComplaints.length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -203,12 +200,12 @@ const ComplaintBox = () => {
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
               <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
-          ) : paginatedComplaints.length === 0 ? (
+          ) : filteredComplaints.length === 0 ? (
             <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, fontFamily: "'Outfit', sans-serif", fontSize: '14px' }}>
               No incidents on record.
             </div>
           ) : (
-            paginatedComplaints.map((c) => (
+            filteredComplaints.map((c) => (
               <div
                 key={c._id}
                 style={{
@@ -300,9 +297,9 @@ const ComplaintBox = () => {
           )}
         </div>
 
-        {hasMore && (
-          <button onClick={() => setPage(page + 1)} style={{ width: '100%', marginTop: '20px', padding: '12px', background: 'white', borderRadius: '12px', border: `1px dashed ${theme.border}`, color: theme.textMain, fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={(e) => e.target.style.background = '#F9F8F3'} onMouseOut={(e) => e.target.style.background = 'white'}>
-            Load More Records
+        {hasNextPage && (
+          <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} style={{ width: '100%', marginTop: '20px', padding: '12px', background: 'white', borderRadius: '12px', border: `1px dashed ${theme.border}`, color: theme.textMain, fontFamily: "'Outfit', sans-serif", fontWeight: '600', cursor: isFetchingNextPage ? 'not-allowed' : 'pointer', transition: 'background 0.2s', opacity: isFetchingNextPage ? 0.6 : 1 }} onMouseOver={(e) => !isFetchingNextPage && (e.target.style.background = '#F9F8F3')} onMouseOut={(e) => !isFetchingNextPage && (e.target.style.background = 'white')}>
+            {isFetchingNextPage ? 'Loading more...' : 'Load More Records'}
           </button>
         )}
       </div>
