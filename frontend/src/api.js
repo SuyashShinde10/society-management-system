@@ -25,7 +25,10 @@ const api = axios.create({
 // Attach JWT on every request
 api.interceptors.request.use(
   (config) => {
-    // Rely on httpOnly cookies for authentication, no need to send Bearer token explicitly
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -39,9 +42,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Only redirect if not already on an auth page and not fetching auth state
-      if (!window.location.pathname.includes('/login') && !error.config?.url?.includes('/auth/me')) {
-        window.location.href = '/login';
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        // Only redirect if not already on an auth page and not fetching auth state
+        if (!window.location.pathname.includes('/login') && !error.config?.url?.includes('/auth/me')) {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);

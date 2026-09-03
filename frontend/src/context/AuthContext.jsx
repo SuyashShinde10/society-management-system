@@ -21,6 +21,11 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
       try {
         const { data } = await api.get('/auth/me');
         if (data.user) {
@@ -28,7 +33,7 @@ export const AuthProvider = ({ children }) => {
           fetchTheme();
         }
       } catch (e) {
-        // User not logged in, ignore
+        localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }
@@ -40,6 +45,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await api.post('/auth/login', { email, password });
       
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
       setUser(data.user);
       
       fetchTheme();
@@ -67,6 +75,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       // Ignore if it fails, we still want to log out locally
     }
+    localStorage.removeItem('token');
     setUser(null);
     document.documentElement.style.removeProperty('--theme-accent');
     document.documentElement.style.removeProperty('--theme-bg');

@@ -75,6 +75,7 @@ const App = () => {
                   </PrivateRoute>
                 }
               />
+              <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
 
               {/* Member dashboard */}
               <Route
@@ -87,6 +88,8 @@ const App = () => {
                   </PrivateRoute>
                 }
               />
+              <Route path="/member" element={<Navigate to="/resident" replace />} />
+
 
               {/* Superadmin dashboard */}
               <Route
