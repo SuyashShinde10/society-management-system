@@ -45,7 +45,6 @@ frontend/.env.local
 .DS_Store
 dist
 build
-Progress.md
 
 # Winston structured log files — contain stack traces and potentially sensitive data
 backend/combined.log
