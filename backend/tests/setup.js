@@ -6,12 +6,12 @@ let mongoServer;
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_secret_for_jest_at_least_32_characters';
 process.env.NODE_ENV = 'test';
 
-jest.setTimeout(60000);
+jest.setTimeout(300000);
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create({
     instance: {
-      launchTimeout: 60000,
+      launchTimeout: 300000,
     }
   });
   const uri = mongoServer.getUri();

@@ -177,6 +177,12 @@ app.use('/api/v1/iot', require('./routes/iotRoutes'));
 app.use('/api/v1/chatbot', require('./routes/chatbotRoutes'));
 app.use('/api/v1/theme', require('./routes/themeRoutes'));
 app.use('/api/v1/ads', require('./routes/adRoutes'));
+app.use('/api/v1/gate', require('./routes/gateRoutes'));
+app.use('/api/v1/lifestyle', require('./routes/lifestyleRoutes'));
+app.use('/api/v1/accounting', require('./routes/accountingRoutes'));
+app.use('/api/v1/sustainability', require('./routes/sustainabilityRoutes'));
+app.use('/api/v1/webhooks', require('./routes/whatsappRoutes'));
+
 
 // -------------------------------------------------------
 // DEEP HEALTH CHECK

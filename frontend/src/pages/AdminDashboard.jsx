@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, User, Users, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert, Briefcase, ShieldCheck, MapPin, Cpu, Palette } from 'lucide-react';
+import { LayoutDashboard, User, Users, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert, Briefcase, ShieldCheck, MapPin, Cpu, Palette, Package, Landmark, Leaf, Sparkles, Vote, MessageCircle } from 'lucide-react';
 import theme from '../theme';
 
 // Components
@@ -24,6 +24,16 @@ import SmartParking from '../components/SmartParking';
 import EmergencyProtocol from '../components/EmergencyProtocol';
 import IoTMetering from '../components/IoTMetering';
 import ThemeSettings from '../components/ThemeSettings';
+
+// New Expansion Components
+import ParcelGateLocker from '../components/gate/ParcelGateLocker';
+import StaffDirectory from '../components/gate/StaffDirectory';
+import AmenityBooking from '../components/lifestyle/AmenityBooking';
+import DigitalAGM from '../components/lifestyle/DigitalAGM';
+import AccountingCenter from '../components/finance/AccountingCenter';
+import GreenSustainability from '../components/sustainability/GreenSustainability';
+import WhatsAppSimulator from '../components/omnichannel/WhatsAppSimulator';
+
 
 // --- DOODLES & ANIMATIONS ---
 const SparkleDoodle = () => (
@@ -76,14 +86,13 @@ const AdminDashboard = () => {
     { id: 'meetings', label: 'Global Meetings', icon: Calendar },
     { id: 'bills', label: 'Billing System', icon: ReceiptText },
     { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
-    { id: 'visitors', label: 'Visitor Logs', icon: ShieldAlert },
-    { id: 'security-staff', label: 'Security Staff', icon: ShieldAlert },
-    { id: 'expenses', label: 'Society Expenses', icon: Wallet },
-    { id: 'vendors', label: 'Vendor Marketplace', icon: Briefcase },
-    { id: 'escrow', label: 'Escrow Ledger', icon: ShieldCheck },
-    { id: 'parking', label: 'Smart Parking', icon: MapPin },
-    { id: 'emergency', label: 'Emergency Protocol', icon: ShieldAlert },
-    { id: 'iot', label: 'IoT Smart Meters', icon: Cpu },
+    { id: 'parcels', label: 'Parcel Gate Locker', icon: Package },
+    { id: 'staff-dir', label: 'Domestic Staff Directory', icon: Users },
+    { id: 'amenities', label: 'Facility Bookings', icon: Sparkles },
+    { id: 'agm', label: 'Digital AGM & Voting', icon: Vote },
+    { id: 'accounting', label: 'Tally & Accounting', icon: Landmark },
+    { id: 'sustainability', label: 'Green Sustainability', icon: Leaf },
+    { id: 'whatsapp', label: 'WhatsApp Bot Simulator', icon: MessageCircle },
     { id: 'theme', label: 'White-Label Theme', icon: Palette },
     { id: 'analytics', label: 'Analytics Reports', icon: PieChart },
   ];
@@ -229,6 +238,14 @@ const AdminDashboard = () => {
             {activeTab === 'iot' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><IoTMetering /></div>}
             {activeTab === 'theme' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ThemeSettings /></div>}
             {activeTab === 'analytics' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Analytics /></div>}
+            {activeTab === 'parcels' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ParcelGateLocker /></div>}
+            {activeTab === 'staff-dir' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><StaffDirectory /></div>}
+            {activeTab === 'amenities' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><AmenityBooking /></div>}
+            {activeTab === 'agm' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><DigitalAGM /></div>}
+            {activeTab === 'accounting' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><AccountingCenter /></div>}
+            {activeTab === 'sustainability' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><GreenSustainability /></div>}
+            {activeTab === 'whatsapp' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><WhatsAppSimulator /></div>}
+
             
           </motion.div>
 

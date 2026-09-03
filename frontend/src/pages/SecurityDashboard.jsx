@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { LogOut, UserPlus, LogIn, LogOut as CheckOutIcon, Clock, Users, Building, ShieldCheck, Camera, PenTool, X } from 'lucide-react';
+import { LogOut, UserPlus, LogIn, LogOut as CheckOutIcon, Clock, Users, Building, ShieldCheck, Camera, PenTool, X, Package, QrCode, Radio } from 'lucide-react';
 import Webcam from 'react-webcam';
 import SignatureCanvas from 'react-signature-canvas';
 import { toast } from 'sonner';
@@ -8,11 +8,19 @@ import AuthContext from '../context/AuthContext';
 import api from '../api';
 import theme from '../theme';
 
+// Gate Expansion Components
+import ParcelGateLocker from '../components/gate/ParcelGateLocker';
+import StaffDirectory from '../components/gate/StaffDirectory';
+import GuestPassManager from '../components/gate/GuestPassManager';
+import GuardIntercom from '../components/gate/GuardIntercom';
+
 const SecurityDashboard = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState('visitors');
   const [visitors, setVisitors] = useState([]);
   const [loading, setLoading] = useState(true);
+
   
   // New Visitor Form State
   const [name, setName] = useState('');
@@ -151,10 +159,46 @@ const SecurityDashboard = () => {
         </button>
       </div>
 
-      <div className="p-4 md:p-6" style={{ maxWidth: '800px', margin: '0 auto' }}>
-        
-        {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+      <div className="p-4 md:p-6" style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Navigation Switcher */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {[
+            { id: 'visitors', label: 'Visitors & ALPR', icon: Users },
+            { id: 'parcels', label: 'Parcel Locker', icon: Package },
+            { id: 'staff', label: 'Staff Attendance', icon: Users },
+            { id: 'passes', label: 'Guest Passes', icon: QrCode },
+            { id: 'intercom', label: 'Gate Intercom', icon: Radio }
+          ].map(tab => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveSection(tab.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '10px 16px', borderRadius: '12px',
+                  border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '13px',
+                  background: activeSection === tab.id ? '#0F172A' : 'white',
+                  color: activeSection === tab.id ? 'white' : '#64748B',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                }}
+              >
+                <Icon size={16} /> {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {activeSection === 'parcels' && <ParcelGateLocker />}
+        {activeSection === 'staff' && <StaffDirectory />}
+        {activeSection === 'passes' && <GuestPassManager />}
+        {activeSection === 'intercom' && <GuardIntercom />}
+
+        {activeSection === 'visitors' && (
+          <>
+            {/* Stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '4px' }}>
+
           <div style={{ background: 'white', padding: '20px', borderRadius: '16px', border: `1px solid ${theme.border}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
               <div style={{ background: '#EEF2FF', padding: '8px', borderRadius: '8px' }}>
@@ -329,6 +373,8 @@ const SecurityDashboard = () => {
             </div>
           )}
         </div>
+        </>
+        )}
 
       </div>
       

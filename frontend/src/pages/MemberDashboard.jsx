@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, User, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert, Bot, Tag } from 'lucide-react';
+import { LayoutDashboard, User, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert, Bot, Tag, Package, QrCode, Users, Radio, Sparkles, Vote, MessageCircle } from 'lucide-react';
 import theme from '../theme';
 
 // Components
@@ -16,6 +16,17 @@ import Meetings from '../components/Meetings';
 import Analytics from '../components/Analytics';
 import ResidentChatbot from '../components/ResidentChatbot';
 import LocalOffers from '../components/LocalOffers';
+
+// Expansion Components
+import ParcelGateLocker from '../components/gate/ParcelGateLocker';
+import GuestPassManager from '../components/gate/GuestPassManager';
+import StaffDirectory from '../components/gate/StaffDirectory';
+import GuardIntercom from '../components/gate/GuardIntercom';
+import AmenityBooking from '../components/lifestyle/AmenityBooking';
+import CommunityClassifieds from '../components/lifestyle/CommunityClassifieds';
+import DigitalAGM from '../components/lifestyle/DigitalAGM';
+import WhatsAppSimulator from '../components/omnichannel/WhatsAppSimulator';
+
 
 // --- DOODLES & ANIMATIONS ---
 const SparkleDoodle = () => (
@@ -62,9 +73,17 @@ const MemberDashboard = () => {
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'profile', label: 'My Profile', icon: User },
+    { id: 'parcels', label: 'Gate Parcels', icon: Package },
+    { id: 'passes', label: 'Guest Passes', icon: QrCode },
+    { id: 'staff', label: 'Domestic Staff', icon: Users },
+    { id: 'intercom', label: 'Guard Intercom', icon: Radio },
+    { id: 'amenities', label: 'Facility Bookings', icon: Sparkles },
+    { id: 'classifieds', label: 'Classifieds & Carpool', icon: Tag },
+    { id: 'agm', label: 'Digital AGM Voting', icon: Vote },
+    { id: 'whatsapp', label: 'WhatsApp Bot', icon: MessageCircle },
+    { id: 'bills', label: 'My Bills', icon: ReceiptText },
     { id: 'notices', label: 'Notice Board', icon: Bell },
     { id: 'meetings', label: 'Global Meetings', icon: Calendar },
-    { id: 'bills', label: 'My Bills', icon: ReceiptText },
     { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
     { id: 'expenses', label: 'Society Expenses', icon: Wallet },
     { id: 'offers', label: 'Local Offers', icon: Tag },
@@ -190,6 +209,14 @@ const MemberDashboard = () => {
             
             {activeTab === 'overview' && <DashboardOverview onNavigate={setActiveTab} />}
             {activeTab === 'profile' && <Profile />}
+            {activeTab === 'parcels' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><ParcelGateLocker /></div>}
+            {activeTab === 'passes' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><GuestPassManager /></div>}
+            {activeTab === 'staff' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><StaffDirectory /></div>}
+            {activeTab === 'intercom' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><GuardIntercom /></div>}
+            {activeTab === 'amenities' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><AmenityBooking /></div>}
+            {activeTab === 'classifieds' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><CommunityClassifieds /></div>}
+            {activeTab === 'agm' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><DigitalAGM /></div>}
+            {activeTab === 'whatsapp' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><WhatsAppSimulator /></div>}
             {activeTab === 'notices' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><NoticeBoard /></div>}
             {activeTab === 'meetings' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><Meetings /></div>}
             {activeTab === 'bills' && <div className="p-5 md:p-[40px]" style={{ background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', flex: 1 }}><MaintenanceBills /></div>}
