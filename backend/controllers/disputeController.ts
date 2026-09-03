@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Dispute from '../models/Dispute';
 import MaintenanceBill from '../models/MaintenanceBill';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+// @ts-ignore
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';

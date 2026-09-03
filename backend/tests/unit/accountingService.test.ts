@@ -4,6 +4,7 @@ import MaintenanceBill from '../../models/MaintenanceBill';
 import Expense from '../../models/Expense';
 import SinkingFund from '../../models/SinkingFund';
 import Society from '../../models/Society';
+import User from '../../models/User';
 
 describe('accountingService Unit Tests', () => {
   let societyId: mongoose.Types.ObjectId;
@@ -29,9 +30,18 @@ describe('accountingService Unit Tests', () => {
       floors: 7
     });
 
+    const resident = await User.create({
+      name: 'Amit Sharma',
+      email: `amit_${Date.now()}@example.com`,
+      password: 'Password123!',
+      role: 'member',
+      societyId,
+      flatDetails: { wing: 'A', flatNumber: '101', residentType: 'Owner' }
+    });
+
     await MaintenanceBill.create({
       societyId,
-      userId: new mongoose.Types.ObjectId(),
+      userId: resident._id,
       title: 'August 2026 Maintenance',
       amount: 4500,
       isPaid: true,

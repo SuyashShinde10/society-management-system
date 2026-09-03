@@ -1,3 +1,4 @@
+import User from '../models/User';
 import MaintenanceBill from '../models/MaintenanceBill';
 import Expense from '../models/Expense';
 import SinkingFund from '../models/SinkingFund';

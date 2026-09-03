@@ -66,3 +66,7 @@ coverage/
 
 # Docker override files with secrets
 docker-compose.override.yml
+
+# Playwright artifacts
+test-results/
+playwright-report/
