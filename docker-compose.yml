@@ -9,32 +9,80 @@ services:
       - NODE_ENV=production
       - MONGO_URI=mongodb://mongo:27017/society-management
       - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET:-fallback_secret_if_not_provided}
+      # SECURITY: JWT_SECRET must be provided via .env or CI secrets.
+      # No fallback — if this is unset the app will fail fast at startup via validateEnv().
+      - JWT_SECRET=${JWT_SECRET}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - INTERNAL_SECRET=${INTERNAL_SECRET}
     depends_on:
-      - mongo
-      - redis
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  worker:
+    build: ./backend
+    command: npm run worker
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongo:27017/society-management
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - INTERNAL_SECRET=${INTERNAL_SECRET}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
     ports:
       - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
 
   mongo:
     image: mongo:6.0
-    ports:
-      - "27017:27017"
+    # SECURITY: Do NOT expose MongoDB port to host in production.
+    # Only the backend service needs access (handled via Docker internal network).
+    # ports:
+    #   - "27017:27017"  ← Removed for security
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    # SECURITY: Do NOT expose Redis port to host in production.
+    # ports:
+    #   - "6379:6379"  ← Removed for security
     volumes:
       - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
 
 volumes:
   mongo_data:

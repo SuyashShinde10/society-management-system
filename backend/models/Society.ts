@@ -4,6 +4,7 @@ export interface ISociety extends Document {
   name: string;
   address: string;
   regNumber: string;
+  slug?: string;
   wings: string[];
   floors: number;
 
@@ -43,6 +44,9 @@ const societySchema: Schema<ISociety> = new Schema({
   regNumber: {
     type: String, required: true, unique: true, trim: true, maxlength: [50, 'Reg number too long']
   },
+  slug: {
+    type: String, unique: true, sparse: true, trim: true, lowercase: true, maxlength: [100, 'Slug too long']
+  },
 
   wings: [{ type: String, trim: true }],
   floors: { type: Number, required: true, min: 0, max: 200 },
@@ -56,7 +60,7 @@ const societySchema: Schema<ISociety> = new Schema({
   amenities: [{ type: String, trim: true }],
   geoJSON: {
     type: { type: String, enum: ['Polygon'], default: 'Polygon' },
-    coordinates: { type: [[[Number]]], default: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]] }
+    coordinates: { type: [[[Number]]], default: undefined }
   },
   logo: { type: String },
   themeConfig: {
@@ -73,6 +77,21 @@ const societySchema: Schema<ISociety> = new Schema({
 
 societySchema.pre(/^find/, function(this: any) {
   this.where({ deletedAt: null });
+});
+
+// Auto-generate slug on Society registration:
+societySchema.pre('save', function(this: any) {
+  if ((this.isNew || this.isModified('name')) && this.name && !this.slug) {
+    let generatedSlug = this.name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    if (!generatedSlug) {
+      generatedSlug = `society-${Date.now()}`;
+    }
+    this.slug = generatedSlug;
+  }
 });
 
 const Society: Model<ISociety> = mongoose.models.Society || mongoose.model<ISociety>('Society', societySchema);

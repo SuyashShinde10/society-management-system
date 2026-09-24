@@ -4,6 +4,8 @@ import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { Calendar } from 'lucide-react';
+import EmptyState from './ui/EmptyState';
+import ComponentError from './ui/ComponentError';
 
 const Meetings = () => {
   const { user } = useContext(AuthContext);
@@ -12,6 +14,7 @@ const Meetings = () => {
   const [form, setForm] = useState({ title: '', description: '', date: '', location: '', targetType: 'All', targetUserId: '' });
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [fetchError, setFetchError] = useState(null);
 
   const isNew = (dateString) => {
     if (!dateString) return false;
@@ -38,11 +41,13 @@ const Meetings = () => {
 
   const fetchMeetings = async () => {
     setIsLoading(true);
+    setFetchError(null);
     try {
       const { data } = await api.get('/meetings');
       setMeetings(data);
     } catch (error) {
       console.error('// FETCH_ERROR');
+      setFetchError(error.response?.data?.message || 'Unable to connect to meetings registry.');
     } finally {
       setIsLoading(false);
     }
@@ -151,8 +156,18 @@ const Meetings = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', maxHeight: '60vh', overflowY: 'auto', paddingRight: '10px', paddingBottom: '20px' }}>
           {isLoading ? (
             <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}><img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '40px', height: '40px', objectFit: 'contain' }} /></div>
+          ) : fetchError ? (
+            <div style={{ gridColumn: '1 / -1' }}>
+              <ComponentError title="Failed to load meetings" error={fetchError} onRetry={fetchMeetings} />
+            </div>
           ) : meetings.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', fontFamily: "'Outfit', sans-serif", fontSize: '14px', color: theme.textSec, textAlign: 'center', background: 'white', padding: '40px', borderRadius: '20px', border: `1px solid ${theme.border}` }}>No upcoming meetings.</div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <EmptyState
+                icon={Calendar}
+                title="No Upcoming Meetings"
+                description="No general body or committee meetings are currently scheduled for your society."
+              />
+            </div>
           ) : (
             meetings.filter(m => 
               (m.title || '').toLowerCase().includes(searchQuery.toLowerCase()) || 

@@ -4,6 +4,8 @@ import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { Wallet } from 'lucide-react';
+import EmptyState from './ui/EmptyState';
+import ComponentError from './ui/ComponentError';
 
 const ExpenseTracker = () => {
   const { user } = useContext(AuthContext);
@@ -13,6 +15,7 @@ const ExpenseTracker = () => {
   const [filterCategory, setFilterCategory] = useState('All');
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const limit = 10;
 
   const isNew = (dateString) => {
@@ -34,12 +37,18 @@ const ExpenseTracker = () => {
   }, []);
 
   const fetchExpenses = async (showLoader = true) => {
-    if (showLoader) setIsLoading(true);
+    if (showLoader) {
+      setIsLoading(true);
+      setFetchError(null);
+    }
     try {
       const { data } = await api.get('/expenses');
       setExpenses(data);
     } catch (error) {
       console.error('// LEDGER_FETCH_ERROR');
+      if (showLoader) {
+        setFetchError(error.response?.data?.message || 'Unable to connect to expense ledger.');
+      }
     } finally {
       if (showLoader) setIsLoading(false);
     }
@@ -180,10 +189,14 @@ const ExpenseTracker = () => {
             <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
               <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
+          ) : fetchError ? (
+            <ComponentError title="Failed to load expenses" error={fetchError} onRetry={() => fetchExpenses(true)} />
           ) : paginatedExpenses.length === 0 ? (
-            <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, fontFamily: "'Outfit', sans-serif", fontSize: '14px' }}>
-              No transaction history found.
-            </div>
+            <EmptyState
+              icon={Wallet}
+              title="No Transactions Recorded"
+              description="No debit or credit entries match your current search or category filter."
+            />
           ) : (
             paginatedExpenses.map((exp) => (
               <div key={exp._id} style={{

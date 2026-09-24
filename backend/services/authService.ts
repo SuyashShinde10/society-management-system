@@ -12,7 +12,8 @@ import logger from '../utils/logger';
 const redisClient = getRedis();
 
 export const login = async (email: string, password: string, ip: string) => {
-  let user = await User.findOne({ email });
+  // select('+password') is needed because password has select:false in schema
+  let user = await User.findOne({ email }).select('+password');
   let isSecurity = false;
 
   if (!user) {
@@ -67,8 +68,10 @@ export const forgotPassword = async (email: string) => {
   if (!user) {
     user = (await SecurityStaff.findOne({ email })) as any;
   }
-  
-  if (!user) throw new Error('USER_NOT_FOUND');
+
+  // SECURITY: Silently return if user not found — never reveal if an email exists in the system.
+  // The controller always returns 200 to prevent email enumeration attacks.
+  if (!user) return;
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -122,9 +125,10 @@ export const resetPassword = async (email: string, otp: string, newPassword: str
     throw new Error('WEAK_PASSWORD');
   }
 
-  let user = await User.findOne({ email });
+  // select('+password') because password has select:false in schema
+  let user = await User.findOne({ email }).select('+password');
   if (!user) {
-    user = (await SecurityStaff.findOne({ email })) as any;
+    user = (await SecurityStaff.findOne({ email }).select('+password')) as any;
   }
   if (!user) throw new Error('USER_NOT_FOUND');
 

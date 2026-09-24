@@ -16,26 +16,24 @@ if (!baseURL) {
 
 const api = axios.create({
   baseURL,
+  // SECURITY: withCredentials is required for the httpOnly auth cookie to be
+  // sent on cross-origin requests. Do NOT store the JWT in localStorage.
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Attach JWT on every request
-api.interceptors.request.use(
-  (config) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// -------------------------------------------------------
+// NOTE: No request interceptor needed for token attachment.
+// The httpOnly cookie is automatically sent by the browser
+// on every request because `withCredentials: true` is set.
+// Adding a manual Authorization header here would duplicate
+// the token and re-introduce XSS risk via localStorage.
+// -------------------------------------------------------
 
 // -------------------------------------------------------
-// Auto-logout on 401 — clears stale/expired tokens and
+// Auto-logout on 401 — clears stale/expired sessions and
 // redirects the user to the login page automatically.
 // -------------------------------------------------------
 api.interceptors.response.use(
@@ -43,8 +41,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        // Only redirect if not already on an auth page and not fetching auth state
+        // Only redirect if not already on an auth page and not fetching initial auth state
         if (!window.location.pathname.includes('/login') && !error.config?.url?.includes('/auth/me')) {
           window.location.href = '/login';
         }

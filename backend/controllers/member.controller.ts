@@ -4,7 +4,7 @@ import logger from '../utils/logger';
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const users = await memberService.getAllUsers((req as any).user);
+    const users = await memberService.getAllUsers((req as any).user, req.query);
     res.json(users);
   } catch (error) {
     logger.error('// GET_USERS_FAULT:', error);

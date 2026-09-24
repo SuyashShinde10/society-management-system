@@ -1,11 +1,14 @@
 import Expense from '../models/Expense';
+import { getPaginationParams, PaginationOptions } from '../utils/paginate';
 
-export const getExpenses = async (user: any) => {
+export const getExpenses = async (user: any, options?: PaginationOptions) => {
   if (!user.societyId) return [];
 
+  const { limit, skip } = getPaginationParams(options);
   return await Expense.find({ societyId: user.societyId })
     .sort({ createdAt: -1 })
-    .limit(200);
+    .skip(skip)
+    .limit(limit);
 };
 
 export const addExpense = async (data: any, user: any) => {

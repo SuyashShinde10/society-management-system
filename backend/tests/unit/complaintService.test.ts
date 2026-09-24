@@ -134,5 +134,132 @@ describe('complaintService', () => {
       const found = await Complaint.findById(complaint._id);
       expect(found).toBeNull();
     });
+
+    it('should reject non-admin users from deleting another member complaint', async () => {
+      const complaint = await Complaint.create({
+        user: adminUser._id,
+        societyId: mockSociety._id,
+        title: 'Unauthorized delete attempt',
+        description: 'Should fail',
+        status: 'Pending'
+      });
+
+      await expect(
+        complaintService.deleteComplaint((complaint._id as mongoose.Types.ObjectId).toString(), memberUser)
+      ).rejects.toThrow('FORBIDDEN');
+    });
+  });
+
+  describe('cross-tenant & authorization isolation', () => {
+    let secondSociety: any;
+    let foreignMember: any;
+    let foreignAdmin: any;
+
+    beforeEach(async () => {
+      secondSociety = await Society.create({
+        name: 'Foreign Society B',
+        regNumber: `REG-FOREIGN-${Date.now()}`,
+        address: '999 Foreign Way',
+        wings: ['B1'],
+        floors: 4
+      });
+
+      foreignMember = await User.create({
+        name: 'Foreign Resident',
+        email: `foreign_member_${Date.now()}@foreign.com`,
+        password: 'password123',
+        role: 'member',
+        societyId: secondSociety._id,
+        isActive: true
+      });
+
+      foreignAdmin = await User.create({
+        name: 'Foreign Admin',
+        email: `foreign_admin_${Date.now()}@foreign.com`,
+        password: 'password123',
+        role: 'admin',
+        societyId: secondSociety._id
+      });
+    });
+
+    it('should prevent Member A from seeing Member B complaints in the same society', async () => {
+      const otherMember = await User.create({
+        name: 'Other Resident',
+        email: `other_${Date.now()}@complaint.com`,
+        password: 'password123',
+        role: 'member',
+        societyId: mockSociety._id,
+        isActive: true
+      });
+
+      await Complaint.create({
+        user: otherMember._id,
+        societyId: mockSociety._id,
+        title: 'Private pipe issue',
+        description: 'Inside my bathroom',
+        status: 'Pending'
+      });
+
+      // memberUser queries complaints: should NOT see otherMember's complaint
+      const memberResult = await complaintService.getComplaints(memberUser, 10);
+      expect(memberResult.complaints.length).toBe(0);
+
+      // adminUser queries complaints: SHOULD see complaints across members in the same society
+      const adminResult = await complaintService.getComplaints(adminUser, 10);
+      expect(adminResult.complaints.length).toBe(1);
+      expect(adminResult.complaints[0].title).toBe('Private pipe issue');
+    });
+
+    it('should completely isolate complaints across different societies (tenants)', async () => {
+      await Complaint.create({
+        user: memberUser._id,
+        societyId: mockSociety._id,
+        title: 'Society A Issue',
+        description: 'Specific to Society A',
+        status: 'Pending'
+      });
+
+      // foreignMember & foreignAdmin from Society B must see 0 complaints from Society A
+      const foreignMemberResult = await complaintService.getComplaints(foreignMember, 10);
+      expect(foreignMemberResult.complaints.length).toBe(0);
+
+      const foreignAdminResult = await complaintService.getComplaints(foreignAdmin, 10);
+      expect(foreignAdminResult.complaints.length).toBe(0);
+    });
+
+    it('should block foreign admin from modifying status of a complaint in another society', async () => {
+      const complaint = await Complaint.create({
+        user: memberUser._id,
+        societyId: mockSociety._id,
+        title: 'Cross Tenant Breach Attempt',
+        description: 'Foreign admin trying to update',
+        status: 'Pending'
+      });
+
+      await expect(
+        complaintService.updateComplaintStatus(
+          (complaint._id as mongoose.Types.ObjectId).toString(),
+          'Resolved',
+          foreignAdmin
+        )
+      ).rejects.toThrow('FORBIDDEN');
+    });
+
+    it('should block foreign admin from deleting a complaint in another society', async () => {
+      const complaint = await Complaint.create({
+        user: memberUser._id,
+        societyId: mockSociety._id,
+        title: 'Cross Tenant Delete Attempt',
+        description: 'Foreign admin trying to delete',
+        status: 'Pending'
+      });
+
+      await expect(
+        complaintService.deleteComplaint(
+          (complaint._id as mongoose.Types.ObjectId).toString(),
+          foreignAdmin
+        )
+      ).rejects.toThrow('FORBIDDEN');
+    });
   });
 });

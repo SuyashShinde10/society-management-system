@@ -30,7 +30,7 @@ export const checkOutVisitor = async (req: Request, res: Response) => {
 
 export const getSocietyVisitors = async (req: Request, res: Response) => {
   try {
-    const visitors = await visitorService.getSocietyVisitors((req as any).user);
+    const visitors = await visitorService.getSocietyVisitors((req as any).user, req.query);
     res.json(visitors);
   } catch (error) {
     logger.error('// GET_VISITORS_ERROR:', error);
@@ -40,7 +40,7 @@ export const getSocietyVisitors = async (req: Request, res: Response) => {
 
 export const getMyVisitors = async (req: Request, res: Response) => {
   try {
-    const visitors = await visitorService.getMyVisitors((req as any).user);
+    const visitors = await visitorService.getMyVisitors((req as any).user, req.query);
     res.json(visitors);
   } catch (error) {
     logger.error('// GET_MY_VISITORS_ERROR:', error);

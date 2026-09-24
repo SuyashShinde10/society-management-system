@@ -5,47 +5,7 @@ import { motion } from 'framer-motion';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';
-
-const SparkleDoodle = () => (
-  <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute', top: '-10px', left: '-20px' }}>
-    <motion.path 
-      d="M15 0L17 12L30 15L17 17L15 30L12 17L0 15L12 12L15 0Z" 
-      fill="#D9734E" 
-      initial={{ scale: 0, rotate: 45 }}
-      animate={{ scale: 1, rotate: 0 }}
-      transition={{ type: "spring", stiffness: 200, delay: 1 }}
-    />
-  </svg>
-);
-
-const AnimatedText = ({ text }) => {
-  const words = text.split(" ");
-  return (
-    <motion.span 
-      initial="hidden" 
-      animate="visible"
-      variants={{
-        visible: { transition: { staggerChildren: 0.12 } },
-        hidden: {}
-      }}
-      style={{ display: "inline-flex", flexWrap: "wrap", position: 'relative' }}
-    >
-      <SparkleDoodle />
-      {words.map((word, index) => (
-        <motion.span 
-          key={index}
-          variants={{
-            hidden: { opacity: 0, y: 20 },
-            visible: { opacity: 1, y: 0, transition: { type: "spring", damping: 12, stiffness: 100 } }
-          }} 
-          style={{ marginRight: "8px" }}
-        >
-          {word}
-        </motion.span>
-      ))}
-    </motion.span>
-  );
-};
+import AnimatedText from '../components/ui/AnimatedText';
 
 const Login = () => {
   const [email, setEmail] = useState('');

@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 
 export interface IParcel extends Document {
@@ -33,6 +34,17 @@ const ParcelSchema = new Schema<IParcel>(
   },
   { timestamps: true }
 );
+
+// Hash OTP before saving so plaintext is never stored in DB
+ParcelSchema.pre('save', async function () {
+  if (this.isModified('claimOtp') && this.claimOtp) {
+    const salt = await bcrypt.genSalt(10);
+    this.claimOtp = await bcrypt.hash(this.claimOtp, salt);
+  }
+});
+
+ParcelSchema.index({ societyId: 1, status: 1 });
+ParcelSchema.index({ societyId: 1, createdAt: -1 });
 
 const Parcel: Model<IParcel> = mongoose.models.Parcel || mongoose.model<IParcel>('Parcel', ParcelSchema);
 export default Parcel;

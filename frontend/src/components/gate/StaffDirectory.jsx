@@ -5,11 +5,14 @@ import AuthContext from '../../context/AuthContext';
 import { Users, ShieldCheck, Star, LogIn, LogOut, Plus, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import EmptyState from '../ui/EmptyState';
+import ComponentError from '../ui/ComponentError';
 
 const StaffDirectory = () => {
   const { user } = useContext(AuthContext);
   const [staffList, setStaffList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Form State
@@ -23,10 +26,12 @@ const StaffDirectory = () => {
   const fetchStaff = async () => {
     try {
       setLoading(true);
+      setFetchError(null);
       const { data } = await api.get('/gate/staff');
       setStaffList(data);
     } catch (err) {
       toast.error('Failed to load domestic staff');
+      setFetchError(err.response?.data?.message || 'Unable to connect to domestic staff directory.');
     } finally {
       setLoading(false);
     }
@@ -102,12 +107,16 @@ const StaffDirectory = () => {
 
       {loading ? (
         <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>Loading staff directory...</div>
+      ) : fetchError ? (
+        <ComponentError title="Failed to load domestic staff" error={fetchError} onRetry={fetchStaff} />
       ) : staffList.length === 0 ? (
-        <div style={{ background: 'white', borderRadius: '20px', padding: '40px', textAlign: 'center', border: `1px solid ${theme.border}` }}>
-          <Users size={48} color={theme.accent} style={{ opacity: 0.4, marginBottom: '12px' }} />
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '18px', color: theme.textMain }}>No domestic staff recorded</h4>
-          <p style={{ margin: 0, fontSize: '14px', color: theme.textSec }}>Register verified maids, cooks, and drivers to monitor gate entry.</p>
-        </div>
+        <EmptyState
+          icon={Users}
+          title="No Domestic Staff Recorded"
+          description="Register verified maids, cooks, and drivers to monitor gate attendance."
+          actionLabel={user?.role === 'admin' ? "Register New Staff" : undefined}
+          onAction={user?.role === 'admin' ? () => setShowAddModal(true) : undefined}
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
           {staffList.map((staff) => (

@@ -4,8 +4,10 @@ import logger from '../utils/logger';
 
 export const logParcel = async (req: Request, res: Response) => {
   try {
-    const parcel = await gateService.logParcel(req.body, (req as any).user);
-    res.status(201).json({ message: 'Parcel logged successfully', parcel });
+    const { parcel, rawClaimOtp } = await gateService.logParcel(req.body, (req as any).user);
+    // rawClaimOtp is sent in the response so the guard can display it to the recipient.
+    // It is NOT stored in the DB (only the bcrypt hash is).
+    res.status(201).json({ message: 'Parcel logged successfully', parcel, claimOtp: rawClaimOtp });
   } catch (error: any) {
     logger.error('Error logging parcel:', error);
     res.status(400).json({ error: error.message || 'Failed to log parcel' });

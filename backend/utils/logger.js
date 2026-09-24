@@ -1,8 +1,20 @@
 const winston = require('winston');
+const { AsyncLocalStorage } = require('async_hooks');
+
+const asyncLocalStorage = new AsyncLocalStorage();
+
+const attachRequestId = winston.format((info) => {
+  const store = asyncLocalStorage.getStore();
+  if (store && store.requestId) {
+    info.requestId = store.requestId;
+  }
+  return info;
+});
 
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
+    attachRequestId(),
     winston.format.timestamp(),
     winston.format.json()
   ),
@@ -15,8 +27,13 @@ const logger = winston.createLogger({
 
 if (process.env.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
-    format: winston.format.simple()
+    format: winston.format.combine(
+      attachRequestId(),
+      winston.format.simple()
+    )
   }));
 }
 
+logger.asyncLocalStorage = asyncLocalStorage;
 module.exports = logger;
+

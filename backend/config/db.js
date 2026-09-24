@@ -12,6 +12,7 @@ const connectDB = async () => {
 
   try {
     const db = await mongoose.connect(process.env.MONGO_URI, {
+      maxPoolSize: 20,
       serverSelectionTimeoutMS: 5000 // Stop trying after 5 seconds
     });
     mongoose.plugin(schema => {

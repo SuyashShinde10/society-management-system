@@ -3,6 +3,7 @@ import Staff from '../models/Staff';
 import StaffAttendance from '../models/StaffAttendance';
 import GuestPass from '../models/GuestPass';
 import User from '../models/User';
+import bcrypt from 'bcryptjs';
 import logger from '../utils/logger';
 
 // --- PARCEL WORKFLOW ---
@@ -16,10 +17,10 @@ export const logParcel = async (data: any, guardUser: any) => {
     role: 'member',
     wing: { $regex: new RegExp(`^${wing}$`, 'i') },
     flatNumber: { $regex: new RegExp(`^${flatNumber}$`, 'i') }
-  });
+  }).select('_id');
 
-  // Generate 4-digit claim OTP
-  const claimOtp = Math.floor(1000 + Math.random() * 9000).toString();
+  // Generate 4-digit claim OTP (raw — will be hashed by Parcel pre-save hook)
+  const rawClaimOtp = Math.floor(1000 + Math.random() * 9000).toString();
 
   const parcel = new Parcel({
     societyId,
@@ -28,22 +29,27 @@ export const logParcel = async (data: any, guardUser: any) => {
     recipientId: recipient ? recipient._id : null,
     wing,
     flatNumber,
-    claimOtp,
+    claimOtp: rawClaimOtp,
     status: 'At Gate',
     notes,
     loggedBy: guardUser._id
   });
 
   await parcel.save();
-  logger.info(`[PARCEL LOGGED] Flat ${wing}-${flatNumber}, Carrier: ${carrier}, OTP: ${claimOtp}`);
-  return parcel;
+  logger.info(`[PARCEL LOGGED] Flat ${wing}-${flatNumber}, Carrier: ${carrier}`);
+
+  // Return parcel + rawClaimOtp so the caller can send it via SMS/notification.
+  // The DB only stores the bcrypt hash — never log the raw OTP in production.
+  return { parcel, rawClaimOtp };
 };
 
 export const claimParcel = async (parcelId: string, claimOtp: string, guardUser: any) => {
   const parcel = await Parcel.findOne({ _id: parcelId, societyId: guardUser.societyId });
   if (!parcel) throw new Error('PARCEL_NOT_FOUND');
   if (parcel.status === 'Claimed') throw new Error('PARCEL_ALREADY_CLAIMED');
-  if (parcel.claimOtp !== claimOtp.trim()) throw new Error('INVALID_CLAIM_OTP');
+
+  const isOtpValid = await bcrypt.compare(claimOtp.trim(), parcel.claimOtp);
+  if (!isOtpValid) throw new Error('INVALID_CLAIM_OTP');
 
   parcel.status = 'Claimed';
   parcel.claimedAt = new Date();
@@ -156,8 +162,8 @@ export const createGuestPass = async (data: any, residentUser: any) => {
   const { guestName, guestPhone, purpose, validDate } = data;
   const societyId = residentUser.societyId;
 
-  // Generate 6-digit numeric pass code
-  const passCode = Math.floor(100000 + Math.random() * 900000).toString();
+  // Generate 6-digit numeric pass code (raw — will be hashed by GuestPass pre-save hook)
+  const rawPassCode = Math.floor(100000 + Math.random() * 900000).toString();
 
   const pass = new GuestPass({
     societyId,
@@ -165,40 +171,54 @@ export const createGuestPass = async (data: any, residentUser: any) => {
     guestName,
     guestPhone,
     purpose: purpose || 'Guest',
-    passCode,
+    passCode: rawPassCode,
     validDate: validDate ? new Date(validDate) : new Date(Date.now() + 24 * 60 * 60 * 1000),
     status: 'Active'
   });
 
   await pass.save();
-  logger.info(`[GUEST PASS CREATED] For ${guestName}, Code: ${passCode} by ${residentUser.name}`);
+  logger.info(`[GUEST PASS CREATED] For ${guestName}, Code: ${rawPassCode} by ${residentUser.name}`);
+
+  // Return pass with rawPassCode attached in memory so the caller can send/share it
+  (pass as any).rawPassCode = rawPassCode;
+  (pass as any).passCode = rawPassCode;
   return pass;
 };
 
 export const verifyGuestPass = async (passCode: string, guardUser: any) => {
-  const pass = await GuestPass.findOne({
+  const activePasses = await GuestPass.find({
     societyId: guardUser.societyId,
-    passCode: passCode.trim(),
     status: 'Active'
   }).populate('residentId', 'name wing flatNumber phone');
 
-  if (!pass) throw new Error('INVALID_OR_EXPIRED_PASS');
+  let matchingPass = null;
+  const trimmedCode = passCode.trim();
+
+  for (const p of activePasses) {
+    const isMatch = await bcrypt.compare(trimmedCode, p.passCode);
+    if (isMatch) {
+      matchingPass = p;
+      break;
+    }
+  }
+
+  if (!matchingPass) throw new Error('INVALID_OR_EXPIRED_PASS');
 
   // Verify expiration date
   const now = new Date();
-  if (now > new Date(pass.validDate)) {
-    pass.status = 'Expired';
-    await pass.save();
+  if (now > new Date(matchingPass.validDate)) {
+    matchingPass.status = 'Expired';
+    await matchingPass.save();
     throw new Error('PASS_EXPIRED');
   }
 
-  pass.status = 'Used';
-  pass.verifiedAt = now;
-  pass.verifiedBy = guardUser._id;
-  await pass.save();
+  matchingPass.status = 'Used';
+  matchingPass.verifiedAt = now;
+  matchingPass.verifiedBy = guardUser._id;
+  await matchingPass.save();
 
-  logger.info(`[GUEST PASS VERIFIED] Guest: ${pass.guestName}, Visiting: ${(pass.residentId as any)?.name}`);
-  return pass;
+  logger.info(`[GUEST PASS VERIFIED] Guest: ${matchingPass.guestName}, Visiting: ${(matchingPass.residentId as any)?.name}`);
+  return matchingPass;
 };
 
 export const getMyGuestPasses = async (user: any) => {

@@ -5,7 +5,7 @@ import logger from '../utils/logger';
 // @desc    Get all expenses for the society
 export const getExpenses = async (req: Request, res: Response) => {
   try {
-    const expenses = await expenseService.getExpenses((req as any).user);
+    const expenses = await expenseService.getExpenses((req as any).user, req.query);
     res.json(expenses);
   } catch (error) {
     logger.error('Error fetching expenses:', error);

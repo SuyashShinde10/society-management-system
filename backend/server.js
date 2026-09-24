@@ -53,7 +53,14 @@ app.use((req, res, next) => {
   } else {
     res.setHeader('Cache-Control', 'no-store');
   }
-  next();
+
+  if (logger.asyncLocalStorage) {
+    logger.asyncLocalStorage.run({ requestId: req.id }, () => {
+      next();
+    });
+  } else {
+    next();
+  }
 });
 
 // -------------------------------------------------------
@@ -63,9 +70,34 @@ const { telemetry, telemetryMiddleware } = require('./utils/telemetry');
 app.use(telemetryMiddleware);
 
 // -------------------------------------------------------
-// SECURITY HEADERS
+// SECURITY HEADERS & CSP
 // -------------------------------------------------------
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+        connectSrc: [
+          "'self'",
+          process.env.FRONTEND_URL,
+          "https://awaastech.vercel.app",
+          "https://society-management-system-nine.vercel.app",
+          "https://society-management-system-flame.vercel.app"
+        ].filter(Boolean)
+      }
+    }
+  })
+);
+
+// Request tracing logger
+app.use((req, res, next) => {
+  logger.info(`[${req.method}] ${req.url} - RequestID: ${req.id}`);
+  next();
+});
 
 // -------------------------------------------------------
 // CORS
@@ -80,12 +112,13 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
+      // No origin = same-origin or server-to-server — always allow
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      // Allow localhost in non-production environments only
       if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        origin.endsWith('.vercel.app') ||
-        origin.includes('localhost') ||
-        origin.includes('127.0.0.1')
+        process.env.NODE_ENV !== 'production' &&
+        (origin.includes('localhost') || origin.includes('127.0.0.1'))
       ) {
         return callback(null, true);
       }
@@ -225,27 +258,39 @@ app.get('/api/v1/health', async (req, res) => {
   });
 });
 
+// -------------------------------------------------------
+// INTERNAL-ONLY GUARD — blocks telemetry/docs in production
+// unless request comes from a trusted source (localhost or
+// an internal admin secret header).
+// -------------------------------------------------------
+const internalOnly = (req, res, next) => {
+  if (process.env.NODE_ENV !== 'production') return next();
+  const internalSecret = req.headers['x-internal-secret'];
+  if (internalSecret && internalSecret === process.env.INTERNAL_SECRET) return next();
+  return res.status(403).json({ message: 'Forbidden — internal endpoint' });
+};
+
 const { swaggerUiHtml, openApiSpec } = require('./config/swagger');
 
 // Interactive Swagger/OpenAPI API documentation
-app.get('/api-docs', (req, res) => {
+app.get('/api-docs', internalOnly, (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.send(swaggerUiHtml);
 });
-app.get('/api-docs/spec.json', (req, res) => {
+app.get('/api-docs/spec.json', internalOnly, (req, res) => {
   res.json(openApiSpec);
 });
 
 // OpenTelemetry & APM metrics endpoints
 const { dlqManager } = require('./utils/dlq');
-app.get('/api/telemetry/metrics', (req, res) => {
+app.get('/api/telemetry/metrics', internalOnly, (req, res) => {
   res.json(telemetry.getMetricsSummary());
 });
-app.get('/api/telemetry/prometheus', (req, res) => {
+app.get('/api/telemetry/prometheus', internalOnly, (req, res) => {
   res.setHeader('Content-Type', 'text/plain');
   res.send(telemetry.getPrometheusFormat());
 });
-app.get('/api/telemetry/dlq', (req, res) => {
+app.get('/api/telemetry/dlq', internalOnly, (req, res) => {
   res.json(dlqManager.getDlqSummary());
 });
 

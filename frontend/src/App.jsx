@@ -1,7 +1,18 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 // Pages
 const Home = React.lazy(() => import('./pages/Home'));
@@ -14,6 +25,7 @@ const SuperAdminDashboard = React.lazy(() => import('./pages/SuperAdminDashboard
 const SecurityDashboard = React.lazy(() => import('./pages/SecurityDashboard'));
 const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
 const VendorQuoteSubmit = React.lazy(() => import('./pages/VendorQuoteSubmit'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 // Guards
 import PrivateRoute from './components/PrivateRoute';
@@ -42,8 +54,9 @@ const PageSkeleton = () => (
 
 const App = () => {
   return (
-    <AuthProvider>
-      <Router>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
         <Toaster position="top-right" richColors closeButton />
         <ErrorBoundary>
           <React.Suspense fallback={<PageSkeleton />}>
@@ -115,13 +128,14 @@ const App = () => {
                 }
               />
 
-              {/* Smart redirect after login — handled in PrivateRoute */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              {/* 404 — shows a proper error page instead of silently redirecting */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </React.Suspense>
         </ErrorBoundary>
       </Router>
     </AuthProvider>
+  </QueryClientProvider>
   );
 };
 

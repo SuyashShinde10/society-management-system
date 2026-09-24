@@ -5,13 +5,8 @@ const logger = require('../utils/logger');
 const redisClient = getRedis();
 
 const protect = async (req, res, next) => {
-  let token;
-
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies && req.cookies.token) {
-    token = req.cookies.token;
-  }
+  // Enforce cookie-only auth: JWT must be in the httpOnly cookie to prevent token injection / XSS
+  const token = req.cookies?.token;
 
   if (token) {
     try {

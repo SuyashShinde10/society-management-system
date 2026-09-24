@@ -4,7 +4,7 @@ import logger from '../utils/logger';
 
 export const getNotices = async (req: Request, res: Response) => {
   try {
-    const notices = await noticeService.getNotices((req as any).user);
+    const notices = await noticeService.getNotices((req as any).user, req.query);
     res.json(notices);
   } catch (error) {
     logger.error('Error fetching notices:', error);

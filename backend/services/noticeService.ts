@@ -3,8 +3,9 @@ import User from '../models/User';
 import sendEmail from '../utils/sendEmail';
 import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
 import logger from '../utils/logger';
+import { getPaginationParams, PaginationOptions } from '../utils/paginate';
 
-export const getNotices = async (user: any) => {
+export const getNotices = async (user: any, options?: PaginationOptions) => {
   if (!user.societyId) return [];
 
   const filter: any = { societyId: user.societyId };
@@ -15,9 +16,11 @@ export const getNotices = async (user: any) => {
     ];
   }
 
+  const { limit, skip } = getPaginationParams(options);
   return await Notice.find(filter)
     .sort({ createdAt: -1 })
-    .limit(100);
+    .skip(skip)
+    .limit(limit);
 };
 
 export const addNotice = async (data: any, user: any) => {

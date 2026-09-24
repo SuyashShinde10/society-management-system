@@ -28,6 +28,10 @@ module.exports = {
   },
 
   async down(db, client) {
-    // Reversible if needed
+    // Rollback flatDetails backfill by removing the nested object
+    await db.collection('users').updateMany(
+      { flatDetails: { $exists: true } },
+      { $unset: { flatDetails: '' } }
+    );
   }
 };

@@ -109,4 +109,32 @@ describe('authService', () => {
       expect((userProfile as any)?.password).toBeUndefined();
     });
   });
+
+  describe('forgotPassword — email enumeration prevention', () => {
+    it('should NOT throw when email does not exist (prevents user enumeration)', async () => {
+      // SECURITY: forgotPassword must silently succeed even for unknown emails
+      // so attackers cannot determine which emails are registered.
+      await expect(
+        authService.forgotPassword('nonexistent_user_xyz@unknown.com')
+      ).resolves.toBeUndefined();
+    });
+
+    it('should silently succeed for a valid email', async () => {
+      const email = `fp_user_${Date.now()}@test.com`;
+      const hashedPassword = await bcrypt.hash('password123', 10);
+
+      await User.create({
+        name: 'Forgot Password User',
+        email,
+        password: hashedPassword,
+        role: 'member',
+        societyId: mockSociety._id,
+        isActive: true
+      });
+
+      await expect(
+        authService.forgotPassword(email)
+      ).resolves.toBeUndefined();
+    });
+  });
 });

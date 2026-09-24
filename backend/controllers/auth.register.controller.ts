@@ -28,7 +28,8 @@ export const registerUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Password must contain at least 8 characters, one uppercase, one lowercase, and one number.' });
     }
 
-    const userExists = await User.findOne({ email });
+    // findOne without +password is intentional — we only need to check existence, not authenticate
+    const userExists = await User.findOne({ email }).select('_id');
     if (userExists) return res.status(400).json({ message: 'EMAIL_ALREADY_IN_USE' });
 
     if (role !== 'admin') {
@@ -53,9 +54,6 @@ export const registerUser = async (req: Request, res: Response) => {
       // Valid OTP
       await Otp.deleteOne({ email });
     }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
 
     let assignedSocietyId;
 
@@ -82,7 +80,7 @@ export const registerUser = async (req: Request, res: Response) => {
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password,
       role: 'admin',
       societyId: assignedSocietyId
     });
@@ -112,18 +110,15 @@ export const memberSelfRegister = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Password must contain at least 8 characters, one uppercase, one lowercase, and one number.' });
     }
 
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email }).select('_id');
     if (userExists) return res.status(400).json({ message: 'EMAIL_ALREADY_IN_USE' });
 
     const societyExists = await Society.findById(societyId);
     if (!societyExists) return res.status(400).json({ message: 'SOCIETY_NOT_FOUND' });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     await User.create({
       name, email,
-      password: hashedPassword,
+      password,
       role: 'member',
       societyId,
       phone,

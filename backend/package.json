@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "ts-node server.js",
-    "worker": "ts-node worker.js",
+    "build": "tsc",
+    "build:check": "tsc --noEmit",
+    "start": "node dist/server.js",
+    "worker": "node dist/worker.js",
+    "start:dev": "node server.js",
     "dev": "ts-node-dev --respawn --transpile-only server.js",
     "seed": "ts-node scripts/seed.ts",
     "migrate:up": "migrate-mongo up",
@@ -51,7 +54,6 @@
     "@types/node": "^26.4.1",
     "jest": "^29.7.0",
     "mongodb-memory-server": "^11.2.0",
-    "nodemon": "^3.1.11",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.12",
     "ts-node-dev": "^2.0.0"

@@ -15,7 +15,7 @@ export const loginUser = async (req: Request, res: Response) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      sameSite: (process.env.COOKIE_SAMESITE as any) || (process.env.NODE_ENV === 'production' ? 'strict' : 'lax'),
       maxAge: 8 * 60 * 60 * 1000
     });
 
@@ -75,12 +75,10 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     await authService.forgotPassword(email);
 
+    // SECURITY: Always return 200 — never reveal whether the email exists in the system.
     res.json({ message: 'OTP_SENT_SUCCESSFULLY' });
   } catch (error: any) {
     logger.error('// FORGOT_PASSWORD_FAULT:', error);
-    if (error.message === 'USER_NOT_FOUND') {
-      return res.status(404).json({ message: 'USER_NOT_FOUND' });
-    }
     res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
   }
 };

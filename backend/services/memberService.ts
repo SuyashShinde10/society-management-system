@@ -3,11 +3,16 @@ import bcrypt from 'bcryptjs';
 import sendEmail from '../utils/sendEmail';
 import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
 import logger from '../utils/logger';
+import { getPaginationParams } from '../utils/paginate';
 
-export const getAllUsers = async (user: any) => {
+export const getAllUsers = async (user: any, options?: { page?: number | string; limit?: number | string }) => {
+  const { limit, skip } = getPaginationParams(options);
   return await User.find({ societyId: user.societyId, role: 'member', isActive: true })
     .select('-password')
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
 };
 
 export const getPendingMembers = async (user: any) => {
@@ -77,7 +82,7 @@ export const addMember = async (data: any, admin: any) => {
     throw new Error('NAME_AND_EMAIL_REQUIRED');
   }
 
-  const userExists = await User.findOne({ email });
+  const userExists = await User.findOne({ email }).select('_id');
   if (userExists) throw new Error('USER_IDENT_ALREADY_EXISTS');
 
   const firstName = name.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '');

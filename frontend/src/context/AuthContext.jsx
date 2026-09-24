@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import api from "../api"; 
+import api from "../api";
 
 const AuthContext = createContext();
 
@@ -21,19 +21,18 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
+      // SECURITY: We rely solely on the httpOnly cookie set by the backend.
+      // Do NOT use localStorage for token storage — it is XSS-accessible.
+      // The api instance has `withCredentials: true` so the cookie is sent automatically.
       try {
         const { data } = await api.get('/auth/me');
         if (data.user) {
           setUser(data.user);
           fetchTheme();
         }
-      } catch (e) {
-        localStorage.removeItem('token');
+      } catch {
+        // 401 is handled by the response interceptor in api.js
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -44,17 +43,12 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const { data } = await api.post('/auth/login', { email, password });
-      
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-      }
+      // SECURITY: Do NOT store token in localStorage (XSS risk).
+      // The backend sets an httpOnly cookie automatically — we just read the user from the response.
       setUser(data.user);
-      
       fetchTheme();
-
       return { success: true, role: data.user.role };
     } catch (error) {
-      console.error("Login Error:", error);
       return { success: false, message: error.response?.data?.message || "Login failed" };
     }
   };
@@ -64,7 +58,6 @@ export const AuthProvider = ({ children }) => {
       await api.post('/auth/register', userData);
       return { success: true };
     } catch (error) {
-      console.error("Register Error:", error);
       return { success: false, message: error.response?.data?.message || "Registration failed" };
     }
   };
@@ -72,17 +65,19 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await api.post('/auth/logout');
-    } catch (err) {
-      // Ignore if it fails, we still want to log out locally
+    } catch {
+      // Ignore if it fails — we still clear local state below
     }
-    localStorage.removeItem('token');
     setUser(null);
     document.documentElement.style.removeProperty('--theme-accent');
     document.documentElement.style.removeProperty('--theme-bg');
   };
 
+  /** Derived auth flag — use this instead of checking `user !== null` everywhere */
+  const isAuthenticated = !!user;
+
   return (
-    <AuthContext.Provider value={{ user, setUser, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, register, logout, loading, isAuthenticated }}>
       {!loading && children}
     </AuthContext.Provider>
   );

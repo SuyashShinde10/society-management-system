@@ -27,8 +27,8 @@ describe('gateService Unit Tests', () => {
   });
 
   describe('Parcel Gate Locker', () => {
-    it('should log a parcel and generate a 4-digit claim OTP', async () => {
-      const parcel = await gateService.logParcel(
+    it('should log a parcel and generate a hashed 4-digit claim OTP', async () => {
+      const { parcel, rawClaimOtp } = await gateService.logParcel(
         {
           carrier: 'Amazon',
           trackingNumber: 'AMZ-123456',
@@ -41,12 +41,16 @@ describe('gateService Unit Tests', () => {
 
       expect(parcel).toBeDefined();
       expect(parcel.status).toBe('At Gate');
-      expect(parcel.claimOtp).toHaveLength(4);
       expect(parcel.carrier).toBe('Amazon');
+      // rawClaimOtp is the 4-digit code sent to the resident
+      expect(rawClaimOtp).toHaveLength(4);
+      // DB must store the bcrypt hash, NOT plaintext
+      expect(parcel.claimOtp).not.toBe(rawClaimOtp);
+      expect(parcel.claimOtp.startsWith('$2')).toBe(true); // bcrypt prefix
     });
 
     it('should successfully claim parcel with correct OTP', async () => {
-      const parcel = await gateService.logParcel(
+      const { parcel, rawClaimOtp } = await gateService.logParcel(
         {
           carrier: 'Flipkart',
           wing: 'A',
@@ -57,7 +61,7 @@ describe('gateService Unit Tests', () => {
 
       const claimed = await gateService.claimParcel(
         parcel._id.toString(),
-        parcel.claimOtp,
+        rawClaimOtp,   // use the raw OTP returned for verification
         guardUser
       );
 
@@ -66,7 +70,7 @@ describe('gateService Unit Tests', () => {
     });
 
     it('should reject claim with invalid OTP', async () => {
-      const parcel = await gateService.logParcel(
+      const { parcel } = await gateService.logParcel(
         {
           carrier: 'BlueDart',
           wing: 'A',
@@ -117,6 +121,12 @@ describe('gateService Unit Tests', () => {
 
       expect(pass.passCode).toHaveLength(6);
       expect(pass.status).toBe('Active');
+
+      // Verify passCode in database is hashed with bcrypt, NOT plaintext
+      const dbPass = await GuestPass.findById(pass._id);
+      expect(dbPass?.passCode).toBeDefined();
+      expect(dbPass?.passCode).not.toBe(pass.passCode);
+      expect(dbPass?.passCode.startsWith('$2')).toBe(true);
 
       const verified = await gateService.verifyGuestPass(pass.passCode, guardUser);
       expect(verified.status).toBe('Used');

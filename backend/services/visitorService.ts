@@ -92,21 +92,26 @@ export const checkOutVisitor = async (visitorId: string, user: any) => {
   return visitor;
 };
 
-export const getSocietyVisitors = async (user: any) => {
+import { getPaginationParams, PaginationOptions } from '../utils/paginate';
+
+export const getSocietyVisitors = async (user: any, options?: PaginationOptions) => {
+  const { limit, skip } = getPaginationParams(options);
   return await Visitor.find({ societyId: user.societyId })
     .sort({ createdAt: -1 })
-    .limit(100);
+    .skip(skip)
+    .limit(limit);
 };
 
-export const getMyVisitors = async (user: any) => {
+export const getMyVisitors = async (user: any, options?: PaginationOptions) => {
   const { flatDetails } = user;
   if (!flatDetails || !flatDetails.wing || !flatDetails.flatNumber) {
     return [];
   }
 
+  const { limit, skip } = getPaginationParams(options);
   return await Visitor.find({ 
     societyId: user.societyId,
     wing: flatDetails.wing,
     flatNumber: flatDetails.flatNumber
-  }).sort({ createdAt: -1 }).limit(50);
+  }).sort({ createdAt: -1 }).skip(skip).limit(limit);
 };

@@ -85,7 +85,7 @@ describe('Phase 3 Features E2E Tests', () => {
 
     const res = await request(app)
       .post('/api/v1/disputes/message')
-      .set('Authorization', `Bearer ${tokenResident}`)
+      .set('Cookie', `token=${tokenResident}`)
       .send({
         disputeId: dummyBill._id, // Will fail if dispute doesn't exist, we must initiate first
       });
@@ -98,7 +98,7 @@ describe('Phase 3 Features E2E Tests', () => {
     // 1. Create project
     const pRes = await request(app)
       .post('/api/v1/vendors/projects')
-      .set('Authorization', `Bearer ${tokenAdmin}`)
+      .set('Cookie', `token=${tokenAdmin}`)
       .send({
         title: 'Painting Block A',
         description: 'Exterior painting',
@@ -125,7 +125,7 @@ describe('Phase 3 Features E2E Tests', () => {
     // 3. Create Escrow
     const eRes = await request(app)
       .post('/api/v1/escrow')
-      .set('Authorization', `Bearer ${tokenAdmin}`)
+      .set('Cookie', `token=${tokenAdmin}`)
       .send({
         projectId,
         vendorQuoteId: quoteId,
@@ -138,7 +138,7 @@ describe('Phase 3 Features E2E Tests', () => {
     // 4. Verify Geofence
     const gRes = await request(app)
       .post('/api/v1/escrow/verify/geofence')
-      .set('Authorization', `Bearer ${tokenAdmin}`)
+      .set('Cookie', `token=${tokenAdmin}`)
       .send({
         escrowId,
         latitude: 12.95,
@@ -150,7 +150,7 @@ describe('Phase 3 Features E2E Tests', () => {
     // 5. Verify Resident
     const rRes = await request(app)
       .post('/api/v1/escrow/verify/resident')
-      .set('Authorization', `Bearer ${tokenResident}`)
+      .set('Cookie', `token=${tokenResident}`)
       .send({ escrowId });
     expect(rRes.statusCode).toBe(200);
     expect(rRes.body.escrow.status).toBe('Released');

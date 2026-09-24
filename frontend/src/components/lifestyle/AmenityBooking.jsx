@@ -5,12 +5,15 @@ import AuthContext from '../../context/AuthContext';
 import { Calendar, Clock, Users, Plus, CheckCircle, Sparkles, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import EmptyState from '../ui/EmptyState';
+import ComponentError from '../ui/ComponentError';
 
 const AmenityBooking = () => {
   const { user } = useContext(AuthContext);
   const [amenities, setAmenities] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
 
   // Booking Modal State
   const [selectedAmenity, setSelectedAmenity] = useState(null);
@@ -36,6 +39,7 @@ const AmenityBooking = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      setFetchError(null);
       const [amenitiesRes, bookingsRes] = await Promise.all([
         api.get('/lifestyle/amenities'),
         api.get('/lifestyle/amenities/bookings')
@@ -44,6 +48,7 @@ const AmenityBooking = () => {
       setMyBookings(bookingsRes.data);
     } catch (err) {
       toast.error('Failed to load amenities');
+      setFetchError(err.response?.data?.message || 'Unable to connect to facility booking service.');
     } finally {
       setLoading(false);
     }
@@ -125,6 +130,16 @@ const AmenityBooking = () => {
       {/* Facilities Grid */}
       {loading ? (
         <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>Loading facilities...</div>
+      ) : fetchError ? (
+        <ComponentError title="Failed to load facilities" error={fetchError} onRetry={fetchData} />
+      ) : amenities.length === 0 ? (
+        <EmptyState
+          icon={Sparkles}
+          title="No Facilities Available"
+          description="There are currently no community amenities configured for booking in your society."
+          actionLabel={user?.role === 'admin' ? "Add New Facility" : undefined}
+          onAction={user?.role === 'admin' ? () => setShowAddModal(true) : undefined}
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
           {amenities.map((amenity) => (

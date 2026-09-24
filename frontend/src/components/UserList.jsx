@@ -4,10 +4,14 @@ import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { Users, Search, Edit2, Trash2 } from 'lucide-react';
+import EmptyState from './ui/EmptyState';
+import ComponentError from './ui/ComponentError';
 
 const UserList = ({ refreshTrigger }) => {
   const { user } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [editingId, setEditingId] = useState(null);
@@ -22,11 +26,16 @@ const UserList = ({ refreshTrigger }) => {
   }, [user, refreshTrigger]);
 
   const fetchUsers = async () => {
+    setIsLoading(true);
+    setFetchError(null);
     try {
       const { data } = await api.get(`/auth/users?_t=${Date.now()}`);
       setUsers(data);
     } catch (error) {
       console.error('// DATABASE_ACCESS_ERROR');
+      setFetchError(error.response?.data?.message || 'Failed to retrieve resident registry.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -116,10 +125,18 @@ const UserList = ({ refreshTrigger }) => {
         </div>
       </div>
 
-      {displayedUsers.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}` }}>
-          <p style={{ color: theme.textSec, fontSize: '16px' }}>No records found matching your search.</p>
+      {isLoading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '60px', background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}` }}>
+          <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
         </div>
+      ) : fetchError ? (
+        <ComponentError title="Failed to load resident registry" error={fetchError} onRetry={fetchUsers} />
+      ) : displayedUsers.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="No Residents Found"
+          description={searchQuery ? "No members match your search criteria." : "No registered members currently in the directory."}
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px', maxHeight: '60vh', overflowY: 'auto', padding: '10px', paddingRight: '20px' }}>
           {displayedUsers.map((u) => (

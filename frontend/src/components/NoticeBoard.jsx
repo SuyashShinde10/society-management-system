@@ -5,6 +5,8 @@ import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { Bell } from 'lucide-react';
+import EmptyState from './ui/EmptyState';
+import ComponentError from './ui/ComponentError';
 
 const NoticeBoard = () => {
   const { user } = useContext(AuthContext);
@@ -184,9 +186,11 @@ const NoticeBoard = () => {
               <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
           ) : paginatedNotices.length === 0 ? (
-            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', padding: '40px', textAlign: 'center', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, color: theme.textSec }}>
-              No notices available.
-            </p>
+            <EmptyState
+              icon={Bell}
+              title="No notices broadcasted"
+              description="There are currently no active announcements or circulars on the society notice board."
+            />
           ) : (
             paginatedNotices.map((n) => (
               <div key={n._id} style={{ background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, padding: '24px', transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>

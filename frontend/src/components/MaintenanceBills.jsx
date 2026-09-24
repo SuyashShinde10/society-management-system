@@ -7,6 +7,10 @@ import theme from '../theme';
 import { handleDownloadInvoice } from '../utils/pdfGenerator';
 import getErrorMessage from '../utils/errorHandler';
 
+import { ReceiptText } from 'lucide-react';
+import EmptyState from './ui/EmptyState';
+import ComponentError from './ui/ComponentError';
+
 // Decomposed Subcomponents
 import BillCard from './bills/BillCard';
 import BillBatchCard from './bills/BillBatchCard';
@@ -254,7 +258,20 @@ const MaintenanceBills = () => {
       {/* Bills Content */}
       {!isLoading && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {user?.role === 'admin' && isGroupedView ? (
+          {((user?.role === 'admin' && isGroupedView && paginatedGroups.length === 0) ||
+            ((!isGroupedView || user?.role !== 'admin') && paginatedBills.length === 0)) ? (
+            <EmptyState
+              icon={ReceiptText}
+              title="No maintenance bills found"
+              description={
+                user?.role === 'admin'
+                  ? "No bills match your current filters. Click 'Generate Invoices' to issue maintenance dues to members."
+                  : "You have no outstanding or pending maintenance invoices at this time."
+              }
+              actionLabel={user?.role === 'admin' ? 'Generate Invoices' : undefined}
+              onAction={user?.role === 'admin' ? () => setShowGenerateModal(true) : undefined}
+            />
+          ) : user?.role === 'admin' && isGroupedView ? (
             paginatedGroups.map((group) => (
               <BillBatchCard
                 key={group.id}

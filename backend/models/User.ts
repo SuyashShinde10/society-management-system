@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
   name: string;
@@ -41,7 +42,7 @@ const UserSchema: Schema<IUser> = new Schema({
     lowercase: true, maxlength: [150, 'Email too long']
   },
   password: {
-    type: String, required: true, minlength: 8
+    type: String, required: true, minlength: 8, select: false
   },
   role: {
     type: String, enum: ['admin', 'member', 'superadmin', 'security'], default: 'member'
@@ -79,7 +80,17 @@ UserSchema.pre(/^find/, function(this: any) {
   this.where({ deletedAt: null });
 });
 
+UserSchema.pre('save', async function() {
+  if (this.isModified('password') && this.password) {
+    if (!this.password.startsWith('$2a$') && !this.password.startsWith('$2b$')) {
+      const salt = await bcrypt.genSalt(12);
+      this.password = await bcrypt.hash(this.password, salt);
+    }
+  }
+});
+
 UserSchema.index({ societyId: 1, role: 1 });
+// Note: email already has unique:true which implicitly creates an index — no need for explicit index here
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 export default User;

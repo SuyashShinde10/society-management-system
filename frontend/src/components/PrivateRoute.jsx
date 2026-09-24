@@ -3,23 +3,28 @@ import { Navigate, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 
 const PrivateRoute = ({ children }) => {
-  const { user, loading } = useContext(AuthContext);
+  const { user, isAuthenticated, loading } = useContext(AuthContext);
   const location = useLocation();
 
   if (loading) {
     return (
-      <div style={{
-        height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', fontFamily: "'Outfit', sans-serif",
-        backgroundColor: '#F2F2F2', fontSize: '12px', color: '#4A4A4A', gap: '20px'
-      }}>
+      <div
+        role="status"
+        aria-label="Authenticating session"
+        style={{
+          height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', fontFamily: "'Outfit', sans-serif",
+          backgroundColor: '#F2F2F2', fontSize: '12px', color: '#4A4A4A', gap: '20px'
+        }}
+      >
         <img src="/awaastech-logo.png" alt="Awaastech Logo" className="organic-pulse" style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
-        // AUTHENTICATING_SESSION...
+        <span>Authenticating session...</span>
       </div>
     );
   }
 
-  if (!user) return <Navigate to="/login" replace />;
+  // Use isAuthenticated flag (derived from user !== null) for clarity
+  if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
 
   if (user.mustChangePassword && location.pathname !== '/profile') {
     if (user.role === 'security' || user.role === 'superadmin') {

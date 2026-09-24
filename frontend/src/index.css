@@ -167,4 +167,208 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--text-sec);
-}
+}
+
+/* ============================================================
+   DASHBOARD ARCHITECTURE & RESPONSIVE DRAWER STYLES
+   ============================================================ */
+
+.dashboard-container {
+  min-height: 100vh;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 24px 36px;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border);
+}
+
+.dashboard-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 30px;
+}
+
+.sidebar-nav {
+  width: 280px;
+  background: white;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  position: sticky;
+  top: 30px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  border-radius: 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+  background-color: #F9F8F3;
+  transform: translateX(3px);
+  color: var(--accent);
+}
+
+.nav-btn-active {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--accent, #D9734E);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(217, 115, 78, 0.25);
+}
+
+.nav-btn-active:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 960px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 20px;
+  }
+  .dashboard-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .sidebar-nav {
+    width: 100%;
+    max-height: none;
+    position: static;
+    padding: 16px;
+  }
+}
+
+/* ============================================================
+   DASHBOARD REUSABLE CARD & TYPOGRAPHY UTILITIES
+   ============================================================ */
+
+.dashboard-portal-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  padding: 24px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-portal-card {
+    padding: 36px;
+  }
+}
+
+.dashboard-title-h2 {
+  margin: 0 0 20px 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.dashboard-logo-box {
+  width: 50px;
+  height: 50px;
+  background: var(--bg);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.dashboard-btn-signout {
+  background: #FFFFFF;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.dashboard-btn-signout:hover {
+  background-color: var(--bg);
+}
+
+.dashboard-menu-heading {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sec);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  padding-left: 10px;
+  display: block;
+}
+
+.dashboard-password-warning {
+  background: #FEF2F2;
+  color: #B91C1C;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1px solid #FEE2E2;
+  margin-bottom: 10px;
+}
+

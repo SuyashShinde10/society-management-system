@@ -1,12 +1,14 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ShieldCheck, Clock, Users } from 'lucide-react';
+import { ShieldCheck, Clock, Users, UserCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../api';
 import theme from '../theme';
+import EmptyState from './ui/EmptyState';
+import ComponentError from './ui/ComponentError';
 
 const VisitorLogs = () => {
-  const { data: visitors = [], isLoading: loading, isError } = useQuery({
+  const { data: visitors = [], isLoading: loading, isError, error, refetch } = useQuery({
     queryKey: ['visitors'],
     queryFn: async () => {
       const { data } = await api.get('/visitors/all');
@@ -50,11 +52,13 @@ const VisitorLogs = () => {
       {loading ? (
         <p style={{ textAlign: 'center', color: '#64748B' }}>Loading visitor logs...</p>
       ) : isError ? (
-        <p style={{ textAlign: 'center', color: '#EF4444' }}>Failed to load visitors.</p>
+        <ComponentError title="Failed to load visitor logs" error={error?.message || 'Failed to fetch logs'} onRetry={() => refetch()} />
       ) : visitors.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', background: '#F8FAFC', borderRadius: '16px', border: `1px dashed ${theme.border}` }}>
-          <p style={{ color: '#64748B', margin: 0 }}>No visitors recorded yet.</p>
-        </div>
+        <EmptyState
+          icon={UserCheck}
+          title="No Visitors Recorded"
+          description="There are currently no visitor check-ins recorded at the gate."
+        />
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>

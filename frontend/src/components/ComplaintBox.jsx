@@ -5,6 +5,8 @@ import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { AlertCircle } from 'lucide-react';
+import EmptyState from './ui/EmptyState';
+import ComponentError from './ui/ComponentError';
 
 const ComplaintBox = () => {
   const { user } = useContext(AuthContext);
@@ -201,9 +203,11 @@ const ComplaintBox = () => {
               <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
             </div>
           ) : filteredComplaints.length === 0 ? (
-            <div style={{ textAlign: 'center', color: theme.textSec, padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, fontFamily: "'Outfit', sans-serif", fontSize: '14px' }}>
-              No incidents on record.
-            </div>
+            <EmptyState
+              icon={AlertCircle}
+              title="No incidents reported"
+              description="No complaints or grievances have been filed. The community is running smoothly!"
+            />
           ) : (
             filteredComplaints.map((c) => (
               <div
