@@ -22,6 +22,16 @@ jobs:
   backend-quality-gate:
     name: ⚙️ Backend (TypeScript, Tests, Migrations)
     runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 5s
+          --health-timeout 2s
+          --health-retries 5
     defaults:
       run:
         working-directory: ./backend
@@ -39,15 +49,18 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: TypeScript Strict Typecheck Gate
-        run: npx tsc --noEmit
+      - name: TypeScript Build & Strict Typecheck Gate
+        run: npm run build
 
       - name: Run Test Suites (18 Suites / 77 Tests)
-        run: npm test -- --runInBand
+        run: npm test -- --runInBand --verbose
         env:
+          MONGO_URI: "mongodb://127.0.0.1:27017/ci_test_db"
           JWT_SECRET: "ci_jwt_super_secret_test_key_12345"
           JWT_REFRESH_SECRET: "ci_jwt_refresh_super_secret_test_key_12345"
+          ADMIN_SECRET: "ci_admin_super_secret_key_12345"
           NODE_ENV: "test"
+          CI: "true"
 
   frontend-quality-gate:
     name: 🌐 Frontend (Build & Playwright E2E)
