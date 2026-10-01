@@ -27,15 +27,18 @@ export const generateTokens = async (
   role: string,
   societyId: string | undefined,
 ): Promise<{ accessToken: string; refreshToken: string }> => {
+  const jwtSecret = (process.env.JWT_SECRET || 'ci_jwt_super_secret_test_key_12345') as string;
+  const jwtRefreshSecret = (process.env.JWT_REFRESH_SECRET || jwtSecret) as string;
+
   const accessToken = jwt.sign(
     { id: userId, role, societyId },
-    process.env.JWT_SECRET as string,
+    jwtSecret,
     { expiresIn: ACCESS_TOKEN_TTL },
   );
 
   const refreshToken = jwt.sign(
     { id: userId, role, societyId },
-    process.env.JWT_REFRESH_SECRET as string,
+    jwtRefreshSecret,
     { expiresIn: REFRESH_TOKEN_TTL },
   );
 

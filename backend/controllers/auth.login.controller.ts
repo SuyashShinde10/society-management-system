@@ -33,6 +33,7 @@ export const loginUser = async (req: Request, res: Response) => {
     });
 
     res.json({
+      token: accessToken,
       user: {
         id: (user as any)._id,
         name: (user as any).name,

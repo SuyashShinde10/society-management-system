@@ -7,8 +7,12 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'list',
+  expect: {
+    timeout: 15000,
+  },
   use: {
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:4173',
+    actionTimeout: 15000,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },

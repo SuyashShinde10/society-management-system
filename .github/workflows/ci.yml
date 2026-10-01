@@ -46,6 +46,7 @@ jobs:
         run: npm test
         env:
           JWT_SECRET: "ci_jwt_super_secret_test_key_12345"
+          JWT_REFRESH_SECRET: "ci_jwt_refresh_super_secret_test_key_12345"
           NODE_ENV: "test"
 
   frontend-quality-gate:
