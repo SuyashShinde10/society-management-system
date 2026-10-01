@@ -24,14 +24,15 @@ const Login = () => {
     const result = await login(email, password);
     setLoading(false);
     if (result.success) {
-      if (result.role === 'superadmin') {
-        navigate('/superadmin');
-      } else if (result.role === 'admin') {
-        navigate('/dashboard');
-      } else if (result.role === 'security') {
-        navigate('/security');
+      const role = (result.role || '').toLowerCase().trim();
+      if (role === 'superadmin') {
+        navigate('/superadmin', { replace: true });
+      } else if (role === 'admin') {
+        navigate('/dashboard', { replace: true });
+      } else if (role === 'security') {
+        navigate('/security', { replace: true });
       } else {
-        navigate('/resident');
+        navigate('/resident', { replace: true });
       }
     } else {
       toast.error(`Access denied: ${result.message}`);

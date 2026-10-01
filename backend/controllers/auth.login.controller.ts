@@ -13,7 +13,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const { user, isSecurity, accessToken, refreshToken } = await authService.login(email, password, req.ip);
 
     const isProd = process.env.NODE_ENV === 'production';
-    const sameSite = (process.env.COOKIE_SAMESITE as any) || (isProd ? 'strict' : 'lax');
+    const sameSite = (process.env.COOKIE_SAMESITE as any) || (isProd ? 'none' : 'lax');
 
     // Short-lived access token (15 min)
     res.cookie('token', accessToken, {
@@ -21,19 +21,21 @@ export const loginUser = async (req: Request, res: Response) => {
       secure: isProd,
       sameSite,
       maxAge: 15 * 60 * 1000,
+      path: '/',
     });
 
-    // Long-lived refresh token (7 days) — used only by /auth/refresh
+    // Long-lived refresh token (7 days) — used for session renewal
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: isProd,
       sameSite,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/api/v1/auth/refresh', // scoped to reduce attack surface
+      path: '/',
     });
 
     res.json({
       token: accessToken,
+      refreshToken,
       user: {
         id: (user as any)._id,
         name: (user as any).name,
@@ -66,10 +68,10 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 // ── /auth/refresh ─────────────────────────────────────────────────────────────
-// Accepts the httpOnly refresh cookie and issues a fresh token pair.
+// Accepts the refresh token via cookie or request body and issues a fresh token pair.
 export const refreshTokens = async (req: Request, res: Response) => {
   try {
-    const refreshToken = req.cookies?.refreshToken as string | undefined;
+    const refreshToken = (req.cookies?.refreshToken || req.body?.refreshToken) as string | undefined;
     if (!refreshToken) {
       return res.status(401).json({ message: 'NO_REFRESH_TOKEN' });
     }
@@ -77,23 +79,28 @@ export const refreshTokens = async (req: Request, res: Response) => {
     const { accessToken, refreshToken: newRefreshToken } = await authService.refreshAccessToken(refreshToken);
 
     const isProd = process.env.NODE_ENV === 'production';
-    const sameSite = (process.env.COOKIE_SAMESITE as any) || (isProd ? 'strict' : 'lax');
+    const sameSite = (process.env.COOKIE_SAMESITE as any) || (isProd ? 'none' : 'lax');
 
     res.cookie('token', accessToken, {
       httpOnly: true,
       secure: isProd,
       sameSite,
       maxAge: 15 * 60 * 1000,
+      path: '/',
     });
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: isProd,
       sameSite,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/api/v1/auth/refresh',
+      path: '/',
     });
 
-    res.json({ message: 'TOKENS_REFRESHED' });
+    res.json({
+      token: accessToken,
+      refreshToken: newRefreshToken,
+      message: 'TOKENS_REFRESHED',
+    });
   } catch (error: any) {
     logger.error('// REFRESH_FAULT:', error);
     const knownErrors = ['INVALID_REFRESH_TOKEN', 'REFRESH_TOKEN_REVOKED'];

@@ -118,6 +118,29 @@ export const registerUser = async (req: Request, res: Response) => {
 
     await Society.findByIdAndUpdate(assignedSocietyId, { createdBy: user._id });
 
+    // Send Welcome Email to the newly registered Admin
+    try {
+      const welcomeHtml = getProfessionalEmailTemplate({
+        title: 'Awaastech Society',
+        subtitle: `WELCOME TO AWAASTECH — ${societyName.toUpperCase()}`,
+        greeting: `Welcome, ${name}!`,
+        bodyText: `Congratulations! Your society <strong>${societyName}</strong> has been successfully registered and initialized on the Awaastech Platform.<br><br>As the administrator, your society workspace is ready. You can now log into your Admin Dashboard to manage members, generate maintenance bills, broadcast notices, review complaints, coordinate staff, and monitor operations.`,
+        highlightBox: `Society: ${societyName}<br><span style="font-size: 15px; color: #475569; font-weight: normal;">Reg No: ${regNumber}</span><br><span style="font-size: 14px; color: #2563eb;">Admin Email: ${email}</span>`,
+        highlightBoxLabel: 'Registered Society Details',
+        footerText: `Sent on behalf of ${societyName}. Welcome to the Awaastech community.`
+      });
+
+      await sendEmail({
+        email,
+        subject: `Welcome to Awaastech — ${societyName} is Ready!`,
+        message: `Hello ${name},\n\nCongratulations! Your society "${societyName}" (Reg: ${regNumber}) has been successfully registered on Awaastech.\n\nYou can now log in using your admin email (${email}) to start managing your society.\n\nWelcome to Awaastech!`,
+        html: welcomeHtml
+      });
+      logger.info(`// ADMIN_WELCOME_EMAIL_SENT: ${email}`);
+    } catch (emailErr: any) {
+      logger.error('// ADMIN_WELCOME_EMAIL_FAULT:', emailErr.message);
+    }
+
     res.status(201).json({ message: 'REGISTRY_INITIALIZED_SUCCESSFULLY' });
   } catch (error) {
     logger.error('// REGISTER_FAULT:', error);

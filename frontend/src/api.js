@@ -25,12 +25,20 @@ const api = axios.create({
 });
 
 // -------------------------------------------------------
-// NOTE: No request interceptor needed for token attachment.
-// The httpOnly cookie is automatically sent by the browser
-// on every request because `withCredentials: true` is set.
-// Adding a manual Authorization header here would duplicate
-// the token and re-introduce XSS risk via localStorage.
+// Request interceptor: Attach JWT token if available.
+// This supports cross-origin deployments where third-party
+// cookies may be blocked by modern browser privacy policies.
 // -------------------------------------------------------
+api.interceptors.request.use(
+  (config) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // -------------------------------------------------------
 // Auto-logout on 401 — clears stale/expired sessions and
@@ -41,8 +49,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        // Only redirect if not already on an auth page and not fetching initial auth state
+        // Clear token on 401 unless on login or checking initial auth status
         if (!window.location.pathname.includes('/login') && !error.config?.url?.includes('/auth/me')) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
           window.location.href = '/login';
         }
       }

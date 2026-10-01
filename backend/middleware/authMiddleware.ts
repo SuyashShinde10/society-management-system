@@ -6,10 +6,17 @@ import logger from '../utils/logger';
 const redisClient = getRedis();
 
 // ── protect ───────────────────────────────────────────────────────────────────
-// Enforces cookie-only auth: JWT must be in the httpOnly cookie to prevent
-// token injection via Authorization header (Bearer token over XSS).
+// Accepts JWT from Authorization header (Bearer token) or httpOnly cookie.
+// Dual-mode auth guarantees functionality in cross-origin environments (e.g. Vercel)
+// where third-party cookies are blocked, while preserving cookie support.
 export const protect = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const token = req.cookies?.token as string | undefined;
+  let token: string | undefined;
+
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies?.token) {
+    token = req.cookies.token;
+  }
 
   if (!token) {
     res.status(401).json({ message: 'Not authorized, no token' });

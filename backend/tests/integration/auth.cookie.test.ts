@@ -86,7 +86,7 @@ describe('Auth Cookie Flow & Security Guards Integration', () => {
     expect(res.status).toBe(401);
   });
 
-  it('6. should reject /api/v1/auth/me with Bearer token header (cookie-only enforcement)', async () => {
+  it('6. should allow /api/v1/auth/me with Bearer token header as fallback', async () => {
     const loginRes = await request(app)
       .post('/api/v1/auth/login')
       .send({
@@ -97,12 +97,13 @@ describe('Auth Cookie Flow & Security Guards Integration', () => {
     const token = loginRes.body.token;
     expect(token).toBeDefined();
 
-    // Sending Bearer in header without cookie MUST be rejected
+    // Sending Bearer in header without cookie should succeed
     const headerRes = await request(app)
       .get('/api/v1/auth/me')
       .set('Authorization', `Bearer ${token}`);
 
-    expect(headerRes.status).toBe(401);
+    expect(headerRes.status).toBe(200);
+    expect(headerRes.body.user.email).toBe(testUser.email);
   });
 
   describe('internalOnly middleware guard', () => {

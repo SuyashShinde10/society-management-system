@@ -21,9 +21,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      // SECURITY: We rely solely on the httpOnly cookie set by the backend.
-      // Do NOT use localStorage for token storage — it is XSS-accessible.
-      // The api instance has `withCredentials: true` so the cookie is sent automatically.
+      // Supports both httpOnly cookies and Bearer tokens for cross-origin deployments.
       try {
         const { data } = await api.get('/auth/me');
         if (data.user) {
@@ -31,21 +29,34 @@ export const AuthProvider = ({ children }) => {
           fetchTheme();
         }
       } catch (err) {
-        // If the access token has expired (401), silently try to refresh it
-        // using the long-lived refresh token cookie before giving up.
+        // If 401, try to refresh using the refresh token (from cookie or storage)
         if (err?.response?.status === 401) {
           try {
-            await api.post('/auth/refresh');
+            const storedRefreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+            const refreshRes = await api.post('/auth/refresh', storedRefreshToken ? { refreshToken: storedRefreshToken } : {});
+            if (refreshRes.data?.token && typeof window !== 'undefined') {
+              localStorage.setItem('token', refreshRes.data.token);
+              if (refreshRes.data.refreshToken) {
+                localStorage.setItem('refreshToken', refreshRes.data.refreshToken);
+              }
+            }
             const { data } = await api.get('/auth/me');
             if (data.user) {
               setUser(data.user);
               fetchTheme();
             }
           } catch {
-            // Refresh token also expired or revoked — user must log in again
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('token');
+              localStorage.removeItem('refreshToken');
+            }
             setUser(null);
           }
         } else {
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+          }
           setUser(null);
         }
       } finally {
@@ -58,8 +69,12 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const { data } = await api.post('/auth/login', { email, password });
-      // SECURITY: Do NOT store token in localStorage (XSS risk).
-      // The backend sets httpOnly cookies automatically — we just read the user from the response.
+      if (data.token && typeof window !== 'undefined') {
+        localStorage.setItem('token', data.token);
+      }
+      if (data.refreshToken && typeof window !== 'undefined') {
+        localStorage.setItem('refreshToken', data.refreshToken);
+      }
       setUser(data.user);
       fetchTheme();
       return { success: true, role: data.user.role };
@@ -82,6 +97,10 @@ export const AuthProvider = ({ children }) => {
       await api.post('/auth/logout');
     } catch {
       // Ignore if it fails — we still clear local state below
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
     }
     setUser(null);
     document.documentElement.style.removeProperty('--theme-accent');
