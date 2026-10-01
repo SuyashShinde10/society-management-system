@@ -6,6 +6,7 @@ import { ArrowLeft, Building2, User, Mail, Shield, KeyRound, MapPin, Layers, Fil
 import api from '../api';
 import theme from '../theme';
 import AnimatedText from '../components/ui/AnimatedText';
+import getErrorMessage from '../utils/errorHandler';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const Register = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
   const [isVerified, setIsVerified] = useState(false);
+  const [verificationToken, setVerificationToken] = useState('');
   const [timer, setTimer] = useState(0);
 
   const WING_OPTIONS = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -41,37 +43,51 @@ const Register = () => {
     return () => clearInterval(interval);
   }, [timer]);
 
+  const handleResetVerification = () => {
+    setIsVerified(false);
+    setOtpSent(false);
+    setOtp('');
+    setVerificationToken('');
+    setTimer(0);
+  };
+
   const sendOTP = async () => {
-    if (!email) {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
       toast.error('Please enter an email address first.');
       return;
     }
     setLoading(true);
     try {
-      await api.post('/auth/send-otp', { email });
+      await api.post('/auth/send-otp', { email: cleanEmail });
       setOtpSent(true);
-      setTimer(120);
+      setTimer(60); // 60s cooldown for resend button
       toast.success('Verification code sent to your email.');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to send OTP.');
+      toast.error(getErrorMessage(error, 'Failed to send OTP.'));
     } finally {
       setLoading(false);
     }
   };
 
   const verifyOTP = async () => {
-    if (!otp) {
-      toast.error('Please enter the OTP.');
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanOtp = otp.trim();
+    if (!cleanOtp) {
+      toast.error('Please enter the 6-digit verification code.');
       return;
     }
     setLoading(true);
     try {
-      await api.post('/auth/verify-otp', { email, otp });
+      const res = await api.post('/auth/verify-otp', { email: cleanEmail, otp: cleanOtp });
       setIsVerified(true);
+      if (res.data?.verificationToken) {
+        setVerificationToken(res.data.verificationToken);
+      }
       setTimer(0);
       toast.success('Email verified successfully.');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Invalid verification code.');
+      toast.error(getErrorMessage(error, 'Invalid verification code.'));
     } finally {
       setLoading(false);
     }
@@ -87,8 +103,13 @@ const Register = () => {
       toast.error('Please select at least one Wing/Block.');
       return;
     }
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters.');
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters long.');
+      return;
+    }
+    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!strongPassword.test(password)) {
+      toast.error('Password must contain at least 8 characters, one uppercase, one lowercase, and one number.');
       return;
     }
     if (Number(floors) <= 0) {
@@ -97,7 +118,17 @@ const Register = () => {
     }
 
     const payload = {
-      name, email, password, role: 'admin', otp, societyName, address, regNumber, wings, floors: Number(floors),
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      password,
+      role: 'admin',
+      otp: otp.trim(),
+      verificationToken,
+      societyName: societyName.trim(),
+      address: address.trim(),
+      regNumber: regNumber.trim(),
+      wings,
+      floors: Number(floors),
     };
 
     setLoading(true);
@@ -106,7 +137,13 @@ const Register = () => {
       toast.success('Society created! You can now log in.');
       navigate('/login');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed.');
+      const errMsg = error.response?.data?.message;
+      if (errMsg === 'OTP_NOT_REQUESTED_OR_EXPIRED' || errMsg === 'INVALID_OTP') {
+        handleResetVerification();
+        toast.error('Verification code has expired. Please verify your email again.');
+      } else {
+        toast.error(getErrorMessage(error, 'Registration failed.'));
+      }
     } finally {
       setLoading(false);
     }
@@ -220,8 +257,13 @@ const Register = () => {
                     </motion.button>
                   )}
                   {isVerified && (
-                    <div style={{ padding: '0 20px', backgroundColor: '#ECFDF5', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '14px', borderRadius: '12px', border: '1px solid #D1FAE5' }}>
-                      <Shield size={16} style={{ marginRight: '6px' }} /> Verified
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <div style={{ padding: '0 16px', height: '52px', backgroundColor: '#ECFDF5', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '14px', borderRadius: '12px', border: '1px solid #D1FAE5' }}>
+                        <Shield size={16} style={{ marginRight: '6px' }} /> Verified
+                      </div>
+                      <button type="button" onClick={handleResetVerification} style={{ background: 'none', border: 'none', color: theme.textSec, fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}>
+                        Change
+                      </button>
                     </div>
                   )}
                 </div>
@@ -242,12 +284,17 @@ const Register = () => {
                   )}
                 </AnimatePresence>
 
-                <div style={{ position: 'relative' }}>
-                  <Lock size={18} color={theme.textSec} style={{ position: 'absolute', left: '14px', top: '16px' }} />
-                  <input type={showPassword ? "text" : "password"} placeholder="Create Password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={!isVerified} style={{...inputStyle, paddingRight: '45px'}} onFocus={focusStyle} onBlur={blurStyle} />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '14px', top: '16px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                    {showPassword ? <EyeOff size={18} color={theme.textSec} /> : <Eye size={18} color={theme.textSec} />}
-                  </button>
+                <div>
+                  <div style={{ position: 'relative' }}>
+                    <Lock size={18} color={theme.textSec} style={{ position: 'absolute', left: '14px', top: '16px' }} />
+                    <input type={showPassword ? "text" : "password"} placeholder="Create Password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={!isVerified} style={{...inputStyle, paddingRight: '45px'}} onFocus={focusStyle} onBlur={blurStyle} />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '14px', top: '16px', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                      {showPassword ? <EyeOff size={18} color={theme.textSec} /> : <Eye size={18} color={theme.textSec} />}
+                    </button>
+                  </div>
+                  <span style={{ fontSize: '12px', color: theme.textSec, display: 'block', marginTop: '6px', marginLeft: '4px' }}>
+                    Must be at least 8 characters with uppercase, lowercase, and a number.
+                  </span>
                 </div>
                 
 

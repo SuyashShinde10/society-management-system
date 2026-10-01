@@ -1,6 +1,22 @@
 import React from 'react';
-import theme from '../../theme';
 import { FileText, Download, MessageSquareWarning, CheckCircle, XCircle } from 'lucide-react';
+
+// ── Status badge helpers ──────────────────────────────────────────────────────
+
+const STATUS_CLASSES = {
+  Paid:               'bg-green-100 text-green-800 border border-green-200',
+  'Under Verification':'bg-orange-100 text-orange-700 border border-orange-200',
+  Overdue:            'bg-red-100 text-red-800 border border-red-200',
+};
+const DEFAULT_STATUS_CLASS = 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+
+const LEFT_BORDER = {
+  Paid:    'border-l-green-500',
+  Pending: 'border-l-yellow-400',
+};
+const DEFAULT_LEFT_BORDER = 'border-l-red-400';
+
+// ── Component ────────────────────────────────────────────────────────────────
 
 export const BillCard = ({
   bill,
@@ -13,231 +29,103 @@ export const BillCard = ({
   onDownloadInvoice,
   onOpenDispute,
 }) => {
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Paid':
-        return { bg: '#DCFCE7', color: '#166534', border: '#BBF7D0' };
-      case 'Under Verification':
-        return { bg: '#FFEDD5', color: '#C2410C', border: '#FED7AA' };
-      case 'Overdue':
-        return { bg: '#FEE2E2', color: '#991B1B', border: '#FECACA' };
-      default:
-        return { bg: '#FEF9C3', color: '#854D0E', border: '#FEF08A' };
-    }
-  };
-
-  const badge = getStatusBadge(bill.status);
+  const statusClass   = STATUS_CLASSES[bill.status] ?? DEFAULT_STATUS_CLASS;
+  const leftBorder    = LEFT_BORDER[bill.status] ?? DEFAULT_LEFT_BORDER;
+  const padding       = isNested ? 'p-4' : 'p-6';
 
   return (
     <div
-      style={{
-        background: 'white',
-        border: `1px solid ${theme.border}`,
-        padding: isNested ? '16px' : '24px',
-        borderRadius: '18px',
-        borderLeft: `6px solid ${
-          bill.status === 'Paid'
-            ? theme.resolved
-            : bill.status === 'Pending'
-            ? theme.pending
-            : theme.declined
-        }`,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        marginBottom: isNested ? '12px' : '0',
-      }}
-      onMouseOver={(e) => {
-        e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)';
-      }}
-      onMouseOut={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)';
-      }}
+      className={[
+        'bg-white rounded-[18px] border border-gray-200 border-l-[6px]',
+        leftBorder,
+        padding,
+        'shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md',
+        isNested ? 'mb-3' : '',
+      ].join(' ')}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <h4
-            style={{
-              margin: '0 0 6px 0',
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: '18px',
-              fontWeight: '600',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
+      {/* ── Header ── */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h4 className="flex items-center gap-2 m-0 font-outfit text-lg font-semibold text-gray-900 truncate">
             {bill.title}
             {!isNested && isNew && (
-              <span
-                style={{
-                  fontFamily: "'Outfit', sans-serif",
-                  fontSize: '10px',
-                  fontWeight: '700',
-                  background: '#10B981',
-                  color: 'white',
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  marginLeft: '10px',
-                }}
-              >
+              <span className="text-[10px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full shrink-0">
                 NEW
               </span>
             )}
           </h4>
+
           {user?.role === 'admin' && (
-            <p style={{ margin: '0 0 5px 0', fontSize: '13px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
-              TO: {bill.userId?.name || 'Resident'} {bill.userId?.flatDetails?.wing ? `(Wing ${bill.userId.flatDetails.wing} - Flat ${bill.userId.flatDetails.flatNumber || ''})` : ''}
+            <p className="mt-1 text-xs text-gray-500 font-outfit">
+              TO:&nbsp;{bill.userId?.name || 'Resident'}
+              {bill.userId?.flatDetails?.wing
+                ? ` (Wing ${bill.userId.flatDetails.wing} – Flat ${bill.userId.flatDetails.flatNumber || ''})`
+                : ''}
             </p>
           )}
-          <span style={{ fontSize: '12px', fontFamily: "'Outfit', sans-serif", color: theme.textSec }}>
-            DUE: {bill.dueDate ? new Date(bill.dueDate).toLocaleDateString() : 'N/A'}
+
+          <span className="text-xs text-gray-400 font-outfit">
+            DUE:&nbsp;{bill.dueDate ? new Date(bill.dueDate).toLocaleDateString() : 'N/A'}
           </span>
         </div>
 
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: "'Outfit', sans-serif", color: theme.textMain }}>
+        <div className="text-right shrink-0">
+          <div className="text-2xl font-bold text-gray-900 font-outfit">
             ₹{Number(bill.amount || 0).toLocaleString()}
           </div>
-          <span
-            style={{
-              fontSize: '11px',
-              fontWeight: '600',
-              fontFamily: "'Outfit', sans-serif",
-              padding: '4px 10px',
-              borderRadius: '20px',
-              background: badge.bg,
-              color: badge.color,
-              border: `1px solid ${badge.border}`,
-              display: 'inline-block',
-              marginTop: '4px',
-            }}
-          >
+          <span className={`inline-block mt-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${statusClass}`}>
             {bill.status || 'Pending'}
           </span>
         </div>
       </div>
 
-      {/* Action Toolbar */}
-      <div
-        style={{
-          marginTop: '18px',
-          borderTop: `1px dashed ${theme.border}`,
-          paddingTop: '14px',
-          display: 'flex',
-          gap: '10px',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {/* Admin Verification */}
+      {/* ── Action Toolbar ── */}
+      <div className="mt-4 pt-3.5 border-t border-dashed border-gray-200 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-2">
+          {/* Admin — Verify / Reject */}
           {bill.status === 'Under Verification' && user?.role === 'admin' && (
             <>
               <button
-                onClick={() => onVerify && onVerify(bill)}
-                style={{
-                  background: theme.resolved,
-                  color: 'white',
-                  padding: '8px 14px',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontFamily: "'Outfit', sans-serif",
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
+                onClick={() => onVerify?.(bill)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors"
               >
                 <CheckCircle size={14} /> Verify Payment
               </button>
               <button
-                onClick={() => onReject && onReject(bill)}
-                style={{
-                  background: theme.declined,
-                  color: 'white',
-                  padding: '8px 14px',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontFamily: "'Outfit', sans-serif",
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
+                onClick={() => onReject?.(bill)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors"
               >
                 <XCircle size={14} /> Reject
               </button>
             </>
           )}
 
-          {/* Member Pay Button */}
+          {/* Pay / Record Payment */}
           {(bill.status === 'Pending' || bill.status === 'Overdue') && (
             <button
-              onClick={() => onPayClick && onPayClick(bill)}
-              style={{
-                background: theme.textMain,
-                color: 'white',
-                padding: '8px 16px',
-                border: 'none',
-                borderRadius: '8px',
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: '600',
-                cursor: 'pointer',
-                fontSize: '13px',
-              }}
+              onClick={() => onPayClick?.(bill)}
+              className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-gray-900 hover:bg-gray-700 transition-colors"
             >
               {user?.role === 'admin' ? 'Record Payment' : 'Pay Now'}
             </button>
           )}
 
-          {/* Receipt Download for Verified Paid Bills */}
+          {/* Invoice download — paid bills */}
           {bill.status === 'Paid' && (
             <button
-              onClick={() => onDownloadInvoice && onDownloadInvoice(bill)}
-              style={{
-                background: '#F3F4F6',
-                color: theme.textMain,
-                padding: '8px 14px',
-                border: `1px solid ${theme.border}`,
-                borderRadius: '8px',
-                fontFamily: "'Outfit', sans-serif",
-                fontWeight: '600',
-                cursor: 'pointer',
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
+              onClick={() => onDownloadInvoice?.(bill)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-gray-700 bg-gray-100 border border-gray-200 hover:bg-gray-200 transition-colors"
             >
               <Download size={14} /> Invoice / Receipt
             </button>
           )}
         </div>
 
-        {/* Dispute Resolution (Members) */}
+        {/* Dispute with AI — members only, unpaid bills */}
         {user?.role === 'member' && bill.status !== 'Paid' && (
           <button
-            onClick={() => onOpenDispute && onOpenDispute(bill)}
-            style={{
-              background: 'transparent',
-              color: theme.declined,
-              border: `1px solid ${theme.declined}`,
-              padding: '6px 12px',
-              borderRadius: '8px',
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: '12px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
+            onClick={() => onOpenDispute?.(bill)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-500 border border-red-300 bg-transparent hover:bg-red-50 transition-colors"
           >
             <MessageSquareWarning size={13} /> Dispute with AI
           </button>

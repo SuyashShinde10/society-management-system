@@ -1,4 +1,4 @@
-version: '3.8'
+# Docker Compose V2 — no 'version' field needed (deprecated, generates warnings)
 
 services:
   backend:

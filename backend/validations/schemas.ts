@@ -1,23 +1,24 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
-// Auth Schemas
-const sendOtpSchema = z.object({
+// ── Auth Schemas ──────────────────────────────────────────────────────────────
+
+export const sendOtpSchema = z.object({
   body: z.object({
     email: z.string().email(),
     societyName: z.string().optional(),
     adminName: z.string().optional(),
     adminEmail: z.string().email().optional(),
-  })
+  }),
 });
 
-const verifyOtpSchema = z.object({
+export const verifyOtpSchema = z.object({
   body: z.object({
     email: z.string().email(),
     otp: z.string().length(6),
-  })
+  }),
 });
 
-const registerAdminSchema = z.object({
+export const registerAdminSchema = z.object({
   body: z.object({
     name: z.string().min(2),
     email: z.string().email(),
@@ -38,10 +39,10 @@ const registerAdminSchema = z.object({
   }).refine((data) => !!(data.otp || data.verificationToken), {
     message: 'Either otp or verificationToken must be provided',
     path: ['otp'],
-  })
+  }),
 });
 
-const registerMemberSchema = z.object({
+export const registerMemberSchema = z.object({
   body: z.object({
     name: z.string().min(2),
     email: z.string().email(),
@@ -52,18 +53,19 @@ const registerMemberSchema = z.object({
     flatNumber: z.string().optional(),
     residentType: z.string().optional(),
     phone: z.string().optional(),
-  })
+  }),
 });
 
-const loginSchema = z.object({
+export const loginSchema = z.object({
   body: z.object({
     email: z.string().email(),
     password: z.string().min(1),
-  })
+  }),
 });
 
-// Bill Schemas
-const generateBillSchema = z.object({
+// ── Bill Schemas ──────────────────────────────────────────────────────────────
+
+export const generateBillSchema = z.object({
   body: z.object({
     title: z.string().min(2),
     description: z.string().optional(),
@@ -71,10 +73,10 @@ const generateBillSchema = z.object({
     dueDate: z.string().optional(),
     targetType: z.string().optional(),
     targetUserId: z.string().length(24).optional(),
-  })
+  }),
 });
 
-const markBillPaidSchema = z.object({
+export const markBillPaidSchema = z.object({
   body: z.object({
     paymentMode: z.string().optional(),
     notes: z.string().optional(),
@@ -82,46 +84,49 @@ const markBillPaidSchema = z.object({
   }),
   params: z.object({
     id: z.string().length(24),
-  })
+  }),
 });
 
-// Dispute Schemas
-const initiateDisputeSchema = z.object({
+// ── Dispute Schemas ───────────────────────────────────────────────────────────
+
+export const initiateDisputeSchema = z.object({
   body: z.object({
     maintenanceBillId: z.string().length(24),
-  })
+  }),
 });
 
-const sendMessageSchema = z.object({
+export const sendMessageSchema = z.object({
   body: z.object({
     disputeId: z.string().length(24),
     message: z.string().min(1),
-  })
+  }),
 });
 
-// Complaint Schemas
-const createComplaintSchema = z.object({
+// ── Complaint Schemas ─────────────────────────────────────────────────────────
+
+export const createComplaintSchema = z.object({
   body: z.object({
     title: z.string().min(2).max(200),
     description: z.string().min(2).max(2000),
     priority: z.enum(['Low', 'Medium', 'High', 'Urgent']).optional(),
     category: z.enum(['Water', 'Electricity', 'Lift', 'Security', 'Cleanliness', 'Noise', 'Parking', 'Other']).optional(),
     attachment: z.string().max(500).optional(),
-  })
+  }),
 });
 
-const updateComplaintSchema = z.object({
+export const updateComplaintSchema = z.object({
   body: z.object({
     status: z.enum(['Pending', 'In Progress', 'Resolved', 'Declined']),
     adminComment: z.string().max(500).optional(),
   }),
   params: z.object({
     id: z.string().length(24),
-  })
+  }),
 });
 
-// Notice Schemas
-const createNoticeSchema = z.object({
+// ── Notice Schemas ────────────────────────────────────────────────────────────
+
+export const createNoticeSchema = z.object({
   body: z.object({
     title: z.string().min(2).max(200),
     content: z.string().min(2).max(5000),
@@ -131,11 +136,12 @@ const createNoticeSchema = z.object({
     targetType: z.enum(['All', 'Specific']).optional(),
     targetUserId: z.string().length(24).optional().or(z.literal('')),
     expiryDate: z.string().optional(),
-  })
+  }),
 });
 
-// Expense Schemas
-const createExpenseSchema = z.object({
+// ── Expense Schemas ───────────────────────────────────────────────────────────
+
+export const createExpenseSchema = z.object({
   body: z.object({
     title: z.string().min(2).max(200),
     description: z.string().optional(),
@@ -143,11 +149,12 @@ const createExpenseSchema = z.object({
     category: z.string().optional(),
     expenseDate: z.string().optional(),
     receiptUrl: z.string().optional(),
-  })
+  }),
 });
 
-// Meeting Schemas
-const createMeetingSchema = z.object({
+// ── Meeting Schemas ───────────────────────────────────────────────────────────
+
+export const createMeetingSchema = z.object({
   body: z.object({
     title: z.string().min(2).max(200),
     description: z.string().optional(),
@@ -157,11 +164,12 @@ const createMeetingSchema = z.object({
     meetingUrl: z.string().optional(),
     targetType: z.enum(['All', 'Specific']).optional(),
     targetUserId: z.string().length(24).optional().or(z.literal('')),
-  })
+  }),
 });
 
-// Visitor Schemas
-const createVisitorSchema = z.object({
+// ── Visitor Schemas ───────────────────────────────────────────────────────────
+
+export const createVisitorSchema = z.object({
   body: z.object({
     name: z.string().min(2),
     phone: z.string().min(10).max(15),
@@ -170,27 +178,28 @@ const createVisitorSchema = z.object({
     flatNumber: z.string().optional(),
     photo: z.string().optional(),
     signature: z.string().optional(),
-  })
+  }),
 });
 
-const updateVisitorSchema = z.object({
+export const updateVisitorSchema = z.object({
   params: z.object({
     id: z.string().length(24),
-  })
+  }),
 });
 
-// Vendor Schemas
-const createProjectSchema = z.object({
+// ── Vendor Schemas ────────────────────────────────────────────────────────────
+
+export const createProjectSchema = z.object({
   body: z.object({
     title: z.string().min(2),
     description: z.string().min(2),
     specs: z.string().optional(),
     budget: z.union([z.number(), z.string()]).optional(),
     deadline: z.string().optional(),
-  })
+  }),
 });
 
-const submitQuoteSchema = z.object({
+export const submitQuoteSchema = z.object({
   body: z.object({
     vendorName: z.string().min(2),
     vendorEmail: z.string().email(),
@@ -201,45 +210,55 @@ const submitQuoteSchema = z.object({
   }),
   params: z.object({
     projectId: z.string().length(24),
-  })
+  }),
 });
 
-// Escrow Schemas
-const createEscrowSchema = z.object({
+// ── Escrow Schemas ────────────────────────────────────────────────────────────
+
+export const createEscrowSchema = z.object({
   body: z.object({
     projectId: z.string().length(24),
     vendorQuoteId: z.string().length(24),
     amount: z.union([z.number(), z.string()]),
     societyId: z.string().length(24),
-  })
+  }),
 });
 
-const verifyGeofenceSchema = z.object({
+export const verifyGeofenceSchema = z.object({
   body: z.object({
     escrowId: z.string().length(24),
     latitude: z.number(),
     longitude: z.number(),
-  })
+  }),
 });
 
-// Parking Schemas
-const allocateParkingSchema = z.object({
+/** Schema for POST /escrow/verify/resident — ensures escrowId is provided in body */
+export const verifyResidentSchema = z.object({
+  body: z.object({
+    escrowId: z.string().length(24),
+  }),
+});
+
+// ── Parking Schemas ───────────────────────────────────────────────────────────
+
+export const allocateParkingSchema = z.object({
   body: z.object({
     spaceNumber: z.string().min(1),
     allocatedTo: z.string().length(24),
     vehicleNumber: z.string().min(4),
-  })
+  }),
 });
 
-const verifyParkingSchema = z.object({
+export const verifyParkingSchema = z.object({
   body: z.object({
     plateNumber: z.string().min(4),
     societyId: z.string().length(24).optional(),
-  })
+  }),
 });
 
-// Ad Schemas
-const submitAdBidSchema = z.object({
+// ── Ad Schemas ────────────────────────────────────────────────────────────────
+
+export const submitAdBidSchema = z.object({
   body: z.object({
     vendorName: z.string().min(2),
     title: z.string().min(2),
@@ -251,10 +270,10 @@ const submitAdBidSchema = z.object({
   }),
   params: z.object({
     societyId: z.string().length(24),
-  })
+  }),
 });
 
-// Export all schemas
+// CommonJS interop — routes using require() still work
 module.exports = {
   sendOtpSchema,
   verifyOtpSchema,
@@ -276,7 +295,8 @@ module.exports = {
   submitQuoteSchema,
   createEscrowSchema,
   verifyGeofenceSchema,
+  verifyResidentSchema,
   allocateParkingSchema,
   verifyParkingSchema,
-  submitAdBidSchema
+  submitAdBidSchema,
 };

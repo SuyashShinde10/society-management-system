@@ -4,7 +4,7 @@ import logger from '../utils/logger';
 
 export const getAllEscrows = async (req: Request, res: Response) => {
   try {
-    const escrows = await escrowService.getAllEscrows((req as any).user);
+    const escrows = await escrowService.getAllEscrows(req.user!);
     res.status(200).json(escrows);
   } catch (error: any) {
     if (error.message === 'ADMIN_NO_SOCIETY') {
@@ -16,7 +16,7 @@ export const getAllEscrows = async (req: Request, res: Response) => {
 
 export const createEscrow = async (req: Request, res: Response) => {
   try {
-    const escrow = await escrowService.createEscrow(req.body, (req as any).user);
+    const escrow = await escrowService.createEscrow(req.body, req.user!);
     res.status(201).json({ message: 'Escrow account created', escrow });
   } catch (error: any) {
     if (error.message === 'NOT_AUTHORIZED_SOCIETY') {
@@ -35,7 +35,7 @@ export const verifyGeofence = async (req: Request, res: Response) => {
     if (error.message === 'ESCROW_NOT_FOUND') return res.status(404).json({ error: 'Escrow not found' });
     if (error.message === 'GEOFENCE_NOT_CONFIGURED') return res.status(400).json({ error: 'Society geofence not configured' });
     if (error.message === 'OUTSIDE_GEOFENCE') return res.status(400).json({ error: 'Vendor is not within the society premises' });
-    
+
     logger.error('Error verifying geofence:', error);
     res.status(500).json({ error: 'Server error' });
   }
@@ -44,12 +44,12 @@ export const verifyGeofence = async (req: Request, res: Response) => {
 export const verifyResident = async (req: Request, res: Response) => {
   try {
     const { escrowId } = req.body;
-    const escrow = await escrowService.verifyResident(escrowId, (req as any).user);
+    const escrow = await escrowService.verifyResident(escrowId, req.user!);
     res.status(200).json({ message: 'Resident verification successful', escrow });
   } catch (error: any) {
     if (error.message === 'ESCROW_NOT_FOUND') return res.status(404).json({ error: 'Escrow not found' });
     if (error.message === 'NOT_AUTHORIZED_SOCIETY') return res.status(403).json({ error: 'Not authorized for this society' });
-    
+
     res.status(500).json({ error: 'Server error' });
   }
 };

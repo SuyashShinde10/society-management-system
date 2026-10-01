@@ -53,6 +53,10 @@ MaintenanceBillSchema.index({ societyId: 1, userId: 1 });
 MaintenanceBillSchema.index({ societyId: 1, status: 1 });
 MaintenanceBillSchema.index({ societyId: 1, isPaid: 1, paidOn: -1 });
 MaintenanceBillSchema.index({ societyId: 1, _id: -1 });
+// Compound index for cursor-based pagination query:
+// getBills filters on { societyId, userId } and sorts by { _id: -1 }
+// This index satisfies both the filter and sort without a separate sort stage.
+MaintenanceBillSchema.index({ societyId: 1, userId: 1, _id: -1 });
 
 const MaintenanceBill: Model<IMaintenanceBill> = mongoose.models.MaintenanceBill || mongoose.model<IMaintenanceBill>('MaintenanceBill', MaintenanceBillSchema);
 export default MaintenanceBill;

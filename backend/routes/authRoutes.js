@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { sendOTP, verifyOTP } = require('../controllers/auth.otp.controller');
 const { registerUser } = require('../controllers/auth.register.controller');
-const { loginUser, getMe, forgotPassword, resetPassword, logoutUser } = require('../controllers/auth.login.controller');
+const { loginUser, getMe, forgotPassword, resetPassword, logoutUser, refreshTokens } = require('../controllers/auth.login.controller');
 const { 
   updateProfile,
   getSocietyLimits, seedSuperAdmin
@@ -25,11 +25,15 @@ const rateLimit = require('express-rate-limit');
 const validateRequest = require('../middleware/validateRequest');
 const { sendOtpSchema, verifyOtpSchema, loginSchema, registerAdminSchema } = require('../validations/schemas');
 
+// Rate limiter active in ALL environments — dev uses a higher ceiling so the
+// limiter is always exercised without blocking normal dev work.
+const IS_PROD = process.env.NODE_ENV === 'production';
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: IS_PROD ? 10 : 200,  // prod: 10 attempts per 15m, dev: 200
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { message: 'Too many requests from this IP, please try again after 15 minutes' },
-  skip: (req, res) => process.env.NODE_ENV !== 'production'
 });
 
 // ── PUBLIC ──────────────────────────────────────────────────────────────────
@@ -46,6 +50,9 @@ router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
 router.get('/society-limits', protect, getSocietyLimits);
 router.post('/logout', protect, logoutUser);
+
+// ── TOKEN REFRESH (no protect middleware — uses httpOnly cookie directly) ────
+router.post('/refresh', refreshTokens);
 
 // ── ADMIN ONLY ───────────────────────────────────────────────────────────────
 router.get('/users', protect, admin, getAllUsers);

@@ -1,14 +1,14 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
     "build:check": "tsc --noEmit",
     "start": "node dist/server.js",
     "worker": "node dist/worker.js",
-    "start:dev": "node server.js",
-    "dev": "ts-node-dev --respawn --transpile-only server.js",
+    "start:dev": "ts-node --transpile-only server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "seed": "ts-node scripts/seed.ts",
     "migrate:up": "migrate-mongo up",
     "migrate:down": "migrate-mongo down",

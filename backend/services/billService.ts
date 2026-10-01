@@ -198,19 +198,27 @@ export const verifyStripePaymentData = async (sessionId: string) => {
   if (!sessionId) throw new Error('SESSION_ID_REQUIRED');
 
   const paymentInfo = await verifyPayment(sessionId);
-  
+
   if (paymentInfo.isPaid && paymentInfo.billId) {
-    const bill = await MaintenanceBill.findById(paymentInfo.billId);
-    
-    if (bill && !bill.isPaid) {
-      bill.isPaid = true;
-      bill.status = 'Paid';
-      bill.paymentMode = 'Stripe';
-      bill.paidOn = new Date();
-      await bill.save();
-    }
-    
-    return bill;
+    // CRITICAL: Stripe can deliver webhooks multiple times.
+    // The distributed lock (keyed by Stripe session ID) makes this handler idempotent —
+    // only the first concurrent invocation proceeds; subsequent ones get a 409.
+    return await withDistributedLock(`stripe:${sessionId}`, 10000, async () => {
+      const bill = await MaintenanceBill.findOneAndUpdate(
+        { _id: paymentInfo.billId, isPaid: false }, // atomic guard — only updates if not already paid
+        { isPaid: true, status: 'Paid', paymentMode: 'Stripe', paidOn: new Date() },
+        { returnDocument: 'after' }
+      );
+
+      if (!bill) {
+        // Either already paid (idempotent — not an error) or bill not found
+        const existing = await MaintenanceBill.findById(paymentInfo.billId);
+        if (existing?.isPaid) return existing; // already processed, return stable state
+        throw new Error('BILL_NOT_FOUND');
+      }
+
+      return bill;
+    });
   }
   throw new Error('PAYMENT_NOT_VERIFIED');
 };

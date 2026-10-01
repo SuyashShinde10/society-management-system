@@ -1,5 +1,5 @@
 const validateEnv = () => {
-  const REQUIRED_ENV = ['MONGO_URI', 'JWT_SECRET', 'ADMIN_SECRET'];
+  const REQUIRED_ENV = ['MONGO_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET', 'ADMIN_SECRET'];
   const missing = [];
   
   REQUIRED_ENV.forEach((key) => {

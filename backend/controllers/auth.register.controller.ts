@@ -3,22 +3,25 @@ import User from '../models/User';
 import Society from '../models/Society';
 import Otp from '../models/Otp';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import sendEmail from '../utils/sendEmail';
 import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
 import logger from '../utils/logger';
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const {
+    let {
       name, email, password, role, secretCode,
       societyName, address, regNumber, wings, floors, flatsPerFloor,
       city, state, pincode, maintenanceAmount,
-      societyId, flatDetails, otp
+      societyId, flatDetails, otp, verificationToken
     } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'NAME_EMAIL_PASSWORD_REQUIRED' });
     }
+
+    email = email.trim().toLowerCase();
 
     if (password.length < 8) {
       return res.status(400).json({ message: 'PASSWORD_MIN_8_CHARS' });
@@ -36,23 +39,51 @@ export const registerUser = async (req: Request, res: Response) => {
       return res.status(403).json({ message: 'ONLY_ADMIN_REGISTRATION_ALLOWED' });
     }
     if (role === 'admin') {
-      const storedOtp = await Otp.findOne({ email });
-      if (!storedOtp) return res.status(400).json({ message: 'OTP_NOT_REQUESTED_OR_EXPIRED' });
-      
-      if (storedOtp.attempts >= 5) {
-        await Otp.deleteOne({ email });
-        return res.status(429).json({ message: 'OTP_MAX_ATTEMPTS_EXCEEDED' });
+      let isEmailVerified = false;
+
+      // 1. Check signed verificationToken if provided
+      if (verificationToken) {
+        try {
+          const jwtSecret = process.env.JWT_SECRET || 'secret';
+          const decoded = jwt.verify(verificationToken, jwtSecret) as any;
+          if (decoded && decoded.purpose === 'email_verification' && decoded.email === email) {
+            isEmailVerified = true;
+          }
+        } catch (tokenErr) {
+          logger.warn('// VERIFICATION_TOKEN_INVALID_OR_EXPIRED, falling back to OTP DB check');
+        }
       }
 
-      const isMatch = await bcrypt.compare(otp, storedOtp.otp);
-      if (!isMatch) {
-        storedOtp.attempts += 1;
-        await storedOtp.save();
-        return res.status(400).json({ message: 'INVALID_OTP' });
+      // 2. Fall back to DB OTP check if token was not provided or invalid
+      if (!isEmailVerified) {
+        const storedOtp = await Otp.findOne({ email });
+        if (!storedOtp) return res.status(400).json({ message: 'OTP_NOT_REQUESTED_OR_EXPIRED' });
+        
+        if (storedOtp.attempts >= 5) {
+          await Otp.deleteMany({ email });
+          return res.status(429).json({ message: 'OTP_MAX_ATTEMPTS_EXCEEDED' });
+        }
+
+        // If user already verified via verify-otp endpoint
+        if (storedOtp.isVerified) {
+          isEmailVerified = true;
+        } else if (otp) {
+          const isMatch = await bcrypt.compare(String(otp).trim(), storedOtp.otp);
+          if (!isMatch) {
+            storedOtp.attempts += 1;
+            await storedOtp.save();
+            return res.status(400).json({ message: 'INVALID_OTP' });
+          }
+          isEmailVerified = true;
+        }
       }
 
-      // Valid OTP
-      await Otp.deleteOne({ email });
+      if (!isEmailVerified) {
+        return res.status(400).json({ message: 'OTP_NOT_REQUESTED_OR_EXPIRED' });
+      }
+
+      // Valid OTP/Token — clear stored OTPs for this email
+      await Otp.deleteMany({ email });
     }
 
     let assignedSocietyId;
@@ -102,6 +133,8 @@ export const memberSelfRegister = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'ALL_FIELDS_REQUIRED' });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     if (password.length < 8) {
       return res.status(400).json({ message: 'PASSWORD_MIN_8_CHARS' });
     }
@@ -110,7 +143,7 @@ export const memberSelfRegister = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Password must contain at least 8 characters, one uppercase, one lowercase, and one number.' });
     }
 
-    const userExists = await User.findOne({ email }).select('_id');
+    const userExists = await User.findOne({ email: normalizedEmail }).select('_id');
     if (userExists) return res.status(400).json({ message: 'EMAIL_ALREADY_IN_USE' });
 
     const societyExists = await Society.findById(societyId);

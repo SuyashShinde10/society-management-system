@@ -1,5 +1,4 @@
 import React from 'react';
-import theme from '../../theme';
 import BillCard from './BillCard';
 
 export const BillBatchCard = ({
@@ -11,99 +10,86 @@ export const BillBatchCard = ({
   onReject,
   onDownloadInvoice,
 }) => {
-  const collectionPercent = group.totalAmount > 0 
-    ? Math.round((group.collectedAmount / group.totalAmount) * 100) 
-    : 0;
+  const collectionPercent =
+    group.totalAmount > 0
+      ? Math.round((group.collectedAmount / group.totalAmount) * 100)
+      : 0;
 
   return (
-    <div
-      style={{
-        background: 'white',
-        border: `1px solid ${theme.border}`,
-        borderRadius: '20px',
-        overflow: 'hidden',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.03)',
-        transition: 'all 0.2s',
-      }}
-    >
-      {/* Group Header Card */}
-      <div style={{ padding: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <h3 style={{ margin: '0 0 6px 0', fontFamily: "'Outfit', sans-serif", fontSize: '20px', fontWeight: '700', color: theme.textMain }}>
+    <div className="bg-white border border-gray-200 rounded-[20px] overflow-hidden shadow-sm transition-all duration-200">
+      {/* ── Group Header ── */}
+      <div className="p-6">
+        <div className="flex items-start justify-between gap-4">
+          {/* Left — title + meta */}
+          <div className="flex-1 min-w-0">
+            <h3 className="m-0 mb-1.5 font-outfit text-xl font-bold text-gray-900 truncate">
               {group.title}
             </h3>
-            <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>
+            <p className="m-0 mb-1.5 text-xs text-gray-500 font-outfit">
               DUE DATE: {new Date(group.dueDate).toLocaleDateString()}
             </p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
-              <span style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '12px', background: '#F3F4F6', color: theme.textMain }}>
+
+            {/* Status badges */}
+            <div className="flex flex-wrap gap-2 mt-2.5">
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
                 Total: {group.total}
               </span>
-              <span style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '12px', background: '#DCFCE7', color: '#166534' }}>
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-green-100 text-green-800">
                 Paid: {group.paid}
               </span>
-              <span style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '12px', background: '#FFEDD5', color: '#C2410C' }}>
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700">
                 Verifying: {group.verifying}
               </span>
-              <span style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '12px', background: '#FEF9C3', color: '#854D0E' }}>
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800">
                 Pending: {group.pending}
               </span>
             </div>
           </div>
 
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '24px', fontWeight: '700', color: theme.textMain, fontFamily: "'Outfit', sans-serif" }}>
-              ₹{group.collectedAmount.toLocaleString()} <span style={{ fontSize: '14px', color: theme.textSec }}>/ ₹{group.totalAmount.toLocaleString()}</span>
+          {/* Right — amounts */}
+          <div className="text-right shrink-0">
+            <div className="text-2xl font-bold text-gray-900 font-outfit">
+              ₹{group.collectedAmount.toLocaleString()}
+              <span className="text-sm text-gray-400 font-normal">
+                &nbsp;/&nbsp;₹{group.totalAmount.toLocaleString()}
+              </span>
             </div>
-            <div style={{ fontSize: '12px', fontWeight: '600', color: theme.accent, marginTop: '4px', fontFamily: "'Outfit', sans-serif" }}>
+            <div className="text-xs font-semibold text-emerald-600 mt-1 font-outfit">
               {collectionPercent}% Collected
             </div>
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div style={{ width: '100%', height: '8px', background: '#F3F4F6', borderRadius: '4px', overflow: 'hidden', marginTop: '20px' }}>
+        {/* Collection progress bar */}
+        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mt-5">
           <div
-            style={{
-              width: `${collectionPercent}%`,
-              height: '100%',
-              background: 'linear-gradient(90deg, #10B981, #059669)',
-              borderRadius: '4px',
-              transition: 'width 0.4s ease',
-            }}
+            className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-[width] duration-500"
+            style={{ width: `${collectionPercent}%` }}
           />
         </div>
 
-        <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+        {/* Toggle expand */}
+        <div className="flex justify-end mt-4">
           <button
             onClick={onToggleExpand}
-            style={{
-              background: 'transparent',
-              color: theme.textMain,
-              border: `1px solid ${theme.border}`,
-              padding: '6px 14px',
-              borderRadius: '8px',
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: '12px',
-              fontWeight: '600',
-              cursor: 'pointer',
-            }}
+            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-700 border border-gray-200 bg-transparent hover:bg-gray-50 transition-colors font-outfit"
           >
-            {isExpanded ? '▲ Hide Individual Bills' : `▼ View ${group.bills.length} Individual Bills`}
+            {isExpanded
+              ? '▲ Hide Individual Bills'
+              : `▼ View ${group.bills.length} Individual Bills`}
           </button>
         </div>
       </div>
 
-      {/* Expanded Inner Member Bills */}
+      {/* ── Expanded Member Bills ── */}
       {isExpanded && (
-        <div style={{ background: '#F9F8F3', padding: '20px', borderTop: `1px solid ${theme.border}` }}>
+        <div className="bg-gray-50 p-5 border-t border-gray-200 space-y-3">
           {group.bills.map((b) => (
             <BillCard
               key={b._id}
               bill={b}
               user={user}
-              isNested={true}
+              isNested
               onVerify={onVerify}
               onReject={onReject}
               onDownloadInvoice={onDownloadInvoice}

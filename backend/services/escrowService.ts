@@ -3,7 +3,22 @@ import Society from '../models/Society';
 import * as turf from '@turf/turf';
 import withDistributedLock from '../utils/distributedLock';
 import logger from '../utils/logger';
+import { IAuthUserContext } from '../types';
 
+// ── Internal Types ──────────────────────────────────────────────────────────
+interface ICreateEscrowData {
+  projectId: import('mongoose').Types.ObjectId | string;
+  vendorQuoteId: import('mongoose').Types.ObjectId | string;
+  amount: number | string;
+  societyId: string;
+}
+
+// ── Private Helpers ─────────────────────────────────────────────────────────
+
+/**
+ * Atomically release escrow funds once BOTH geofence and resident verifications pass.
+ * Runs inside a distributed lock scoped to this escrow ID to prevent double-release.
+ */
 const checkAndReleaseFunds = async (escrow: any) => {
   return await withDistributedLock(`escrow:${escrow._id}`, 5000, async () => {
     if (escrow.geofenceVerified && escrow.residentVerified && escrow.status === 'Held') {
@@ -20,8 +35,10 @@ const checkAndReleaseFunds = async (escrow: any) => {
   });
 };
 
-export const getAllEscrows = async (user: any) => {
-  let filter: any = {};
+// ── Public Service Functions ─────────────────────────────────────────────────
+
+export const getAllEscrows = async (user: IAuthUserContext) => {
+  const filter: Record<string, unknown> = {};
   if (user.role === 'admin') {
     if (!user.societyId) throw new Error('ADMIN_NO_SOCIETY');
     filter.societyId = user.societyId;
@@ -32,42 +49,46 @@ export const getAllEscrows = async (user: any) => {
     .sort({ createdAt: -1 });
 };
 
-export const createEscrow = async (data: any, user: any) => {
+export const createEscrow = async (data: ICreateEscrowData, user: IAuthUserContext) => {
   const { projectId, vendorQuoteId, amount, societyId } = data;
-  
+
   if (user.role !== 'superadmin' && user.societyId && user.societyId.toString() !== societyId) {
     throw new Error('NOT_AUTHORIZED_SOCIETY');
   }
-  
+
   const escrow = new EscrowAccount({
     projectId,
     vendorQuoteId,
     societyId,
     amount,
-    status: 'Held'
+    status: 'Held',
   });
-  
+
   await escrow.save();
   return escrow;
 };
 
-export const verifyGeofence = async (escrowId: string, latitude: number, longitude: number) => {
+export const verifyGeofence = async (
+  escrowId: string,
+  latitude: number,
+  longitude: number,
+) => {
   const escrow = await EscrowAccount.findById(escrowId);
   if (!escrow) throw new Error('ESCROW_NOT_FOUND');
-  
+
   const society = await Society.findById(escrow.societyId);
   if (!society || !society.geoJSON || !society.geoJSON.coordinates) {
     throw new Error('GEOFENCE_NOT_CONFIGURED');
   }
 
   const pt = turf.point([longitude, latitude]);
-  const poly = turf.polygon(society.geoJSON.coordinates as any);
+  const poly = turf.polygon(society.geoJSON.coordinates as number[][][]);
 
   if (turf.booleanPointInPolygon(pt, poly)) {
     escrow.geofenceVerified = true;
     escrow.geofenceVerifiedAt = new Date();
     await escrow.save();
-    
+
     await checkAndReleaseFunds(escrow);
     return escrow;
   } else {
@@ -75,16 +96,17 @@ export const verifyGeofence = async (escrowId: string, latitude: number, longitu
   }
 };
 
-export const verifyResident = async (escrowId: string, user: any) => {
+export const verifyResident = async (escrowId: string, user: IAuthUserContext) => {
   const escrow = await EscrowAccount.findById(escrowId);
   if (!escrow) throw new Error('ESCROW_NOT_FOUND');
-  if (escrow.societyId.toString() !== user.societyId.toString()) {
+
+  if (escrow.societyId.toString() !== user.societyId?.toString()) {
     throw new Error('NOT_AUTHORIZED_SOCIETY');
   }
 
   escrow.residentVerified = true;
   escrow.residentVerifiedAt = new Date();
-  escrow.residentId = user._id;
+  escrow.residentId = user._id as import('mongoose').Types.ObjectId;
   await escrow.save();
 
   await checkAndReleaseFunds(escrow);

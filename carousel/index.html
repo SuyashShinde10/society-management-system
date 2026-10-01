@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Awaastech — The Next-Gen Society Management Platform (LinkedIn Carousel)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F9F8F3;
+      --surface: #FFFDF9;
+      --card-bg: #FFFFFF;
+      --border: #E8E4D9;
+      --accent: #D9734E;
+      --accent-light: #F7EAE3;
+      --olive: #6B705C;
+      --olive-light: #EFF1EB;
+      --charcoal: #2C2C2C;
+      --muted: #6B6B6B;
+      --code-bg: #22252A;
+      --code-text: #E5E7EB;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #EFECE6;
+      color: var(--charcoal);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 16px;
+    }
+
+    /* Top Action Bar */
+    .top-bar {
+      max-width: 1080px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-badge {
+      width: 38px;
+      height: 38px;
+      background: var(--accent);
+      color: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .brand-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--charcoal);
+    }
+
+    .brand-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .actions-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 18px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--charcoal);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px rgba(217, 115, 78, 0.25);
+    }
+
+    .btn-primary:hover { background: #c56543; }
+
+    .btn-olive {
+      background: var(--olive);
+      color: white;
+      border-color: var(--olive);
+    }
+
+    /* Carousel Shell */
+    .carousel-container {
+      position: relative;
+      max-width: 1080px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Slide Card */
+    .slide-wrapper {
+      width: 720px;
+      height: 720px;
+      max-width: 100%;
+      background: var(--bg);
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.07);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 42px;
+      transition: all 0.3s ease;
+    }
+
+    @media (max-width: 760px) {
+      .slide-wrapper {
+        width: 100%;
+        height: auto;
+        min-height: 600px;
+        padding: 24px;
+      }
+    }
+
+    /* Slide Header */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--olive);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .slide-tag .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .slide-page-num {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    /* Slide Body */
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .slide-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px;
+      font-weight: 600;
+      line-height: 1.15;
+      color: var(--charcoal);
+      margin-bottom: 12px;
+    }
+
+    .slide-subtitle {
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+      max-width: 95%;
+    }
+
+    /* Card Panels inside slides */
+    .slide-card-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+      position: relative;
+    }
+
+    /* Code Box */
+    .code-box {
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      border-radius: 14px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      border: 1px solid #333842;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .code-box .kw { color: #F472B6; font-weight: 600; }
+    .code-box .fn { color: #60A5FA; }
+    .code-box .str { color: #34D399; }
+    .code-box .com { color: #9CA3AF; font-style: italic; }
+    .code-box .num { color: #FBBF24; }
+
+    /* Footer of Slide */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+      position: relative;
+      z-index: 2;
+    }
+
+    .slide-author {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--charcoal);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slide-swipe-hint {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Doodle Elements */
+    .doodle-star { position: absolute; fill: var(--accent); }
+    .doodle-arrow { position: absolute; stroke: var(--olive); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .doodle-note {
+      position: absolute;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--olive);
+      background: #FFFDF9;
+      border: 1.5px dashed var(--olive);
+      padding: 3px 9px;
+      border-radius: 20px;
+      transform: rotate(-3deg);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+      z-index: 5;
+    }
+
+    /* Navigation Controls */
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--charcoal);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .nav-btn:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+
+    .dots-indicator { display: flex; gap: 6px; }
+
+    .dot-pill {
+      width: 8px;
+      height: 8px;
+      border-radius: 8px;
+      background: var(--border);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dot-pill.active {
+      width: 24px;
+      background: var(--accent);
+    }
+
+    /* Grid View Mode */
+    .grid-view {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1120px;
+      margin-top: 20px;
+    }
+
+    .grid-slide {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+    }
+
+    /* Image Gallery */
+    .image-showcase {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1120px;
+      margin-top: 20px;
+    }
+
+    .image-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+      transition: all 0.2s;
+    }
+
+    .image-card:hover { transform: translateY(-4px); }
+    .image-card img { width: 100%; height: auto; display: block; }
+    .image-card-caption {
+      padding: 12px 16px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--charcoal);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Modal for LinkedIn Post Copy */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-window {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      max-width: 720px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    @media print {
+      body { background: white !important; padding: 0 !important; }
+      .top-bar, .nav-controls, .modal-backdrop, .tab-buttons { display: none !important; }
+      .carousel-container { display: block !important; max-width: 100% !important; width: 100% !important; }
+      .slide-item {
+        display: flex !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        width: 1080px !important;
+        height: 1080px !important;
+        margin: 0 auto !important;
+        box-shadow: none !important;
+        border: 1px solid #E8E4D9 !important;
+        border-radius: 0 !important;
+        padding: 50px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Action Bar -->
+  <header class="top-bar">
+    <div class="brand-group">
+      <div class="brand-logo-badge">A</div>
+      <div>
+        <h1 class="brand-title">Awaastech — The Grand Introduction</h1>
+        <p class="brand-subtitle">Professional LinkedIn Carousel Deck • Multi-Role &amp; Tech Architecture</p>
+      </div>
+    </div>
+    <div class="actions-group">
+      <div class="tab-buttons" style="display: flex; gap: 8px;">
+        <button class="btn" id="btnCarouselTab" onclick="switchView('carousel')">Slideshow</button>
+        <button class="btn" id="btnGridTab" onclick="switchView('grid')">All 12 Slides</button>
+        <button class="btn" id="btnImagesTab" onclick="switchView('images')">AI Artwork Deck</button>
+      </div>
+      <a href="Awaastech-LinkedIn-Carousel.pdf" download="Awaastech-LinkedIn-Carousel.pdf" class="btn btn-primary">
+        📄 Download Ready PDF
+      </a>
+      <button class="btn btn-olive" onclick="openLinkedInPostModal()">📋 Copy Post Caption</button>
+    </div>
+  </header>
+
+  <!-- Carousel View Mode -->
+  <div class="carousel-container" id="carouselContainer">
+    
+    <!-- SLIDE 1: Cover / Grand Intro -->
+    <div class="slide-wrapper slide-item" id="slide-1">
+      <div class="slide-header">
+        <div class="slide-tag">
+          <span class="dot"></span> Introducing Society Management 2.0
+        </div>
+        <span class="slide-page-num">1 / 12</span>
+      </div>
+      <div class="slide-content" style="text-align: center; align-items: center;">
+        <svg class="doodle-star" style="top: 10px; left: 50px; width: 32px; height: 32px;" viewBox="0 0 40 40">
+          <path d="M20 0L23 17L40 20L23 23L20 40L17 23L0 20L17 17L20 0Z" />
+        </svg>
+        <span class="doodle-note" style="top: 20px; right: 30px;">Distributed Systems Under The Hood ⚡</span>
+
+        <h2 class="slide-title" style="font-size: 44px; max-width: 620px; margin-bottom: 16px;">
+          Living spaces, <br/>
+          <span style="font-style: italic; color: var(--accent); position: relative; display: inline-block;">
+            beautifully managed.
+            <svg style="position: absolute; bottom: -8px; left: 0; width: 100%; height: 12px;" viewBox="0 0 200 12" fill="none">
+              <path d="M2 6C30 -2 50 14 80 6C110 -2 130 14 160 6C180 -1 195 10 198 6" stroke="#D9734E" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </h2>
+        <p class="slide-subtitle" style="text-align: center; max-width: 540px;">
+          Meet <strong>Awaastech</strong> — an enterprise-grade, distributed housing society platform uniting <strong>Admins, Residents, Security, and SuperAdmins</strong> in one harmonious ecosystem.
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; max-width: 540px;">
+          <span style="background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;">👥 4 Dedicated Roles</span>
+          <span style="background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;">🔒 Redis Lua Locks</span>
+          <span style="background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;">📍 GPS Geofenced Escrow</span>
+          <span style="background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;">🤖 LangGraph AI Agent</span>
+        </div>
+
+        <svg class="doodle-arrow" style="bottom: 30px; right: 70px; width: 46px; height: 46px;" viewBox="0 0 50 50">
+          <path d="M10 40 Q 25 10 40 20 M 30 10 L 40 20 L 30 30" />
+        </svg>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">✨ Awaastech Engineering</span>
+        <span class="slide-swipe-hint">Swipe to see problems solved 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: The Core Problems It Solves -->
+    <div class="slide-wrapper slide-item" id="slide-2" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> The Pain Points</div>
+        <span class="slide-page-num">2 / 12</span>
+      </div>
+      <div class="slide-content">
+        <h2 class="slide-title">Why 90% of Housing Societies Struggle 💥</h2>
+        <p class="slide-subtitle">Modern residential communities are micro-cities. Traditional manual operations lead to friction, security vulnerabilities, and financial chaos:</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="slide-card-panel" style="padding: 14px 18px; display: flex; gap: 14px; align-items: flex-start;">
+            <div style="background: #FEE2E2; color: #DC2626; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 13px;">✕</div>
+            <div>
+              <strong style="color: var(--charcoal); font-size: 14px;">Concurrent Payment &amp; Booking Collisions:</strong>
+              <p style="color: var(--muted); font-size: 12px; margin-top: 2px;">Simultaneous maintenance payments and facility reservations cause double-charges, DB deadlocks, and booking clashes.</p>
+            </div>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 14px 18px; display: flex; gap: 14px; align-items: flex-start;">
+            <div style="background: #FEE2E2; color: #DC2626; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 13px;">✕</div>
+            <div>
+              <strong style="color: var(--charcoal); font-size: 14px;">Ghost Vendor Payouts &amp; Bid Favoritism:</strong>
+              <p style="color: var(--muted); font-size: 12px; margin-top: 2px;">Committee capital funds released to contractors without proof of physical presence or objective bid comparisons.</p>
+            </div>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 14px 18px; display: flex; gap: 14px; align-items: flex-start;">
+            <div style="background: #FEE2E2; color: #DC2626; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 13px;">✕</div>
+            <div>
+              <strong style="color: var(--charcoal); font-size: 14px;">Gate Security Bottlenecks &amp; Chat Disputes:</strong>
+              <p style="color: var(--muted); font-size: 12px; margin-top: 2px;">Paper visitor registers, unverified delivery drivers, parking trespassers, and complaints lost in WhatsApp threads.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">The Real Problem</span>
+        <span class="slide-swipe-hint">Next: System Roles Overview 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Multi-Role Overview -->
+    <div class="slide-wrapper slide-item" id="slide-3" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> Multi-Tenant RBAC Architecture</div>
+        <span class="slide-page-num">3 / 12</span>
+      </div>
+      <div class="slide-content">
+        <span class="doodle-note" style="top: 10px; right: 20px;">Tailored User Workflows 👥</span>
+        <h2 class="slide-title">One Platform. 4 Specialized Roles.</h2>
+        <p class="slide-subtitle">Awaastech doesn't force a one-size-fits-all dashboard. Each user role gets a dedicated, purpose-built interface:</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="slide-card-panel" style="padding: 14px; border-left: 4px solid var(--accent);">
+            <div style="font-size: 20px;">📊</div>
+            <strong style="color: var(--charcoal); font-size: 13.5px;">1. Society Admin</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 3px;">Accounting ledger, bulk maintenance billing, AGM minutes, vendor quote tenders &amp; staff attendance.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 14px; border-left: 4px solid var(--olive);">
+            <div style="font-size: 20px;">🏡</div>
+            <strong style="color: var(--charcoal); font-size: 13.5px;">2. Resident / Member</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 3px;">1-click Stripe payments, LangGraph AI dispute reconciliation, visitor pre-approvals &amp; maintenance tickets.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 14px; border-left: 4px solid #4A90E2;">
+            <div style="font-size: 20px;">🛡️</div>
+            <strong style="color: var(--charcoal); font-size: 13.5px;">3. Security Gatekeeper</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 3px;">Rapid visitor check-in, digital OTP passes, ALPR vehicle scanning &amp; geospatial parking enforcement.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 14px; border-left: 4px solid #8B5CF6;">
+            <div style="font-size: 20px;">🌐</div>
+            <strong style="color: var(--charcoal); font-size: 13.5px;">4. Super Admin &amp; Vendors</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 3px;">Multi-society provisioning, cross-community analytics, vendor project tenders &amp; GPS escrow payouts.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">Multi-Role Architecture</span>
+        <span class="slide-swipe-hint">Next: Admin Deep-Dive 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Role 1 - Society Admin -->
+    <div class="slide-wrapper slide-item" id="slide-4" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> Role 1: Society Committee</div>
+        <span class="slide-page-num">4 / 12</span>
+      </div>
+      <div class="slide-content">
+        <span class="doodle-note" style="top: 10px; right: 20px;">Full Financial Clarity 📊</span>
+        <h2 class="slide-title">Society Admin: Operations &amp; Ledger 🏛️</h2>
+        <p class="slide-subtitle">Empowering elected management committees with transparent, automated community governance:</p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: var(--accent); font-size: 13.5px;">💳 Automated Maintenance Invoicing &amp; Late Fees</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Generates recurring monthly invoices across towers via BullMQ cron workers with automated grace period penalty calculation.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: var(--olive); font-size: 13.5px;">📑 Expense Ledger &amp; Real-Time Audit Trails</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Every penny spent on repairs, gardening, or utilities is logged with attached receipts, preventing opaque fund diversion.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: #4A90E2; font-size: 13.5px;">📢 Official Notice Broadcasts &amp; AGM Meetings</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Publish official circulars, schedule committee meetings, and record meeting minutes with instant resident notifications.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: #8B5CF6; font-size: 13.5px;">👷 Staff &amp; Vendor Management</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Track society housekeeping staff attendance and review AI vendor quote comparison matrices for capital projects.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">frontend/src/pages/AdminDashboard.jsx</span>
+        <span class="slide-swipe-hint">Next: Resident Experience 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Role 2 - Resident / Member -->
+    <div class="slide-wrapper slide-item" id="slide-5" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> Role 2: Resident Experience</div>
+        <span class="slide-page-num">5 / 12</span>
+      </div>
+      <div class="slide-content">
+        <span class="doodle-note" style="top: 10px; right: 20px;">Zero-Friction Living 🏡</span>
+        <h2 class="slide-title">Residents: Instant Pay &amp; AI Assistant 💳</h2>
+        <p class="slide-subtitle">A modern, delightful resident experience that eliminates long queues and manual paperwork:</p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: var(--accent); font-size: 13.5px;">⚡ 1-Click Stripe Bill Payments &amp; Instant PDF Receipts</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Pay maintenance directly via card or UPI. Webhooks idempotently settle invoices and dispatch PDF receipts via BullMQ.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: var(--olive); font-size: 13.5px;">🤖 AI ReAct Billing Dispute Agent (LangGraph + Gemini)</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Got billed by mistake? An autonomous agent validates transaction logs, checks payment webhooks, and auto-resolves tickets.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: #4A90E2; font-size: 13.5px;">🎟️ Pre-Approve Visitors &amp; Delivery Drivers</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Generate instant digital entry passes for guests and Amazon/Swiggy delivery partners, reducing gate wait times to seconds.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: #8B5CF6; font-size: 13.5px;">🛠️ Maintenance Ticket Tracking with Photo Attachments</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Log plumbing, electrical, or elevator issues with real-time status updates from Open to In-Progress to Resolved.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">frontend/src/pages/MemberDashboard.jsx</span>
+        <span class="slide-swipe-hint">Next: Gatekeeper &amp; Security 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Role 3 - Security & Gatekeeper -->
+    <div class="slide-wrapper slide-item" id="slide-6" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> Role 3: Gate Security</div>
+        <span class="slide-page-num">6 / 12</span>
+      </div>
+      <div class="slide-content">
+        <span class="doodle-note" style="top: 10px; right: 20px;">Fortress Protection 🛡️</span>
+        <h2 class="slide-title">Security Guard: High-Speed Gatekeeper 🛂</h2>
+        <p class="slide-subtitle">A high-contrast, touch-optimized tablet interface for security guards stationed at entry gates:</p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: var(--accent); font-size: 13.5px;">⚡ 3-Second Visitor Check-In &amp; Pass Verification</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Verify pre-approved digital passes or register walk-in guests with instant phone number validation and resident notification.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: var(--olive); font-size: 13.5px;">🚗 ALPR Automatic License Plate Recognition</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Vehicle cameras scan plates on arrival, instantly verifying authorized resident vehicles and logging timestamps.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: #4A90E2; font-size: 13.5px;">🗺️ Geospatial Parking Spot Enforcement (turf.js)</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">Interactive society parking map showing occupied, reserved, and guest parking bays to eliminate unauthorized parking.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px 16px;">
+            <strong style="color: #DC2626; font-size: 13.5px;">🚨 Emergency SOS Protocol &amp; Staff Attendance</strong>
+            <p style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">1-tap emergency panic button alerting all security personnel, along with biometric/PIN attendance for society staff.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">frontend/src/pages/SecurityDashboard.jsx</span>
+        <span class="slide-swipe-hint">Next: Distributed Locks Tech 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Distributed Locks Tech -->
+    <div class="slide-wrapper slide-item" id="slide-7" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> Distributed Concurrency</div>
+        <span class="slide-page-num">7 / 12</span>
+      </div>
+      <div class="slide-content">
+        <span class="doodle-note" style="top: 10px; right: 20px;">Zero Race Conditions! 🔒</span>
+        <h2 class="slide-title">Redis Distributed Locks with Atomic Lua ⚡</h2>
+        <p class="slide-subtitle">How we eliminated double-bookings and duplicate bill settlements across concurrent server clusters:</p>
+        
+        <div class="code-box">
+<span class="com">// backend/utils/distributedLock.ts</span>
+<span class="kw">export async function</span> <span class="fn">withDistributedLock</span>&lt;<span class="kw">T</span>&gt;(
+  lockKey: <span class="kw">string</span>, ttlMs = <span class="num">5000</span>, operation: () =&gt; <span class="kw">Promise</span>&lt;<span class="kw">T</span>&gt;
+): <span class="kw">Promise</span>&lt;<span class="kw">T</span>&gt; {
+  <span class="kw">const</span> fullKey = <span class="str">`lock:${lockKey}`</span>;
+  <span class="kw">const</span> token = crypto.<span class="fn">randomUUID</span>();
+
+  <span class="com">// 1. SET lock:key token PX 5000 NX</span>
+  <span class="kw">const</span> acquired = <span class="kw">await</span> redis.<span class="fn">set</span>(fullKey, token, <span class="str">'PX'</span>, ttlMs, <span class="str">'NX'</span>);
+  <span class="kw">if</span> (!acquired) <span class="kw">throw new</span> <span class="fn">AppError</span>(<span class="str">'CONCURRENCY_LOCK_ACTIVE'</span>, <span class="str">'Busy'</span>, <span class="num">409</span>);
+
+  <span class="kw">try</span> { <span class="kw">return await</span> <span class="fn">operation</span>(); }
+  <span class="kw">finally</span> {
+    <span class="com">// 2. Atomic Lua script ensures token ownership before deleting</span>
+    <span class="kw">const</span> lua = <span class="str">`if redis.call("get",KEYS[1])==ARGV[1] then return redis.call("del",KEYS[1]) else return 0 end`</span>;
+    <span class="kw">await</span> redis.<span class="fn">eval</span>(lua, <span class="num">1</span>, fullKey, token);
+  }
+}
+        </div>
+
+        <div style="margin-top: 10px; display: flex; gap: 10px;">
+          <div style="flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px;">
+            <strong style="color: var(--accent); font-size: 11.5px;">✓ Scoped Resources:</strong>
+            <p style="font-size: 11px; color: var(--muted);"><code>bill:${id}</code>, <code>stripe:${sessionId}</code>, <code>escrow:${id}</code></p>
+          </div>
+          <div style="flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px;">
+            <strong style="color: var(--olive); font-size: 11.5px;">✓ Local Fallback:</strong>
+            <p style="font-size: 11px; color: var(--muted);">Graceful fallback to <code>InMemoryMutex</code> if Redis is offline.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">backend/utils/distributedLock.ts</span>
+        <span class="slide-swipe-hint">Next: Geofenced Escrow 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Smart Escrow & Geofencing -->
+    <div class="slide-wrapper slide-item" id="slide-8" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> Smart Escrow &amp; Geofencing</div>
+        <span class="slide-page-num">8 / 12</span>
+      </div>
+      <div class="slide-content">
+        <span class="doodle-note" style="top: 10px; right: 20px;">Anti-Fraud Verification 📍</span>
+        <h2 class="slide-title">GPS-Geofenced Contractor Escrow 💰</h2>
+        <p class="slide-subtitle">Contractor milestone payouts stay locked until physical presence is verified inside society coordinates via <code>turf.js</code>:</p>
+
+        <div class="slide-card-panel" style="margin-bottom: 10px; padding: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 12.5px; font-weight: 600; color: var(--charcoal);">Dual-Factor Milestone Verification</span>
+            <span style="font-size: 10.5px; background: var(--olive-light); color: var(--olive); padding: 3px 8px; border-radius: 10px; font-weight: 600;">checkAndReleaseFunds()</span>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: center;">
+            <div style="background: var(--bg); padding: 8px; border-radius: 10px; flex: 1;">
+              <div style="font-size: 18px;">👷‍♂️</div>
+              <div style="font-size: 11px; font-weight: 600;">Contractor Device</div>
+              <div style="font-size: 10px; color: var(--muted);">turf.point([lng, lat])</div>
+            </div>
+            <div style="color: var(--accent); font-weight: 700;">➔</div>
+            <div style="background: var(--bg); padding: 8px; border-radius: 10px; flex: 1; border: 1.5px solid var(--accent);">
+              <div style="font-size: 18px;">🗺️</div>
+              <div style="font-size: 11px; font-weight: 600;">Society Polygon</div>
+              <div style="font-size: 10px; color: var(--accent);">booleanPointInPolygon</div>
+            </div>
+            <div style="color: var(--olive); font-weight: 700;">➔</div>
+            <div style="background: var(--bg); padding: 8px; border-radius: 10px; flex: 1;">
+              <div style="font-size: 18px;">🛡️</div>
+              <div style="font-size: 11px; font-weight: 600;">Resident Sign-Off</div>
+              <div style="font-size: 10px; color: var(--olive);">Status: 'Released'</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="code-box" style="font-size: 11.5px; padding: 10px 14px;">
+<span class="com">// backend/services/escrowService.ts</span>
+<span class="kw">const</span> pt = turf.<span class="fn">point</span>([longitude, latitude]);
+<span class="kw">const</span> poly = turf.<span class="fn">polygon</span>(society.geoJSON.coordinates);
+
+<span class="kw">if</span> (turf.<span class="fn">booleanPointInPolygon</span>(pt, poly)) {
+  escrow.geofenceVerified = <span class="kw">true</span>;
+  <span class="kw">await</span> <span class="fn">checkAndReleaseFunds</span>(escrow); <span class="com">// Guarded by distributed lock</span>
+}
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">backend/services/escrowService.ts</span>
+        <span class="slide-swipe-hint">Next: Generative AI Workflows 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: AI Agent & Async BullMQ -->
+    <div class="slide-wrapper slide-item" id="slide-9" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> AI &amp; Async Pipelines</div>
+        <span class="slide-page-num">9 / 12</span>
+      </div>
+      <div class="slide-content">
+        <span class="doodle-note" style="top: 10px; right: 20px;">LangGraph + Gemini 🤖</span>
+        <h2 class="slide-title">AI Dispute Agent &amp; BullMQ Workers 📨</h2>
+        <p class="slide-subtitle">Combining generative AI reasoning with high-throughput distributed background workers:</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 16px; margin-bottom: 2px;">🤖</div>
+            <strong style="color: var(--accent); font-size: 12.5px;">ReAct Billing Agent</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">LangGraph ReAct agent powered by <code>gemini-1.5-flash</code>. Autonomously checks Stripe and flags <code>aiDisputeStatus: 'Resolved'</code>.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 16px; margin-bottom: 2px;">📊</div>
+            <strong style="color: var(--olive); font-size: 12.5px;">Vendor Bid Matrix</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">BullMQ worker analyzes contractor bids against society budgets and generates comparison recommendations.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 16px; margin-bottom: 2px;">❤️</div>
+            <strong style="color: #4A90E2; font-size: 12.5px;">Sentiment Score (0-100)</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">Calculates monthly Resident Happiness Index by analyzing complaint severity and tone across society towers.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 16px; margin-bottom: 2px;">🔄</div>
+            <strong style="color: #8B5CF6; font-size: 12.5px;">DLQ Dead-Letter Queue</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">Failed PDF receipts and webhook retries are captured in <code>dlqManager</code> without blocking the main event loop.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">disputeController.ts &amp; aiQueue.js</span>
+        <span class="slide-swipe-hint">Next: Security Architecture 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: Security Architecture -->
+    <div class="slide-wrapper slide-item" id="slide-10" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> Defense In Depth</div>
+        <span class="slide-page-num">10 / 12</span>
+      </div>
+      <div class="slide-content">
+        <span class="doodle-note" style="top: 10px; right: 20px;">9/10 Security Score 🛡️</span>
+        <h2 class="slide-title">Bank-Grade Security Architecture 🔐</h2>
+        <p class="slide-subtitle">Audited and verified against real-world production threat vectors:</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 16px; margin-bottom: 2px;">🍪</div>
+            <strong style="color: var(--charcoal); font-size: 12.5px;">httpOnly Cookie JWTs</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">Tokens transmitted exclusively in httpOnly, SameSite cookies — zero XSS token theft via JavaScript.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 16px; margin-bottom: 2px;">🚫</div>
+            <strong style="color: var(--charcoal); font-size: 12.5px;">Redis Token Blacklist</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">Revoked tokens written to Redis <code>bl_${token}</code> with TTL matching JWT expiry for instant stateless revocation.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 16px; margin-bottom: 2px;">🧹</div>
+            <strong style="color: var(--charcoal); font-size: 12.5px;">NoSQL Injection Sanitizer</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">Custom recursive middleware strips malicious MongoDB <code>$</code> keys and dots from all request payloads.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 16px; margin-bottom: 2px;">🔑</div>
+            <strong style="color: var(--charcoal); font-size: 12.5px;">Granular RBAC Engine</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">Strict <code>hasPermission('manage:escrow')</code> applied across all 35+ routes (bills, visitors, escrow, parking).</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">Audited Security Core</span>
+        <span class="slide-swipe-hint">Next: Tech Stack 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: Production Tech Stack -->
+    <div class="slide-wrapper slide-item" id="slide-11" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> Architecture Breakdown</div>
+        <span class="slide-page-num">11 / 12</span>
+      </div>
+      <div class="slide-content">
+        <span class="doodle-note" style="top: 10px; right: 20px;">Full-Stack Harmony 🌿</span>
+        <h2 class="slide-title">The Production Tech Stack 🛠️</h2>
+        <p class="slide-subtitle">A balanced fusion of high-throughput distributed systems and organic minimalist design:</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 10.5px; font-weight: 700; color: var(--accent); margin-bottom: 2px;">BACKEND CORE</div>
+            <p style="font-size: 12px; font-weight: 600; color: var(--charcoal);">Node.js • Express • TypeScript</p>
+            <p style="font-size: 10.5px; color: var(--muted);">Layered services, Zod validation schemas, OpenTelemetry metrics.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 10.5px; font-weight: 700; color: var(--olive); margin-bottom: 2px;">DATA &amp; CONCURRENCY</div>
+            <p style="font-size: 12px; font-weight: 600; color: var(--charcoal);">MongoDB • Redis 7 • BullMQ</p>
+            <p style="font-size: 10.5px; color: var(--muted);">Multi-tenant schemas, distributed locks, async message queues.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 10.5px; font-weight: 700; color: #4A90E2; margin-bottom: 2px;">FRONTEND EXPERIENCE</div>
+            <p style="font-size: 12px; font-weight: 600; color: var(--charcoal);">React 19 • Vite • Tailwind • Motion</p>
+            <p style="font-size: 10.5px; color: var(--muted);">Warm cream palette (#F9F8F3), Outfit typography, hand-drawn doodles.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px;">
+            <div style="font-size: 10.5px; font-weight: 700; color: #8B5CF6; margin-bottom: 2px;">AI &amp; DEVOPS</div>
+            <p style="font-size: 12px; font-weight: 600; color: var(--charcoal);">LangChain • Gemini • Docker Compose</p>
+            <p style="font-size: 10.5px; color: var(--muted);">LangGraph ReAct agent, Prometheus metrics, multi-container orchestration.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">End-to-End Modern Stack</span>
+        <span class="slide-swipe-hint">Next: Outro &amp; CTA 👉</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 12: Coming Next: The Dashboards -->
+    <div class="slide-wrapper slide-item" id="slide-12" style="display: none;">
+      <div class="slide-header">
+        <div class="slide-tag"><span class="dot"></span> Part 2 Preview</div>
+        <span class="slide-page-num">12 / 12</span>
+      </div>
+      <div class="slide-content" style="text-align: center; align-items: center;">
+        <span class="doodle-note" style="top: 15px; left: 30px;">Part 2 Teaser 🎬</span>
+        <svg class="doodle-star" style="top: 20px; right: 40px; width: 34px; height: 34px;" viewBox="0 0 40 40">
+          <path d="M20 0L23 17L40 20L23 23L20 40L17 23L0 20L17 17L20 0Z" />
+        </svg>
+
+        <h2 class="slide-title" style="font-size: 38px; margin-bottom: 8px;">
+          Coming Next: <br/>
+          <span style="font-style: italic; color: var(--accent);">The Dashboards.</span>
+        </h2>
+        <p class="slide-subtitle" style="text-align: center; max-width: 520px; margin-bottom: 16px;">
+          Stay tuned for Part 2 — An interactive walkthrough inside each dedicated dashboard experience!
+        </p>
+
+        <!-- 4 Dashboards Teaser Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 540px; width: 100%; margin-bottom: 16px; text-align: left;">
+          <div class="slide-card-panel" style="padding: 12px; border-left: 3px solid var(--accent);">
+            <div style="font-size: 16px;">🖥️</div>
+            <strong style="font-size: 12px; color: var(--charcoal);">1. Society Admin Dashboard</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">Financial ledger, billing analytics &amp; staff directory.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px; border-left: 3px solid var(--olive);">
+            <div style="font-size: 16px;">📱</div>
+            <strong style="font-size: 12px; color: var(--charcoal);">2. Resident Portal</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">1-click payments, maintenance tickets &amp; passes.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px; border-left: 3px solid #4A90E2;">
+            <div style="font-size: 16px;">🛂</div>
+            <strong style="font-size: 12px; color: var(--charcoal);">3. Gatekeeper App</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">Fast OTP verification &amp; ALPR parking enforcement.</p>
+          </div>
+
+          <div class="slide-card-panel" style="padding: 12px; border-left: 3px solid #8B5CF6;">
+            <div style="font-size: 16px;">🌐</div>
+            <strong style="font-size: 12px; color: var(--charcoal);">4. SuperAdmin Center</strong>
+            <p style="font-size: 11px; color: var(--muted); margin-top: 2px;">Multi-society metrics &amp; smart escrow monitoring.</p>
+          </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--olive); font-weight: 600; display: flex; align-items: center; gap: 6px;">
+          🔔 Follow &amp; stay tuned for the live dashboard tour!
+        </p>
+
+        <svg class="doodle-arrow" style="bottom: 20px; left: 70px; width: 40px; height: 40px; transform: rotate(80deg);" viewBox="0 0 50 50">
+          <path d="M10 40 Q 25 10 40 20 M 30 10 L 40 20 L 30 30" />
+        </svg>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-author">Awaastech Series • Part 1 of 2</span>
+        <span class="slide-swipe-hint">Follow for Part 2! 🚀</span>
+      </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-controls">
+      <button class="nav-btn" onclick="prevSlide()" title="Previous slide (←)">‹</button>
+      <div class="dots-indicator" id="dotsIndicator"></div>
+      <button class="nav-btn" onclick="nextSlide()" title="Next slide (→)">›</button>
+    </div>
+
+  </div>
+
+  <!-- Grid View Mode (All 12 Slides) -->
+  <div class="grid-view" id="gridView"></div>
+
+  <!-- AI Artwork Slides Showcase -->
+  <div class="image-showcase" id="imageShowcase">
+    <div class="image-card">
+      <img src="assets/awaastech_carousel_cover_1790600283254.jpg" alt="Slide 1: Cover">
+      <div class="image-card-caption">
+        <span>Slide 1: Living spaces, beautifully managed</span>
+        <a href="assets/awaastech_carousel_cover_1790600283254.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+    <div class="image-card">
+      <img src="assets/awaastech_problem_slide_1790600867398.jpg" alt="Slide 2: The Problem">
+      <div class="image-card-caption">
+        <span>Slide 2: Why Standard Society Apps Fail</span>
+        <a href="assets/awaastech_problem_slide_1790600867398.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+    <div class="image-card">
+      <img src="assets/awaastech_roles_overview_1790601607104.jpg" alt="Slide 3: Roles Overview">
+      <div class="image-card-caption">
+        <span>Slide 3: One Platform. 4 Tailored Roles</span>
+        <a href="assets/awaastech_roles_overview_1790601607104.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+    <div class="image-card">
+      <img src="assets/awaastech_concurrency_slide_fixed.jpg" alt="Slide 4: Distributed Locks">
+      <div class="image-card-caption">
+        <span>Slide 4: Distributed Locks &amp; Atomic Lua</span>
+        <a href="assets/awaastech_concurrency_slide_fixed.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+    <div class="image-card">
+      <img src="assets/awaastech_geofence_escrow_1790600381876.jpg" alt="Slide 5: Geofenced Escrow">
+      <div class="image-card-caption">
+        <span>Slide 5: GPS Geofenced Smart Escrow</span>
+        <a href="assets/awaastech_geofence_escrow_1790600381876.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+    <div class="image-card">
+      <img src="assets/awaastech_ai_agent_1790600399096.jpg" alt="Slide 6: AI Agent">
+      <div class="image-card-caption">
+        <span>Slide 6: AI Dispute Triaging &amp; ReAct Agent</span>
+        <a href="assets/awaastech_ai_agent_1790600399096.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+    <div class="image-card">
+      <img src="assets/awaastech_security_slide_fixed.jpg" alt="Slide 7: Security Architecture">
+      <div class="image-card-caption">
+        <span>Slide 7: Bank-Grade Security Architecture</span>
+        <a href="assets/awaastech_security_slide_fixed.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+    <div class="image-card">
+      <img src="assets/awaastech_bullmq_slide_1790600937634.jpg" alt="Slide 11: BullMQ Pipelines">
+      <div class="image-card-caption">
+        <span>Slide 11: High-Throughput Async Pipelines</span>
+        <a href="assets/awaastech_bullmq_slide_1790600937634.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+    <div class="image-card">
+      <img src="assets/awaastech_tech_stack_1790600422173.jpg" alt="Slide 12: Tech Stack">
+      <div class="image-card-caption">
+        <span>Slide 12: The Production Tech Stack</span>
+        <a href="assets/awaastech_tech_stack_1790600422173.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+    <div class="image-card">
+      <img src="assets/awaastech_lessons_slide_1790601190132.jpg" alt="Lessons Slide">
+      <div class="image-card-caption">
+        <span>Engineering Lessons &amp; Insights</span>
+        <a href="assets/awaastech_lessons_slide_1790601190132.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+    <div class="image-card">
+      <img src="assets/awaastech_coming_next_dashboards_1790601961802.jpg" alt="Coming Next Dashboards">
+      <div class="image-card-caption">
+        <span>Slide 11: Coming Next — The Dashboards</span>
+        <a href="assets/awaastech_coming_next_dashboards_1790601961802.jpg" download class="btn" style="padding: 4px 10px; font-size: 11px;">Download</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- LinkedIn Post Copy Modal -->
+  <div class="modal-backdrop" id="linkedInModal" onclick="if(event.target===this) closeLinkedInPostModal()">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 26px; color: var(--charcoal);">
+          Official LinkedIn Announcement Caption 🚀
+        </h3>
+        <button onclick="closeLinkedInPostModal()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted);">&times;</button>
+      </div>
+      <textarea id="captionTextarea" readonly style="width: 100%; height: 340px; font-family: 'Outfit', sans-serif; font-size: 13px; line-height: 1.6; padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--charcoal); resize: vertical;">
+Excited to officially introduce Awaastech 🏢✨ — a next-generation, distributed Society Management Platform designed to bring harmony, transparency, and bank-grade security to residential communities.
+
+Most society apps are glorified CRUD projects that crash under concurrent real-world load. When 5,000 residents try to pay maintenance on the 1st of the month or book the clubhouse court at the same second, basic systems experience deadlocks and double-bookings.
+
+We built Awaastech from the ground up as a production-grade distributed system uniting 4 key stakeholders:
+
+👥 1. Society Committee (Admin)
+Automated recurring maintenance billing with penalty rules, full transparent accounting ledger, capital project vendor tender matrices, and official AGM circulars.
+
+🏡 2. Residents & Homeowners
+1-click Stripe payments, instant PDF receipts, autonomous AI billing dispute resolution via LangGraph, visitor pre-approvals, and maintenance ticketing.
+
+🛂 3. Security Gatekeepers
+3-second visitor check-in, OTP digital passes, automated license plate recognition (ALPR), and geospatial parking space management via turf.js.
+
+🌐 4. Super Admin & Contractors
+Multi-society tenancy, global audit telemetry, and milestone contractor payments secured by GPS geofencing.
+
+🛠️ The Engineering Behind It:
+🔒 Distributed Concurrency: Redis `SET NX PX` + atomic Lua scripts eliminating double-spend and booking collisions (`withDistributedLock`).
+📍 Geofenced Smart Escrow: Contractor milestone payouts unlocked ONLY when physical coordinates match the society polygon (`turf.booleanPointInPolygon`).
+🤖 Generative AI: LangGraph ReAct agent powered by Gemini 1.5 Flash auto-reconciling billing disputes with payment webhooks.
+🛡️ 9/10 Security Score: httpOnly SameSite cookie JWTs, Redis token blacklist (`bl_${token}`), recursive NoSQL injection sanitizers, and granular RBAC.
+⚡ High-Throughput Async Workers: BullMQ + Redis handling PDF receipts and scheduled billing without blocking the event loop.
+🌿 Organic Minimalist UX: Built on React 19, Vite, Tailwind, warm cream tones (#F9F8F3), and hand-drawn doodles to make enterprise management feel warm and human.
+
+Swipe through the carousel to explore all the roles, architecture diagrams, and the Part 2 Dashboards teaser! 👉
+
+🖥️ Coming Next (Part 2): A live walkthrough inside all 4 dedicated dashboards (Admin, Resident, Security Gatekeeper & SuperAdmin). Hit follow and stay tuned!
+
+🔗 GitHub Repo: github.com/SuyashShinde10/society-management-system
+
+What is the biggest challenge you face in your housing society or community management? Let’s discuss below! 👇
+
+#FullStack #DistributedSystems #Redis #NodeJS #TypeScript #ReactJS #SystemDesign #OpenSource #SoftwareArchitecture #ProductLaunch
+      </textarea>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
+        <button class="btn" onclick="closeLinkedInPostModal()">Close</button>
+        <button class="btn btn-primary" onclick="copyCaptionToClipboard()">📋 Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 12;
+
+    function initDots() {
+      const container = document.getElementById('dotsIndicator');
+      container.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = `dot-pill ${i === currentSlide ? 'active' : ''}`;
+        dot.onclick = () => goToSlide(i);
+        container.appendChild(dot);
+      }
+    }
+
+    function showSlide(n) {
+      currentSlide = n;
+      for (let i = 1; i <= totalSlides; i++) {
+        const el = document.getElementById(`slide-${i}`);
+        if (el) {
+          el.style.display = (i === currentSlide) ? 'flex' : 'none';
+        }
+      }
+      initDots();
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        showSlide(currentSlide + 1);
+      } else {
+        showSlide(1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        showSlide(currentSlide - 1);
+      } else {
+        showSlide(totalSlides);
+      }
+    }
+
+    function goToSlide(n) {
+      showSlide(n);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+
+    function switchView(mode) {
+      const carouselEl = document.getElementById('carouselContainer');
+      const gridEl = document.getElementById('gridView');
+      const imagesEl = document.getElementById('imageShowcase');
+
+      document.getElementById('btnCarouselTab').style.background = mode === 'carousel' ? 'var(--charcoal)' : 'var(--surface)';
+      document.getElementById('btnCarouselTab').style.color = mode === 'carousel' ? 'white' : 'var(--charcoal)';
+      document.getElementById('btnGridTab').style.background = mode === 'grid' ? 'var(--charcoal)' : 'var(--surface)';
+      document.getElementById('btnGridTab').style.color = mode === 'grid' ? 'white' : 'var(--charcoal)';
+      document.getElementById('btnImagesTab').style.background = mode === 'images' ? 'var(--charcoal)' : 'var(--surface)';
+      document.getElementById('btnImagesTab').style.color = mode === 'images' ? 'white' : 'var(--charcoal)';
+
+      if (mode === 'carousel') {
+        carouselEl.style.display = 'flex';
+        gridEl.style.display = 'none';
+        imagesEl.style.display = 'none';
+        showSlide(currentSlide);
+      } else if (mode === 'grid') {
+        carouselEl.style.display = 'none';
+        imagesEl.style.display = 'none';
+        gridEl.style.display = 'grid';
+        populateGridView();
+      } else if (mode === 'images') {
+        carouselEl.style.display = 'none';
+        gridEl.style.display = 'none';
+        imagesEl.style.display = 'grid';
+      }
+    }
+
+    function populateGridView() {
+      const gridEl = document.getElementById('gridView');
+      gridEl.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const orig = document.getElementById(`slide-${i}`);
+        if (orig) {
+          const clone = orig.cloneNode(true);
+          clone.id = `grid-slide-${i}`;
+          clone.className = 'grid-slide';
+          clone.style.display = 'flex';
+          clone.onclick = () => {
+            switchView('carousel');
+            showSlide(i);
+          };
+          clone.style.cursor = 'pointer';
+          gridEl.appendChild(clone);
+        }
+      }
+    }
+
+    function openLinkedInPostModal() {
+      document.getElementById('linkedInModal').style.display = 'flex';
+    }
+
+    function closeLinkedInPostModal() {
+      document.getElementById('linkedInModal').style.display = 'none';
+    }
+
+    function copyCaptionToClipboard() {
+      const copyText = document.getElementById("captionTextarea");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(copyText.value).then(() => {
+        alert("Official LinkedIn launch caption copied to clipboard!");
+      });
+    }
+
+    initDots();
+    switchView('carousel');
+  </script>
+</body>
+</html>

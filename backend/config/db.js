@@ -22,6 +22,19 @@ const connectDB = async () => {
     
     isConnected = db.connections[0].readyState;
     logger.info(`// DB_CONNECTED: ${db.connection.host}`);
+
+    // Drop outdated OTP TTL index if it was previously set to 120s
+    try {
+      const otpsCollection = mongoose.connection.collection('otps');
+      const indexes = await otpsCollection.indexes();
+      const ttlIndex = indexes.find((idx) => idx.name === 'createdAt_1');
+      if (ttlIndex && ttlIndex.expireAfterSeconds && ttlIndex.expireAfterSeconds !== 600) {
+        await otpsCollection.dropIndex('createdAt_1');
+        logger.info('// DROPPED_OUTDATED_OTP_TTL_INDEX');
+      }
+    } catch (idxErr) {
+      // Safe to ignore if collection doesn't exist yet
+    }
   } catch (error) {
     logger.error('// DB_HANDSHAKE_CRITICAL_FAILURE:', error.message);
     // On Vercel, we don't want to process.exit(1) as it kills the function instance

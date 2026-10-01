@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
         document.documentElement.style.setProperty('--theme-accent', data.themeConfig.accentColor);
         document.documentElement.style.setProperty('--theme-bg', data.themeConfig.bg);
       }
-    } catch (err) {
+    } catch {
       console.log('Using default theme');
     }
   };
@@ -30,9 +30,24 @@ export const AuthProvider = ({ children }) => {
           setUser(data.user);
           fetchTheme();
         }
-      } catch {
-        // 401 is handled by the response interceptor in api.js
-        setUser(null);
+      } catch (err) {
+        // If the access token has expired (401), silently try to refresh it
+        // using the long-lived refresh token cookie before giving up.
+        if (err?.response?.status === 401) {
+          try {
+            await api.post('/auth/refresh');
+            const { data } = await api.get('/auth/me');
+            if (data.user) {
+              setUser(data.user);
+              fetchTheme();
+            }
+          } catch {
+            // Refresh token also expired or revoked — user must log in again
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -44,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await api.post('/auth/login', { email, password });
       // SECURITY: Do NOT store token in localStorage (XSS risk).
-      // The backend sets an httpOnly cookie automatically — we just read the user from the response.
+      // The backend sets httpOnly cookies automatically — we just read the user from the response.
       setUser(data.user);
       fetchTheme();
       return { success: true, role: data.user.role };

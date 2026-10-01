@@ -10,17 +10,29 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'EMAIL_AND_PASSWORD_REQUIRED' });
     }
 
-    const { user, isSecurity, token } = await authService.login(email, password, req.ip);
+    const { user, isSecurity, accessToken, refreshToken } = await authService.login(email, password, req.ip);
 
-    res.cookie('token', token, {
+    const isProd = process.env.NODE_ENV === 'production';
+    const sameSite = (process.env.COOKIE_SAMESITE as any) || (isProd ? 'strict' : 'lax');
+
+    // Short-lived access token (15 min)
+    res.cookie('token', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: (process.env.COOKIE_SAMESITE as any) || (process.env.NODE_ENV === 'production' ? 'strict' : 'lax'),
-      maxAge: 8 * 60 * 60 * 1000
+      secure: isProd,
+      sameSite,
+      maxAge: 15 * 60 * 1000,
+    });
+
+    // Long-lived refresh token (7 days) — used only by /auth/refresh
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/api/v1/auth/refresh', // scoped to reduce attack surface
     });
 
     res.json({
-      token,
       user: {
         id: (user as any)._id,
         name: (user as any).name,
@@ -34,17 +46,58 @@ export const loginUser = async (req: Request, res: Response) => {
         parkingSlot: (user as any).parkingSlot,
         vehicleNumber: (user as any).vehicleNumber,
         mustChangePassword: (user as any).mustChangePassword,
-        isSecurity
-      }
+        isSecurity,
+      },
     });
   } catch (error: any) {
     logger.error('// LOGIN_FAULT:', error);
     if (['CREDENTIALS_REJECTED', 'ACCOUNT_PENDING_APPROVAL', 'SOCIETY_SUSPENDED'].includes(error.message)) {
-      return res.status(error.message === 'CREDENTIALS_REJECTED' ? 401 : 403).json({ 
-        message: error.message.includes('APPROVAL') ? 'ACCOUNT_PENDING_APPROVAL — Contact your society admin.' 
-               : error.message.includes('SUSPENDED') ? 'SOCIETY_SUSPENDED — Please contact platform administrator.' 
-               : 'CREDENTIALS_REJECTED' 
+      return res.status(error.message === 'CREDENTIALS_REJECTED' ? 401 : 403).json({
+        message: error.message.includes('APPROVAL')
+          ? 'ACCOUNT_PENDING_APPROVAL — Contact your society admin.'
+          : error.message.includes('SUSPENDED')
+          ? 'SOCIETY_SUSPENDED — Please contact platform administrator.'
+          : 'CREDENTIALS_REJECTED',
       });
+    }
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};
+
+// ── /auth/refresh ─────────────────────────────────────────────────────────────
+// Accepts the httpOnly refresh cookie and issues a fresh token pair.
+export const refreshTokens = async (req: Request, res: Response) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken as string | undefined;
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'NO_REFRESH_TOKEN' });
+    }
+
+    const { accessToken, refreshToken: newRefreshToken } = await authService.refreshAccessToken(refreshToken);
+
+    const isProd = process.env.NODE_ENV === 'production';
+    const sameSite = (process.env.COOKIE_SAMESITE as any) || (isProd ? 'strict' : 'lax');
+
+    res.cookie('token', accessToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite,
+      maxAge: 15 * 60 * 1000,
+    });
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/api/v1/auth/refresh',
+    });
+
+    res.json({ message: 'TOKENS_REFRESHED' });
+  } catch (error: any) {
+    logger.error('// REFRESH_FAULT:', error);
+    const knownErrors = ['INVALID_REFRESH_TOKEN', 'REFRESH_TOKEN_REVOKED'];
+    if (knownErrors.includes(error.message)) {
+      return res.status(401).json({ message: error.message });
     }
     res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
   }
@@ -52,11 +105,11 @@ export const loginUser = async (req: Request, res: Response) => {
 
 export const getMe = async (req: Request, res: Response) => {
   try {
-    if (!(req as any).user) {
+    if (!req.user) {
       return res.status(401).json({ message: 'Not authenticated' });
     }
-    
-    const user = await authService.getMe((req as any).user.id);
+
+    const user = await authService.getMe(req.user.id as string);
     if (!user) {
       return res.status(401).json({ message: 'Not authorized, user not found' });
     }
@@ -116,20 +169,18 @@ export const resetPassword = async (req: Request, res: Response) => {
 
 export const logoutUser = async (req: Request, res: Response) => {
   try {
-    let token;
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      token = req.headers.authorization.split(' ')[1];
-    } else if (req.cookies && req.cookies.token) {
-      token = req.cookies.token;
-    }
+    const token = req.cookies?.token as string | undefined;
 
-    await authService.logout((req as any).user, token, req.ip);
+    await authService.logout(req.user, token ?? '', req.ip ?? '');
 
-    res.clearCookie('token', {
+    const cookieOpts = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
-    });
+      sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
+    };
+
+    res.clearCookie('token', cookieOpts);
+    res.clearCookie('refreshToken', { ...cookieOpts, path: '/api/v1/auth/refresh' });
     res.json({ message: 'LOGGED_OUT' });
   } catch (error) {
     logger.error('// LOGOUT_FAULT:', error);

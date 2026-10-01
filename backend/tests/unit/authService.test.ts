@@ -46,7 +46,8 @@ describe('authService', () => {
       const result = await authService.login(email, 'password123', '127.0.0.1');
 
       expect(result).toBeDefined();
-      expect(result.token).toBeDefined();
+      expect(result.accessToken).toBeDefined();
+      expect(result.refreshToken).toBeDefined();
       expect(result.user.email).toBe(email);
       expect(result.isSecurity).toBe(false);
     });
