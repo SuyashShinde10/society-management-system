@@ -122,7 +122,30 @@ export const getMe = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Not authorized, user not found' });
     }
 
-    res.json({ user });
+    const userDoc: any = user;
+    const society = userDoc.societyId;
+    const societyName = (typeof society === 'object' && society !== null) ? society.name : (userDoc.societyName || 'UNLINKED');
+    const societyId = (typeof society === 'object' && society !== null) ? society._id : society;
+    const societyCity = (typeof society === 'object' && society !== null) ? society.city : (userDoc.societyCity || '');
+
+    res.json({
+      user: {
+        id: userDoc._id,
+        _id: userDoc._id,
+        name: userDoc.name,
+        email: userDoc.email,
+        role: userDoc.role,
+        phone: userDoc.phone,
+        societyId,
+        societyName,
+        societyCity,
+        flatDetails: userDoc.flatDetails,
+        parkingSlot: userDoc.parkingSlot,
+        vehicleNumber: userDoc.vehicleNumber,
+        mustChangePassword: userDoc.mustChangePassword,
+        isSecurity: userDoc.role === 'security',
+      }
+    });
   } catch (error) {
     logger.error('// GET_ME_FAULT:', error);
     res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });

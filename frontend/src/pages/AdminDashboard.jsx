@@ -89,10 +89,10 @@ const AdminDashboard = () => {
             </div>
             <div style={{ zIndex: 10 }}>
               <h1 style={{ fontFamily: "'Cormorant Garamond', serif", margin: '0 0 4px 0', fontSize: '32px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>
-                <AnimatedText text={user.societyName || 'Awaastech Administration'} />
+                <AnimatedText text={(user?.societyName && user?.societyName !== 'UNLINKED' ? user.societyName : '') || user?.societyId?.name || (user?.role === 'superadmin' ? 'Awaastech Administration' : 'Society Administration')} />
               </h1>
               <p style={{ margin: 0, fontSize: '15px', fontWeight: '400', color: theme.textSec }}>
-                Welcome back, <span style={{ color: theme.accent, fontWeight: '600' }}>{user.name}</span> (Administrator)
+                Welcome back, <span style={{ color: theme.accent, fontWeight: '600' }}>{user?.name || 'Administrator'}</span> (Administrator)
               </p>
             </div>
           </div>

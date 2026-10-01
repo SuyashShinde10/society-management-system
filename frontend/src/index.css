@@ -266,6 +266,12 @@ body {
   box-shadow: 0 2px 8px rgba(217, 115, 78, 0.12);
 }
 
+@media (min-width: 961px) {
+  .dashboard-menu-toggle {
+    display: none !important;
+  }
+}
+
 .sidebar-menu {
   display: flex;
   flex-direction: column;

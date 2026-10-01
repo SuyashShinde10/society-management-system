@@ -82,10 +82,10 @@ const MemberDashboard = () => {
             </div>
             <div style={{ zIndex: 10 }}>
               <h1 style={{ fontFamily: "'Cormorant Garamond', serif", margin: '0 0 4px 0', fontSize: '32px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>
-                <AnimatedText text={user.societyName || 'Awaastech Society'} />
+                <AnimatedText text={(user?.societyName && user?.societyName !== 'UNLINKED' ? user.societyName : '') || user?.societyId?.name || 'Awaastech Society'} />
               </h1>
               <p style={{ margin: 0, fontSize: '15px', fontWeight: '400', color: theme.textSec }}>
-                Welcome back, <span style={{ color: theme.accent, fontWeight: '600' }}>{user.name}</span>
+                Welcome back, <span style={{ color: theme.accent, fontWeight: '600' }}>{user?.name}</span>
                 {user.flatDetails && (
                   <span style={{ marginLeft: '10px', fontSize: '13px', background: '#F9F8F3', padding: '4px 10px', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
                     Wing {user.flatDetails.wing} • Flat {user.flatDetails.flatNumber}
