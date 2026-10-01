@@ -42,8 +42,8 @@ jobs:
       - name: TypeScript Strict Typecheck Gate
         run: npx tsc --noEmit
 
-      - name: Run Test Suites (14 Suites / 52 Tests)
-        run: npm test
+      - name: Run Test Suites (18 Suites / 77 Tests)
+        run: npm test -- --runInBand
         env:
           JWT_SECRET: "ci_jwt_super_secret_test_key_12345"
           JWT_REFRESH_SECRET: "ci_jwt_refresh_super_secret_test_key_12345"

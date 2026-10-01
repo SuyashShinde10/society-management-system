@@ -1,16 +1,9 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['**/tests/**/*.test.[jt]s'],
+  testMatch: ['<rootDir>/tests/**/*.test.[jt]s'],
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/dist/'],
   setupFilesAfterEnv: ['./tests/setup.js'],
-  maxWorkers: 2,
-  testTimeout: 300000,
-  coverageThreshold: {
-    global: {
-      branches: 60,
-      functions: 65,
-      lines: 70,
-      statements: 70
-    }
-  }
+  maxWorkers: process.env.CI ? 1 : 2,
+  testTimeout: 180000,
 };

@@ -4,6 +4,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 let mongoServer;
 
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_secret_for_jest_at_least_32_characters';
+process.env.JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'test_refresh_secret_at_least_32_characters';
 process.env.NODE_ENV = 'test';
 
 jest.setTimeout(300000);
