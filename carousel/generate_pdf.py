@@ -4,19 +4,20 @@ from PIL import Image
 def generate_pdf():
     assets_dir = r"d:\Projects\society-management-system\carousel\assets"
     
-    # 11 professional introduction slides in chronological order
+    # 12 live product & module slides in chronological order
     slide_files = [
-        "awaastech_carousel_cover_1790600283254.jpg",            # Slide 1: Grand Introduction & Hero
-        "awaastech_problem_slide_1790600867398.jpg",             # Slide 2: The Core Problems It Solves
-        "awaastech_roles_overview_1790601607104.jpg",            # Slide 3: All 4 Roles & Functions
-        "awaastech_concurrency_slide_fixed.jpg",         # Slide 4: Distributed Concurrency (Fixed & Centered)
-        "awaastech_geofence_escrow_1790600381876.jpg",           # Slide 5: GPS Geofenced Smart Escrow (turf.js)
-        "awaastech_ai_agent_1790600399096.jpg",                  # Slide 6: Generative AI Dispute Agent (LangGraph)
-        "awaastech_security_slide_fixed.jpg",            # Slide 7: Bank-Grade Security (Fixed with 4 Cards)
-        "awaastech_bullmq_slide_1790600937634.jpg",              # Slide 8: Async BullMQ Pipelines & DLQ
-        "awaastech_tech_stack_1790600422173.jpg",                # Slide 9: Complete Full-Stack Architecture
-        "awaastech_lessons_slide_1790601190132.jpg",             # Slide 10: Production Engineering Lessons
-        "awaastech_coming_next_dashboards_1790601961802.jpg"     # Slide 11: Coming Next: The Dashboards (Part 2 Teaser)
+        "awaastech_slide_01.png",  # Slide 1: Grand Introduction & Hero
+        "awaastech_slide_02.png",  # Slide 2: Admin Command Center
+        "awaastech_slide_03.png",  # Slide 3: Resident & Flat Registry
+        "awaastech_slide_04.png",  # Slide 4: Automated Maintenance Billing
+        "awaastech_slide_05.png",  # Slide 5: Notice Board & Global Meetings
+        "awaastech_slide_06.png",  # Slide 6: Grievance Redressal Portal
+        "awaastech_slide_07.png",  # Slide 7: Gate Security & Parcel Locker
+        "awaastech_slide_08.png",  # Slide 8: Amenity Bookings & Digital AGM Voting
+        "awaastech_slide_09.png",  # Slide 9: Green Society & Sustainability ERP
+        "awaastech_slide_10.png",  # Slide 10: WhatsApp AI Resident Concierge
+        "awaastech_slide_11.png",  # Slide 11: Society Accounting & Financial Analytics
+        "awaastech_slide_12.png",  # Slide 12: Grand Finale & Open Source GitHub
     ]
     
     images = []
