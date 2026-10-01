@@ -25,7 +25,7 @@ const Meetings = () => {
 
   useEffect(() => {
     fetchMeetings();
-    if (user?.role === 'admin') {
+    if (user?.role === 'admin' || user?.role === 'superadmin') {
       fetchUsers();
     }
   }, [user]);
@@ -33,9 +33,9 @@ const Meetings = () => {
   const fetchUsers = async () => {
     try {
       const { data } = await api.get('/auth/users');
-      setUsers(data);
+      setUsers(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Failed to fetch users');
+      console.error('Failed to fetch users', error);
     }
   };
 
@@ -44,9 +44,9 @@ const Meetings = () => {
     setFetchError(null);
     try {
       const { data } = await api.get('/meetings');
-      setMeetings(data);
+      setMeetings(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('// FETCH_ERROR');
+      console.error('// FETCH_ERROR', error);
       setFetchError(error.response?.data?.message || 'Unable to connect to meetings registry.');
     } finally {
       setIsLoading(false);
@@ -100,7 +100,7 @@ const Meetings = () => {
 
       <div style={{ padding: '0', flex: 1, overflowY: 'auto' }}>
         
-        {user?.role === 'admin' && (
+        {(user?.role === 'admin' || user?.role === 'superadmin') && (
           <form onSubmit={handleCreateMeeting} style={{ background: 'white', padding: '24px', borderRadius: '20px', border: `1px solid ${theme.border}`, marginBottom: '30px', display: 'grid', gap: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
             <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', fontWeight: '600', color: theme.textSec }}>Schedule New Meeting</span>
             <div style={{ display: 'grid', gap: '10px' }}>

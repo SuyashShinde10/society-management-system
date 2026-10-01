@@ -4,11 +4,13 @@ import { AlertTriangle, RotateCcw } from 'lucide-react';
 
 export const ComponentError = ({
   title = 'Failed to load content',
-  message = 'An unexpected error occurred while loading this section. Please try again.',
+  message,
+  error,
   onRetry,
   className = '',
   style = {}
 }) => {
+  const displayMessage = (typeof error === 'string' ? error : error?.message) || message || 'An unexpected error occurred while loading this section. Please try again.';
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
@@ -66,7 +68,7 @@ export const ComponentError = ({
           fontFamily: "'Outfit', sans-serif"
         }}
       >
-        {message}
+        {displayMessage}
       </p>
 
       {onRetry && (

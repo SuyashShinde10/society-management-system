@@ -5,8 +5,8 @@ import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
 import logger from '../utils/logger';
 
 export const getMeetings = async (user: any) => {
-  const filter: any = { societyId: user.societyId };
-  if (user.role === 'member') {
+  const filter: any = user?.societyId ? { societyId: user.societyId } : {};
+  if (user?.role === 'member') {
     filter.$or = [
       { targetType: 'All' },
       { targetType: 'Specific', targetUserId: user._id }

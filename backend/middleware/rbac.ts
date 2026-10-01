@@ -22,9 +22,15 @@ const roles: Record<UserRole, Permission[] | ['*']> = {
   admin: [
     'create:user', 'read:user', 'update:user', 'delete:user',
     'create:staff', 'read:staff', 'update:staff', 'delete:staff',
-    'manage:bills', 'manage:complaints', 'manage:notices',
-    'manage:expenses', 'manage:meetings', 'manage:visitors',
-    'manage:parking', 'manage:vendors', 'manage:escrow',
+    'manage:bills', 'read:bills',
+    'manage:complaints', 'create:complaints', 'read:complaints',
+    'manage:notices', 'read:notices',
+    'manage:expenses',
+    'manage:meetings', 'read:meetings',
+    'manage:visitors', 'create:visitors', 'read:visitors',
+    'manage:parking', 'read:parking',
+    'manage:vendors', 'read:vendors',
+    'manage:escrow',
   ],
   member: [
     'read:user',
@@ -34,7 +40,7 @@ const roles: Record<UserRole, Permission[] | ['*']> = {
     'create:visitors', 'read:visitors',
   ],
   security: [
-    'create:visitors', 'read:visitors', 'manage:parking',
+    'create:visitors', 'read:visitors', 'manage:parking', 'read:parking',
   ],
 };
 
@@ -60,6 +66,14 @@ export const hasPermission = (requiredPermission: Permission) => {
     }
 
     if ((permissions as string[]).includes('*') || (permissions as string[]).includes(requiredPermission)) {
+      next();
+      return;
+    }
+
+    // Role with 'manage:<resource>' implicitly holds 'read:<resource>' and 'create:<resource>'
+    const parts = (requiredPermission as string).split(':');
+    const resource = parts.length > 1 ? parts[1] : null;
+    if (resource && (permissions as string[]).includes(`manage:${resource}`)) {
       next();
       return;
     }

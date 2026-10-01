@@ -10,6 +10,7 @@ export const getMeetings = async (req: Request, res: Response) => {
     const meetings = await meetingService.getMeetings((req as any).user);
     res.status(200).json(meetings);
   } catch (error: any) {
+    logger.error('Server error fetching meetings:', error);
     res.status(500).json({ message: 'Server error fetching meetings', error: error.message });
   }
 };
