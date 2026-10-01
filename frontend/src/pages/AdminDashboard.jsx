@@ -44,6 +44,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState(user?.mustChangePassword ? 'profile' : 'overview');
   const [registryRefresh, setRegistryRefresh] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   if (!user) {
     return (
@@ -97,25 +98,23 @@ const AdminDashboard = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(prev => !prev)}
-              style={{
-                background: '#F9F8F3',
-                border: `1px solid ${theme.border}`,
-                borderRadius: '12px',
-                padding: '10px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: theme.textMain
+              className="dashboard-menu-toggle"
+              onClick={() => {
+                if (window.innerWidth < 960) {
+                  setMobileMenuOpen(prev => !prev);
+                } else {
+                  setSidebarCollapsed(prev => !prev);
+                }
               }}
+              title={sidebarCollapsed ? "Expand sidebar menu" : "Collapse sidebar menu"}
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            </motion.button>
 
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => { logout(); navigate('/'); }}
@@ -131,17 +130,42 @@ const AdminDashboard = () => {
           
           {/* NAVIGATION SIDEBAR */}
           <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }}
-            className={`sidebar-nav ${mobileMenuOpen ? 'block' : 'hidden md:flex'}`}>
+            className={`sidebar-nav ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'block' : 'hidden md:flex'}`}>
             
             {user?.mustChangePassword && (
               <div className="dashboard-password-warning">
                 <ShieldAlert size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
-                <span>You must change your generated password to continue accessing other modules.</span>
+                {!sidebarCollapsed && <span>You must change your generated password to continue accessing other modules.</span>}
               </div>
             )}
 
             <div className="sidebar-menu">
-              <span className="dashboard-menu-heading">Menu</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'space-between', padding: sidebarCollapsed ? '0' : '0 8px 4px 10px' }}>
+                {!sidebarCollapsed && <span className="dashboard-menu-heading" style={{ margin: 0, padding: 0 }}>Menu</span>}
+                <button
+                  type="button"
+                  onClick={() => setSidebarCollapsed(prev => !prev)}
+                  className="hide-on-mobile"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: theme.textSec,
+                    padding: '4px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'color 0.2s'
+                  }}
+                  onMouseOver={e => e.currentTarget.style.color = theme.accent}
+                  onMouseOut={e => e.currentTarget.style.color = theme.textSec}
+                  title={sidebarCollapsed ? "Expand sidebar menu" : "Collapse sidebar menu"}
+                  aria-label={sidebarCollapsed ? "Expand sidebar menu" : "Collapse sidebar menu"}
+                >
+                  <Menu size={16} />
+                </button>
+              </div>
               
               {navItems.map((tab) => {
                 const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
@@ -159,13 +183,14 @@ const AdminDashboard = () => {
                     }}
                     disabled={isDisabled}
                     className={isActive ? "nav-btn-active" : "nav-btn"}
+                    title={tab.label}
                     style={{
                       cursor: isDisabled ? 'not-allowed' : 'pointer',
                       opacity: isDisabled ? 0.4 : 1
                     }}
                   >
-                    <Icon size={18} color={isActive ? 'white' : theme.textSec} style={{ transition: 'color 0.2s' }} />
-                    {tab.label}
+                    <Icon size={18} color={isActive ? 'white' : theme.textSec} style={{ transition: 'color 0.2s', flexShrink: 0 }} />
+                    {!sidebarCollapsed && <span>{tab.label}</span>}
                   </button>
                 );
               })}
