@@ -2,6 +2,7 @@ import Visitor from '../models/Visitor';
 import User from '../models/User';
 import { emailQueue } from '../workers/emailQueue';
 import { uploadBase64ToCloudinary } from '../utils/uploadCloudinary';
+import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
 
 export const checkInVisitor = async (data: any, user: any) => {
   const { name, phone, purpose, wing, flatNumber, photo, signature } = data;
@@ -36,35 +37,31 @@ export const checkInVisitor = async (data: any, user: any) => {
   if (wing && flatNumber) {
     const resident = await User.findOne({ 
       societyId: user.societyId, 
-      'flatDetails.wing': wing, 
-      'flatDetails.flatNumber': flatNumber 
+      $or: [
+        { 'flatDetails.wing': wing, 'flatDetails.flatNumber': flatNumber },
+        { wing, flatNumber }
+      ]
     });
 
     if (resident && resident.email) {
-      const photoHtml = photoUrl ? `<div style="margin:20px 0;"><img src="${photoUrl}" alt="Visitor Photo" style="max-width:300px; border-radius:8px; border:2px solid #E2E8F0;" /></div>` : '';
-      const signatureHtml = signatureUrl ? `<div style="margin:20px 0;"><p style="font-weight:600; color:#64748B;">Visitor Signature:</p><img src="${signatureUrl}" alt="Visitor Signature" style="max-width:200px; border-radius:8px; background:white; border:1px solid #E2E8F0;" /></div>` : '';
+      const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const photoHtml = photoUrl ? `<div style="margin: 14px 0;"><img src="${photoUrl}" alt="Visitor Photo" style="max-width: 240px; border-radius: 10px; border: 1px solid #cbd5e1;" /></div>` : '';
+      const signatureHtml = signatureUrl ? `<div style="margin: 10px 0;"><p style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Visitor Signature</p><img src="${signatureUrl}" alt="Visitor Signature" style="max-width: 180px; border-radius: 8px; background: white; border: 1px solid #cbd5e1; padding: 4px;" /></div>` : '';
 
-      const emailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 12px; border: 1px solid #e5e7eb;">
-          <h2 style="color: #1E293B; margin-top: 0;">New Visitor at the Gate</h2>
-          <p style="color: #475569; font-size: 16px;">Hello ${resident.name},</p>
-          <p style="color: #475569; font-size: 16px;">A new visitor has just checked in at the security desk and is heading to your flat.</p>
-          
-          <div style="background: #F8FAFC; padding: 20px; border-radius: 8px; margin: 25px 0;">
-            <p style="margin: 0 0 10px 0;"><strong>Name:</strong> ${name}</p>
-            <p style="margin: 0 0 10px 0;"><strong>Phone:</strong> ${phone}</p>
-            <p style="margin: 0 0 10px 0;"><strong>Purpose:</strong> ${purpose}</p>
-            <p style="margin: 0;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-          </div>
-          
-          ${photoHtml}
-          ${signatureHtml}
-
-          <p style="color: #94A3B8; font-size: 14px; margin-top: 30px;">
-            If you are not expecting this person, please contact the security desk immediately.
-          </p>
-        </div>
-      `;
+      const emailHtml = getProfessionalEmailTemplate({
+        title: 'Gate Security Alert',
+        subtitle: 'VISITOR CHECK-IN AT MAIN GATE',
+        greeting: `Hello ${resident.name},`,
+        bodyText: `A new visitor has just checked in at the security desk and is heading towards your unit (<strong>Wing ${wing} • Unit ${flatNumber}</strong>).`,
+        highlightBox: `<strong>${name}</strong><br><span style="font-size: 13px; color: #64748b;">Phone: ${phone}</span><br><span style="font-size: 13px; color: #475569;">Purpose: ${purpose}</span><br><span style="font-size: 12px; color: #94a3b8;">Time: ${new Date().toLocaleTimeString()}</span>${photoHtml}${signatureHtml}`,
+        highlightBoxLabel: 'Visitor Verification Profile',
+        actionButton: {
+          text: 'View Gate Log in Portal',
+          url: `${appUrl}/resident`
+        },
+        warningText: 'If you are not expecting this person, please notify the security gate or intercom immediately.',
+        footerText: 'Society Gate Automated Entry Monitoring'
+      });
 
       await emailQueue.add('sendEmailJob', {
         email: resident.email,

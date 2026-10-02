@@ -4,6 +4,8 @@ import Classified from '../models/Classified';
 import Resolution from '../models/Resolution';
 import User from '../models/User';
 import logger from '../utils/logger';
+import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
+import { emailQueue } from '../workers/emailQueue';
 
 // --- AMENITIES & BOOKINGS ---
 export const getAmenities = async (societyId: string) => {
@@ -62,6 +64,36 @@ export const bookAmenitySlot = async (data: any, user: any) => {
 
   await booking.save();
   logger.info(`[AMENITY BOOKED] ${amenity.name} for ${user.name} on ${date} @ ${slotTime}`);
+
+  // Send Amenity Booking Confirmation Email to Resident
+  if (user.email) {
+    try {
+      const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const bookingEmailHtml = getProfessionalEmailTemplate({
+        title: 'Clubhouse & Amenities',
+        subtitle: 'AMENITY BOOKING CONFIRMED',
+        greeting: `Hello ${user.name},`,
+        bodyText: `Your reservation for <strong>${amenity.name}</strong> has been successfully confirmed.<br><br><strong>Slot Time:</strong> ${slotTime}<br><strong>Date:</strong> ${new Date(date).toDateString()}<br><strong>Attendees:</strong> ${requestedPeople} Person(s)<br>${totalAmount > 0 ? `<strong>Total Fees:</strong> ₹${totalAmount}` : '<strong>Charge:</strong> Complimentary Resident Amenity'}`,
+        highlightBox: `${amenity.name}`,
+        highlightBoxLabel: `${new Date(date).toDateString()} • ${slotTime}`,
+        actionButton: {
+          text: 'View My Bookings in Portal',
+          url: `${appUrl}/resident`
+        },
+        warningText: 'Please adhere to society community guidelines and arrive on time for your reserved slot.',
+        footerText: 'Society Amenities & Lifestyle Management'
+      });
+
+      await emailQueue.add('sendEmailJob', {
+        email: user.email,
+        subject: `Booking Confirmed: ${amenity.name} on ${new Date(date).toDateString()}`,
+        html: bookingEmailHtml
+      });
+    } catch (err: any) {
+      logger.error('// AMENITY_BOOKING_EMAIL_ERROR:', err.message);
+    }
+  }
+
   return booking;
 };
 
@@ -121,6 +153,41 @@ export const createResolution = async (data: any, user: any) => {
   });
 
   await resolution.save();
+
+  // Broadcast AGM Resolution email to all active members
+  (async () => {
+    try {
+      const members = await User.find({ societyId: user.societyId, role: 'member', isActive: true }).select('email name');
+      const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const resolutionEmailHtml = getProfessionalEmailTemplate({
+        title: 'Digital AGM & Governance',
+        subtitle: 'NEW RESOLUTION OPEN FOR VOTING',
+        greeting: 'Hello Resident,',
+        bodyText: `A new society resolution has been posted for electronic voting by the management committee: "<strong>${title}</strong>".<br><br>${description ? `${description}<br><br>` : ''}Your participation is required to help achieve the required <strong>${quorumPercent || 50}%</strong> community quorum.`,
+        highlightBox: `Voting Deadline: ${new Date(deadline).toDateString()}`,
+        highlightBoxLabel: `Category: ${category || 'General'}`,
+        actionButton: {
+          text: 'Cast Your Vote in Portal',
+          url: `${appUrl}/resident`
+        },
+        warningText: 'Every flat is allocated one vote. Please cast your ballot before the deadline.',
+        footerText: 'Society Digital Governance & Democratic Voting'
+      });
+
+      for (const m of members) {
+        if (m.email) {
+          await emailQueue.add('sendEmailJob', {
+            email: m.email,
+            subject: `Digital AGM Vote: ${title}`,
+            html: resolutionEmailHtml
+          });
+        }
+      }
+    } catch (err: any) {
+      logger.error('// RESOLUTION_EMAIL_BROADCAST_ERROR:', err.message);
+    }
+  })();
+
   return resolution;
 };
 

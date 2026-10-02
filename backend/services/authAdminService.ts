@@ -2,6 +2,9 @@ import User from '../models/User';
 import SecurityStaff from '../models/SecurityStaff';
 import Society from '../models/Society';
 import bcrypt from 'bcryptjs';
+import logger from '../utils/logger';
+import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
+import { emailQueue } from '../workers/emailQueue';
 
 export const updateProfile = async (userId: string, data: any) => {
   const { name, phone, parkingSlot, vehicleNumber, currentPassword, newPassword } = data;
@@ -44,6 +47,36 @@ export const updateProfile = async (userId: string, data: any) => {
   }
 
   await user.save();
+
+  // Send Password Changed Security Alert Email
+  if (newPassword && user.email) {
+    try {
+      const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const securityAlertHtml = getProfessionalEmailTemplate({
+        title: 'Account Security Alert',
+        subtitle: 'PASSWORD CHANGE NOTIFICATION',
+        greeting: `Hello ${user.name},`,
+        bodyText: `The password for your society resident account (<strong>${user.email}</strong>) was changed on <strong>${new Date().toLocaleString()}</strong>.<br><br>If you made this change, you can safely disregard this message.`,
+        highlightBox: 'Password Updated',
+        highlightBoxLabel: 'Security Event',
+        actionButton: {
+          text: 'Log In to Society Portal',
+          url: `${appUrl}/login`
+        },
+        warningText: 'If you did not request or authorize this change, your account may be compromised. Please contact your society administrator immediately.',
+        footerText: 'Society Account Protection & Security Service'
+      });
+
+      await emailQueue.add('sendEmailJob', {
+        email: user.email,
+        subject: 'Security Alert: Your Password Was Changed',
+        html: securityAlertHtml
+      });
+    } catch (err: any) {
+      logger.error('// PASSWORD_CHANGE_ALERT_ERROR:', err.message);
+    }
+  }
+
   const userObj = (user as any).toObject();
   delete userObj.password;
   userObj.id = userObj._id;

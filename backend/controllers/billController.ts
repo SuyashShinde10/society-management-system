@@ -110,3 +110,16 @@ export const verifyStripePayment = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
   }
 };
+
+// @desc  Send due reminders to all pending bill owners
+// @route POST /api/bills/reminders
+// @access Admin
+export const sendDueReminders = async (req: Request, res: Response) => {
+  try {
+    const result = await billService.sendDueReminders((req as any).user.societyId);
+    res.json({ message: `Sent ${result.count} payment reminder email(s) successfully.`, ...result });
+  } catch (error) {
+    logger.error('Error sending bill reminders:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};

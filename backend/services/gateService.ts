@@ -5,6 +5,8 @@ import GuestPass from '../models/GuestPass';
 import User from '../models/User';
 import bcrypt from 'bcryptjs';
 import logger from '../utils/logger';
+import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
+import { emailQueue } from '../workers/emailQueue';
 
 // --- PARCEL WORKFLOW ---
 export const logParcel = async (data: any, guardUser: any) => {
@@ -15,9 +17,11 @@ export const logParcel = async (data: any, guardUser: any) => {
   const recipient = await User.findOne({
     societyId,
     role: 'member',
-    wing: { $regex: new RegExp(`^${wing}$`, 'i') },
-    flatNumber: { $regex: new RegExp(`^${flatNumber}$`, 'i') }
-  }).select('_id');
+    $or: [
+      { wing: { $regex: new RegExp(`^${wing}$`, 'i') }, flatNumber: { $regex: new RegExp(`^${flatNumber}$`, 'i') } },
+      { 'flatDetails.wing': { $regex: new RegExp(`^${wing}$`, 'i') }, 'flatDetails.flatNumber': { $regex: new RegExp(`^${flatNumber}$`, 'i') } }
+    ]
+  }).select('_id name email');
 
   // Generate 4-digit claim OTP (raw — will be hashed by Parcel pre-save hook)
   const rawClaimOtp = Math.floor(1000 + Math.random() * 9000).toString();
@@ -38,8 +42,36 @@ export const logParcel = async (data: any, guardUser: any) => {
   await parcel.save();
   logger.info(`[PARCEL LOGGED] Flat ${wing}-${flatNumber}, Carrier: ${carrier}`);
 
+  // Send Parcel Delivery email notification to the resident
+  if (recipient && recipient.email) {
+    try {
+      const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const parcelEmailHtml = getProfessionalEmailTemplate({
+        title: 'Gate Security Locker',
+        subtitle: 'PARCEL DELIVERED AT MAIN GATE',
+        greeting: `Hello ${recipient.name},`,
+        bodyText: `A delivery package from <strong>${carrier}</strong> has been logged by the security team for your unit (<strong>Wing ${wing} • Unit ${flatNumber}</strong>).${trackingNumber ? `<br><strong>Tracking / AWB:</strong> ${trackingNumber}` : ''}<br><br>Please provide the 4-digit Claim OTP below to the security desk guard when picking up your parcel.`,
+        highlightBox: rawClaimOtp,
+        highlightBoxLabel: 'Your 4-Digit Parcel Claim OTP',
+        actionButton: {
+          text: 'View Gate Locker',
+          url: `${appUrl}/resident`
+        },
+        warningText: 'Do not share this OTP until you are physically receiving your parcel at the security desk.',
+        footerText: 'Gate Security Automated Parcel System'
+      });
+
+      await emailQueue.add('sendEmailJob', {
+        email: recipient.email,
+        subject: `Delivery Alert: Parcel Arrived from ${carrier} (Claim OTP: ${rawClaimOtp})`,
+        html: parcelEmailHtml
+      });
+    } catch (err: any) {
+      logger.error('// PARCEL_EMAIL_ALERT_ERROR:', err.message);
+    }
+  }
+
   // Return parcel + rawClaimOtp so the caller can send it via SMS/notification.
-  // The DB only stores the bcrypt hash — never log the raw OTP in production.
   return { parcel, rawClaimOtp };
 };
 
@@ -56,6 +88,38 @@ export const claimParcel = async (parcelId: string, claimOtp: string, guardUser:
   await parcel.save();
 
   logger.info(`[PARCEL CLAIMED] Parcel ${parcelId} claimed successfully for ${parcel.wing}-${parcel.flatNumber}`);
+
+  // Send Claim Confirmation email to resident
+  if (parcel.recipientId) {
+    try {
+      const recipientUser = await User.findById(parcel.recipientId).select('name email');
+      if (recipientUser && recipientUser.email) {
+        const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const claimedEmailHtml = getProfessionalEmailTemplate({
+          title: 'Gate Security Locker',
+          subtitle: 'PARCEL PICKUP CONFIRMATION',
+          greeting: `Hello ${recipientUser.name},`,
+          bodyText: `Your delivery parcel from <strong>${parcel.carrier}</strong>${parcel.trackingNumber ? ` (Tracking: ${parcel.trackingNumber})` : ''} has been marked as <strong>Claimed</strong> and safely collected from the gate desk on <strong>${new Date().toLocaleString()}</strong>.`,
+          highlightBox: 'Collected Successfully',
+          highlightBoxLabel: 'Parcel Status',
+          actionButton: {
+            text: 'Open Resident Portal',
+            url: `${appUrl}/resident`
+          },
+          footerText: 'Thank you for verifying your delivery with gate security.'
+        });
+
+        await emailQueue.add('sendEmailJob', {
+          email: recipientUser.email,
+          subject: `Parcel Claimed: ${parcel.carrier} Delivery Collected`,
+          html: claimedEmailHtml
+        });
+      }
+    } catch (err: any) {
+      logger.error('// PARCEL_CLAIM_EMAIL_ERROR:', err.message);
+    }
+  }
+
   return parcel;
 };
 
@@ -179,6 +243,35 @@ export const createGuestPass = async (data: any, residentUser: any) => {
   await pass.save();
   logger.info(`[GUEST PASS CREATED] For ${guestName}, Code: ${rawPassCode} by ${residentUser.name}`);
 
+  // Send Guest Pass Details email to Resident
+  if (residentUser.email) {
+    try {
+      const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const guestEmailHtml = getProfessionalEmailTemplate({
+        title: 'Visitor Gate Pass',
+        subtitle: 'PRE-APPROVED GUEST ENTRY PASS',
+        greeting: `Hello ${residentUser.name},`,
+        bodyText: `You have successfully created a pre-approved visitor entry pass for <strong>${guestName}</strong>${guestPhone ? ` (Phone: ${guestPhone})` : ''}.<br><br><strong>Purpose:</strong> ${purpose || 'Guest Visit'}<br><strong>Valid Until:</strong> ${pass.validDate.toDateString()}<br><br>Share the 6-digit entry code below with your visitor. They can show this code to the security guard at the gate for direct access.`,
+        highlightBox: rawPassCode,
+        highlightBoxLabel: '6-Digit Guest Entry Code',
+        actionButton: {
+          text: 'Manage Passes in Portal',
+          url: `${appUrl}/resident`
+        },
+        warningText: 'This pass code is valid only for the designated date and one-time entry.',
+        footerText: 'Gate Security Access Management'
+      });
+
+      await emailQueue.add('sendEmailJob', {
+        email: residentUser.email,
+        subject: `Guest Pass Created: ${guestName} (Pass Code: ${rawPassCode})`,
+        html: guestEmailHtml
+      });
+    } catch (err: any) {
+      logger.error('// GUEST_PASS_EMAIL_ERROR:', err.message);
+    }
+  }
+
   // Return pass with rawPassCode attached in memory so the caller can send/share it
   (pass as any).rawPassCode = rawPassCode;
   (pass as any).passCode = rawPassCode;
@@ -189,7 +282,7 @@ export const verifyGuestPass = async (passCode: string, guardUser: any) => {
   const activePasses = await GuestPass.find({
     societyId: guardUser.societyId,
     status: 'Active'
-  }).populate('residentId', 'name wing flatNumber phone');
+  }).populate('residentId', 'name email wing flatNumber phone');
 
   let matchingPass = null;
   const trimmedCode = passCode.trim();
@@ -218,6 +311,36 @@ export const verifyGuestPass = async (passCode: string, guardUser: any) => {
   await matchingPass.save();
 
   logger.info(`[GUEST PASS VERIFIED] Guest: ${matchingPass.guestName}, Visiting: ${(matchingPass.residentId as any)?.name}`);
+
+  // Send Guest Arrival Alert to Resident
+  const resident = matchingPass.residentId as any;
+  if (resident && resident.email) {
+    try {
+      const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const arrivalEmailHtml = getProfessionalEmailTemplate({
+        title: 'Gate Security Alert',
+        subtitle: 'GUEST ARRIVED AT MAIN GATE',
+        greeting: `Hello ${resident.name},`,
+        bodyText: `Your visitor <strong>${matchingPass.guestName}</strong> has successfully verified their guest pass code at the society gate and has been granted entry at <strong>${now.toLocaleTimeString()}</strong>.`,
+        highlightBox: 'Visitor Entered Gate',
+        highlightBoxLabel: `Guest: ${matchingPass.guestName}`,
+        actionButton: {
+          text: 'View Gate Passes',
+          url: `${appUrl}/resident`
+        },
+        footerText: 'Automated Gate Security Notification'
+      });
+
+      await emailQueue.add('sendEmailJob', {
+        email: resident.email,
+        subject: `Gate Alert: Your guest ${matchingPass.guestName} has arrived`,
+        html: arrivalEmailHtml
+      });
+    } catch (err: any) {
+      logger.error('// GUEST_ARRIVAL_EMAIL_ERROR:', err.message);
+    }
+  }
+
   return matchingPass;
 };
 

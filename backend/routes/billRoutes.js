@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { generateBills, getBills, markBillPaid, deleteBill, createCheckout, verifyStripePayment } = require('../controllers/billController');
+const { generateBills, getBills, markBillPaid, deleteBill, createCheckout, verifyStripePayment, sendDueReminders } = require('../controllers/billController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const { hasPermission } = require('../middleware/rbac');
 const validateRequest = require('../middleware/validateRequest');
@@ -11,6 +11,7 @@ router.get('/', protect, hasPermission('read:bills'), getBills);
 
 // Admin-only mutations — guarded by semantic 'manage:bills' permission
 router.post('/generate', protect, hasPermission('manage:bills'), validateRequest(generateBillSchema), generateBills);
+router.post('/reminders', protect, hasPermission('manage:bills'), sendDueReminders);
 router.delete('/:id', protect, hasPermission('manage:bills'), deleteBill);
 
 // Stripe payment flow — any authenticated user can trigger/verify their own payment

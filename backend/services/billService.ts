@@ -44,19 +44,26 @@ export const generateBills = async (data: IGenerateBillInput, user: IAuthUserCon
     const insertedBills = await MaintenanceBill.insertMany(billDocs);
     bills.push(...insertedBills);
 
+    const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const emailPromises = members.map(member => {
       const html = getProfessionalEmailTemplate({
-        subtitle: 'NEW MAINTENANCE BILL',
+        title: 'Maintenance Invoice',
+        subtitle: 'NEW MAINTENANCE BILL ISSUED',
         greeting: `Hello ${member.name},`,
-        bodyText: `A new maintenance bill of ₹${amount} has been generated for you.`,
+        bodyText: `A new maintenance invoice for "<strong>${title}</strong>" amounting to <strong>₹${amount}</strong> has been generated for your unit.<br><br>Please clear your dues on or before the due date to ensure uninterrupted society amenities and avoid late fees.`,
         highlightBox: `₹${amount}`,
-        highlightBoxLabel: `Due Date: ${dueDate ? new Date(dueDate).toDateString() : 'N/A'}`,
-        warningText: 'Please login to the portal to view details and make payment.'
+        highlightBoxLabel: `Due Date: ${dueDate ? new Date(dueDate).toDateString() : 'Immediate'}`,
+        actionButton: {
+          text: 'Pay Maintenance Online',
+          url: `${appUrl}/resident`
+        },
+        warningText: 'Late payment charges may be levied on dues unpaid past the due date.',
+        footerText: 'Society Accounts & Billing Department'
       });
 
       return emailQueue.add('sendEmailJob', {
         email: member.email,
-        subject: `New Maintenance Bill: ${title}`,
+        subject: `New Maintenance Bill: ${title} (₹${amount})`,
         html
       });
     });
@@ -150,16 +157,24 @@ export const markBillPaid = async (billId: string, data: IMarkBillPaidInput, use
     }
 
     if (updatedBill && updatedBill.status === 'Paid' && updatedBill.userId && (updatedBill.userId as any).email) {
+      const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
       const html = getProfessionalEmailTemplate({
-        subtitle: 'PAYMENT RECEIPT',
+        title: 'Payment Receipt',
+        subtitle: 'OFFICIAL SOCIETY PAYMENT RECEIPT',
         greeting: `Hello ${(updatedBill.userId as any).name},`,
-        bodyText: `Your payment of ₹${updatedBill.amount} for "${updatedBill.title}" has been received successfully via ${updatedBill.paymentMode}.`,
-        footerText: 'Thank you!'
+        bodyText: `Your maintenance payment of <strong>₹${updatedBill.amount}</strong> for "<strong>${updatedBill.title}</strong>" has been successfully received and verified via <strong>${updatedBill.paymentMode || 'Online'}</strong> on <strong>${new Date().toLocaleDateString()}</strong>.<br><br>The official transaction record has been archived in your resident financial ledger.`,
+        highlightBox: `₹${updatedBill.amount}`,
+        highlightBoxLabel: `Paid via ${updatedBill.paymentMode || 'Online'} • Status: Paid`,
+        actionButton: {
+          text: 'View Ledger & History',
+          url: `${appUrl}/resident`
+        },
+        footerText: 'Thank you for your timely contribution towards society maintenance.'
       });
 
       emailQueue.add('sendEmailJob', {
         email: (updatedBill.userId as any).email,
-        subject: `Payment Receipt: ${updatedBill.title}`,
+        subject: `Payment Receipt: ${updatedBill.title} (₹${updatedBill.amount})`,
         html
       });
     }
@@ -221,4 +236,45 @@ export const verifyStripePaymentData = async (sessionId: string) => {
     });
   }
   throw new Error('PAYMENT_NOT_VERIFIED');
+};
+
+export const sendDueReminders = async (societyId: string) => {
+  const pendingBills = await MaintenanceBill.find({
+    societyId,
+    status: 'Pending',
+    isPaid: false
+  }).populate('userId', 'name email');
+
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  let sentCount = 0;
+
+  for (const b of pendingBills) {
+    const u = b.userId as any;
+    if (u && u.email) {
+      const dueStr = b.dueDate ? new Date(b.dueDate).toDateString() : 'Immediate';
+      const html = getProfessionalEmailTemplate({
+        title: 'Maintenance Reminder',
+        subtitle: 'BILL PAYMENT REMINDER',
+        greeting: `Hello ${u.name},`,
+        bodyText: `This is a reminder that your maintenance bill for "<strong>${b.title}</strong>" amounting to <strong>₹${b.amount}</strong> is currently pending.<br><br>Please clear this payment on or before <strong>${dueStr}</strong> to avoid late fee penalties.`,
+        highlightBox: `₹${b.amount}`,
+        highlightBoxLabel: `Due Date: ${dueStr}`,
+        actionButton: {
+          text: 'Pay Maintenance Online',
+          url: `${appUrl}/resident`
+        },
+        warningText: 'Late payment charges will apply to dues remaining unpaid after the due date.',
+        footerText: 'Society Accounts & Billing Department'
+      });
+
+      await emailQueue.add('sendEmailJob', {
+        email: u.email,
+        subject: `Payment Reminder: ${b.title} (Due: ${dueStr})`,
+        html
+      });
+      sentCount++;
+    }
+  }
+
+  return { success: true, count: sentCount };
 };

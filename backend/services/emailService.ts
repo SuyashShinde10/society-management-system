@@ -2,12 +2,18 @@ import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
 import { emailQueue } from '../workers/emailQueue';
 
 export const sendComplaintNotificationToAdmins = (admins: any[], complaint: any) => {
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
   const html = getProfessionalEmailTemplate({
-    subtitle: 'NEW COMPLAINT LOGGED',
-    greeting: 'Hello Admin,',
-    bodyText: `A new complaint has been filed by a resident in the system.`,
+    title: 'Helpdesk Alert',
+    subtitle: 'NEW RESIDENT COMPLAINT LOGGED',
+    greeting: 'Hello Society Administrator,',
+    bodyText: `A new resident grievance ticket has been filed in the helpdesk portal.<br><br><strong>Ticket Title:</strong> ${complaint.title}<br><strong>Description:</strong> ${complaint.description || 'No additional details provided.'}`,
     highlightBox: complaint.title,
-    highlightBoxLabel: 'Complaint Title',
+    highlightBoxLabel: `Category: ${complaint.category || 'General Issue'}`,
+    actionButton: {
+      text: 'View & Assign in Admin Dashboard',
+      url: `${appUrl}/dashboard`
+    },
     footerText: 'Please review and assign a resolution status in the admin dashboard.'
   });
 
@@ -22,13 +28,19 @@ export const sendComplaintNotificationToAdmins = (admins: any[], complaint: any)
 };
 
 export const sendComplaintStatusUpdateToUser = (user: any, complaint: any, status: string) => {
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
   const html = getProfessionalEmailTemplate({
-    subtitle: 'COMPLAINT STATUS UPDATE',
+    title: 'Helpdesk Ticket Update',
+    subtitle: 'COMPLAINT RESOLUTION PROGRESS',
     greeting: `Hello ${user.name},`,
-    bodyText: `The status of your complaint regarding "<strong>${complaint.title}</strong>" has been updated.`,
+    bodyText: `The status of your complaint regarding "<strong>${complaint.title}</strong>" has been updated to: <strong>${status}</strong>.<br><br>Our facility management team has logged this action in your society maintenance ledger.`,
     highlightBox: status,
-    highlightBoxLabel: 'New Status',
-    footerText: 'Log in to the portal for more details.'
+    highlightBoxLabel: 'Current Ticket Status',
+    actionButton: {
+      text: 'View Ticket in Resident Portal',
+      url: `${appUrl}/resident`
+    },
+    footerText: 'If your issue has not been satisfactorily resolved, you can reopen it via the portal.'
   });
 
   emailQueue.add('sendEmailJob', {

@@ -38,17 +38,24 @@ export const createMeeting = async (data: any, user: any) => {
 
   const meetingDate = new Date(date).toLocaleString();
   
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
   if (targetType === 'Specific') {
     const targetUser = await User.findOne({ _id: targetUserId, societyId: user.societyId });
     if (!targetUser) throw new Error('MEMBER_NOT_FOUND_IN_SOCIETY');
 
     const html = getProfessionalEmailTemplate({
-      subtitle: 'MEETING INVITATION',
+      title: 'General Body Meeting',
+      subtitle: 'OFFICIAL MEETING INVITATION',
       greeting: `Hello ${targetUser.name},`,
-      bodyText: `You have been invited to a society meeting: "<strong>${title}</strong>".`,
+      bodyText: `You have been officially invited to a society meeting: "<strong>${title}</strong>".<br><br>${description ? `${description}<br><br>` : ''}Your presence and participation are requested.`,
       highlightBox: meetingDate,
-      highlightBoxLabel: `Location: ${location}`,
-      footerText: 'Please try to attend.'
+      highlightBoxLabel: `Venue: ${location}`,
+      actionButton: {
+        text: 'View Meeting Details in Portal',
+        url: `${appUrl}/resident`
+      },
+      footerText: 'Society Management Committee & Governance'
     });
 
     sendEmail({
@@ -61,12 +68,17 @@ export const createMeeting = async (data: any, user: any) => {
     const members = await User.find({ societyId: user.societyId, role: 'member', isActive: true });
     
     const html = getProfessionalEmailTemplate({
-      subtitle: 'SOCIETY MEETING',
+      title: 'General Body Meeting',
+      subtitle: 'SOCIETY MEETING NOTICE',
       greeting: 'Hello Resident,',
-      bodyText: `A new society meeting has been scheduled: "<strong>${title}</strong>".`,
+      bodyText: `A society-wide meeting has been scheduled by the management committee: "<strong>${title}</strong>".<br><br>${description ? `${description}<br><br>` : ''}Please mark your calendar and attend on time.`,
       highlightBox: meetingDate,
-      highlightBoxLabel: `Location: ${location}`,
-      footerText: 'Your attendance is highly appreciated.'
+      highlightBoxLabel: `Venue: ${location}`,
+      actionButton: {
+        text: 'View Agenda in Resident Portal',
+        url: `${appUrl}/resident`
+      },
+      footerText: 'Your attendance and participation are highly valued.'
     });
 
     (async () => {

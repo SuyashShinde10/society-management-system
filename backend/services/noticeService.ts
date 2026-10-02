@@ -43,23 +43,30 @@ export const addNotice = async (data: any, user: any) => {
     targetUserId: targetType === 'Specific' ? targetUserId : undefined,
   });
 
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
   // Notify members
   if (targetType === 'Specific') {
     const targetUser = await User.findOne({ _id: targetUserId, societyId: user.societyId });
     if (!targetUser) throw new Error('MEMBER_NOT_FOUND_IN_SOCIETY');
 
     const html = getProfessionalEmailTemplate({
-      subtitle: 'DIRECT NOTICE',
+      title: 'Society Notice Board',
+      subtitle: 'DIRECT RESIDENT NOTICE',
       greeting: `Hello ${targetUser.name},`,
-      bodyText: `A new notice has been posted specifically for you.`,
+      bodyText: `A new notice has been published by the administration specifically for your unit: "<strong>${title}</strong>".<br><br>${content ? `${content}<br><br>` : ''}`,
       highlightBox: title,
-      highlightBoxLabel: 'Notice Title',
-      footerText: 'Please log in to the portal to view full details.'
+      highlightBoxLabel: 'Notice Subject',
+      actionButton: {
+        text: 'View Notice on Board',
+        url: `${appUrl}/resident`
+      },
+      footerText: 'Society Management Committee Communications'
     });
 
     sendEmail({
       email: targetUser.email,
-      subject: `New Notice: ${title}`,
+      subject: `Notice: ${title}`,
       message: `Hello ${targetUser.name},\n\nA new notice has been posted specifically for you:\n\nTitle: ${title}\n\n${content}\n\nPlease check the portal for more details.`,
       html
     });
@@ -67,12 +74,17 @@ export const addNotice = async (data: any, user: any) => {
     const members = await User.find({ societyId: user.societyId, role: 'member', isActive: true });
     
     const html = getProfessionalEmailTemplate({
-      subtitle: 'SOCIETY NOTICE',
+      title: 'Society Notice Board',
+      subtitle: 'COMMUNITY BROADCAST NOTICE',
       greeting: 'Hello Resident,',
-      bodyText: `A new society notice has been posted by the administration.`,
+      bodyText: `An official society circular has been posted by the administration: "<strong>${title}</strong>".<br><br>${content ? `${content}<br><br>` : ''}Please check your resident portal for complete circular documents and attachments.`,
       highlightBox: title,
-      highlightBoxLabel: 'Notice Title',
-      footerText: 'Please log in to the portal to view full details.'
+      highlightBoxLabel: 'Circular Heading',
+      actionButton: {
+        text: 'Open Notice Board',
+        url: `${appUrl}/resident`
+      },
+      footerText: 'Society Management Committee Communications'
     });
     // Fire and forget, or use emailQueue
     (async () => {
