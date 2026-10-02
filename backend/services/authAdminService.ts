@@ -6,13 +6,14 @@ import bcrypt from 'bcryptjs';
 export const updateProfile = async (userId: string, data: any) => {
   const { name, phone, parkingSlot, vehicleNumber, currentPassword, newPassword } = data;
 
-  let user = await User.findById(userId);
+  // select('+password') is required because password has select:false in the User schema
+  let user = await User.findById(userId).select('+password');
   if (!user) {
-    user = (await SecurityStaff.findById(userId)) as any;
+    user = (await SecurityStaff.findById(userId).select('+password')) as any;
   }
   if (!user) throw new Error('USER_NOT_FOUND');
 
-  if (name) user.name = name;
+  if (name) user.name = name.trim();
   if (phone !== undefined) user.phone = phone;
   
   if (user.role !== 'security' && user.role !== 'superadmin') {
@@ -23,6 +24,9 @@ export const updateProfile = async (userId: string, data: any) => {
   if (newPassword) {
     if (!currentPassword) {
       throw new Error('CURRENT_PASSWORD_REQUIRED');
+    }
+    if (!user.password) {
+      throw new Error('CURRENT_PASSWORD_INCORRECT');
     }
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) throw new Error('CURRENT_PASSWORD_INCORRECT');
@@ -40,8 +44,10 @@ export const updateProfile = async (userId: string, data: any) => {
   }
 
   await user.save();
-  const { password: _, ...safeUser } = (user as any).toObject();
-  return safeUser;
+  const userObj = (user as any).toObject();
+  delete userObj.password;
+  userObj.id = userObj._id;
+  return userObj;
 };
 
 export const getSocietyLimits = async (societyId: string) => {

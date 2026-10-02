@@ -5,6 +5,7 @@ import api from '../api';
 import AuthContext from '../context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 import theme from '../theme';
+import { getErrorMessage } from '../utils/errorHandler';
 
 const Profile = () => {
   const { user, setUser } = useContext(AuthContext);
@@ -28,6 +29,22 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.newPassword) {
+      if (!formData.currentPassword) {
+        toast.error('Current password is required to change password.');
+        return;
+      }
+      if (formData.newPassword.length < 8) {
+        toast.error('New password must be at least 8 characters long.');
+        return;
+      }
+      const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      if (!strongPassword.test(formData.newPassword)) {
+        toast.error('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one number.');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       // Only send password fields if user is trying to change password
@@ -56,7 +73,7 @@ const Profile = () => {
         setFormData({ ...formData, currentPassword: '', newPassword: '' });
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+      toast.error(getErrorMessage(error, 'Failed to update profile'));
     } finally {
       setLoading(false);
     }
