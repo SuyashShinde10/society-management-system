@@ -475,9 +475,40 @@ def generate_html():
     </div>
 '''
         else:
-            # Full Screenshot slide: NO TEXT OVERLAP + FULL-BLEED BROWSER VIEWPORT
+            # Full Screenshot slide: Dynamic Card Dimensions Matching Exact Image Size (Zero Crop, Zero Zoom-Out)
             shot_file = s["screenshot"]
             img_rel_path = f"screenshots/{shot_file}"
+            img_abs_path = os.path.join(SCREENSHOTS_DIR, shot_file)
+            
+            with Image.open(img_abs_path) as img:
+                iw, ih = img.size
+            ar = iw / ih
+
+            # 1080px Canvas Dimensions (PDF / Export)
+            max_w_1080 = 980
+            max_vh_1080 = 678
+            topbar_1080 = 42
+
+            # 760px Canvas Dimensions (Web Slideshow)
+            max_w_760 = 688
+            max_vh_760 = 482
+            topbar_760 = 38
+
+            if (max_w_1080 / ar) <= max_vh_1080:
+                cw_1080 = max_w_1080
+                vh_1080 = round(max_w_1080 / ar)
+                cw_760 = max_w_760
+                vh_760 = round(max_w_760 / ar)
+            else:
+                vh_1080 = max_vh_1080
+                cw_1080 = round(max_vh_1080 * ar)
+                vh_760 = max_vh_760
+                cw_760 = round(max_vh_760 * ar)
+
+            vw_1080 = cw_1080
+            vw_760 = cw_760
+            ch_1080 = vh_1080 + topbar_1080
+            ch_760 = vh_760 + topbar_760
             
             is_even = (sid % 2 == 0)
             star_markup = svg_star_terracotta if is_even else svg_star_olive
@@ -498,7 +529,7 @@ def generate_html():
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -509,24 +540,26 @@ def generate_html():
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: {cw_1080}px; --ch-1080: {ch_1080}px; --vw-1080: {vw_1080}px; --vh-1080: {vh_1080}px; --cw-760: {cw_760}px; --ch-760: {ch_760}px; --vw-760: {vw_760}px; --vh-760: {vh_760}px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>{s["url"]}</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>{s["url"]}</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="{img_rel_path}" alt="{s["title"]}" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="{img_rel_path}" alt="{s["title"]}" loading="eager" />
           </div>
         </div>
 
@@ -859,19 +892,29 @@ def generate_html():
       max-width: 95%;
     }}
 
-    /* Full-Bleed Browser Mockup Window */
-    .browser-mockup {{
-      background: #FFFFFF;
-      border: 1.5px solid var(--border);
-      border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+    /* Dynamic Browser Mockup Window Sized to Screenshot */
+    .browser-card-container {{
       flex: 1;
       min-height: 0;
       width: 100%;
-      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }}
+
+    .browser-mockup {{
+      width: var(--cw-760);
+      height: var(--ch-760);
+      background: #FFFFFF;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      margin: auto auto;
+      flex-shrink: 0;
     }}
 
     .browser-topbar {{
@@ -883,6 +926,7 @@ def generate_html():
       justify-content: space-between;
       gap: 12px;
       flex-shrink: 0;
+      height: 38px;
     }}
 
     .browser-dots {{
@@ -927,22 +971,22 @@ def generate_html():
       flex-shrink: 0;
     }}
 
-    /* FULL SCREENSHOT EXPANDED TO ALL 4 CORNERS */
+    /* Viewport matching exact image size (Zero Crop, Zero Zoom-Out) */
     .browser-viewport {{
-      flex: 1;
-      min-height: 0;
-      width: 100%;
-      height: 100%;
+      width: var(--vw-760);
+      height: var(--vh-760);
       background: #FFFFFF;
-      position: relative;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }}
 
     .screenshot-img {{
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      object-position: top center;
+      object-fit: fill;
       display: block;
     }}
 
@@ -1235,40 +1279,51 @@ def generate_html():
         font-size: 16.5px !important;
         line-height: 1.4 !important;
       }}
+      .browser-card-container {{
+        flex: 1 !important;
+        min-height: 0 !important;
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: relative !important;
+      }}
       .browser-mockup {{
+        width: var(--cw-1080) !important;
+        height: var(--ch-1080) !important;
         border-radius: 18px !important;
         box-shadow: 0 16px 40px rgba(0,0,0,0.07) !important;
-        flex: 1 !important;
-        margin-top: 8px !important;
+        flex: none !important;
+        margin: auto auto !important;
       }}
       .browser-topbar {{
-        padding: 11px 18px !important;
+        padding: 10px 18px !important;
+        height: 42px !important;
       }}
       .b-dot {{
-        width: 12px !important;
-        height: 12px !important;
+        width: 11px !important;
+        height: 11px !important;
       }}
       .browser-address-bar {{
         font-size: 13.5px !important;
-        padding: 5px 14px !important;
+        padding: 4px 14px !important;
         max-width: 520px !important;
       }}
       .browser-live-badge {{
         font-size: 12px !important;
         padding: 3px 10px !important;
       }}
-      /* FULL SCREENSHOT EXPANDED EDGE TO EDGE */
+      /* VIEWPORT MATCHING EXACT IMAGE SIZE (ZERO CROP, ZERO ZOOM-OUT) */
       .browser-viewport {{
-        width: 100% !important;
-        flex: 1 !important;
-        height: 100% !important;
+        width: var(--vw-1080) !important;
+        height: var(--vh-1080) !important;
+        flex: none !important;
         overflow: hidden !important;
       }}
       .screenshot-img {{
         width: 100% !important;
         height: 100% !important;
-        object-fit: cover !important;
-        object-position: top center !important;
+        object-fit: fill !important;
         display: block !important;
       }}
       .doodle-note-pill {{

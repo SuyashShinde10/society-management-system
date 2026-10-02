@@ -296,19 +296,29 @@
       max-width: 95%;
     }
 
-    /* Full-Bleed Browser Mockup Window */
-    .browser-mockup {
-      background: #FFFFFF;
-      border: 1.5px solid var(--border);
-      border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+    /* Dynamic Browser Mockup Window Sized to Screenshot */
+    .browser-card-container {
       flex: 1;
       min-height: 0;
       width: 100%;
-      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .browser-mockup {
+      width: var(--cw-760);
+      height: var(--ch-760);
+      background: #FFFFFF;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      margin: auto auto;
+      flex-shrink: 0;
     }
 
     .browser-topbar {
@@ -320,6 +330,7 @@
       justify-content: space-between;
       gap: 12px;
       flex-shrink: 0;
+      height: 38px;
     }
 
     .browser-dots {
@@ -364,22 +375,22 @@
       flex-shrink: 0;
     }
 
-    /* FULL SCREENSHOT EXPANDED TO ALL 4 CORNERS */
+    /* Viewport matching exact image size (Zero Crop, Zero Zoom-Out) */
     .browser-viewport {
-      flex: 1;
-      min-height: 0;
-      width: 100%;
-      height: 100%;
+      width: var(--vw-760);
+      height: var(--vh-760);
       background: #FFFFFF;
-      position: relative;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
     .screenshot-img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      object-position: top center;
+      object-fit: fill;
       display: block;
     }
 
@@ -672,40 +683,51 @@
         font-size: 16.5px !important;
         line-height: 1.4 !important;
       }
+      .browser-card-container {
+        flex: 1 !important;
+        min-height: 0 !important;
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: relative !important;
+      }
       .browser-mockup {
+        width: var(--cw-1080) !important;
+        height: var(--ch-1080) !important;
         border-radius: 18px !important;
         box-shadow: 0 16px 40px rgba(0,0,0,0.07) !important;
-        flex: 1 !important;
-        margin-top: 8px !important;
+        flex: none !important;
+        margin: auto auto !important;
       }
       .browser-topbar {
-        padding: 11px 18px !important;
+        padding: 10px 18px !important;
+        height: 42px !important;
       }
       .b-dot {
-        width: 12px !important;
-        height: 12px !important;
+        width: 11px !important;
+        height: 11px !important;
       }
       .browser-address-bar {
         font-size: 13.5px !important;
-        padding: 5px 14px !important;
+        padding: 4px 14px !important;
         max-width: 520px !important;
       }
       .browser-live-badge {
         font-size: 12px !important;
         padding: 3px 10px !important;
       }
-      /* FULL SCREENSHOT EXPANDED EDGE TO EDGE */
+      /* VIEWPORT MATCHING EXACT IMAGE SIZE (ZERO CROP, ZERO ZOOM-OUT) */
       .browser-viewport {
-        width: 100% !important;
-        flex: 1 !important;
-        height: 100% !important;
+        width: var(--vw-1080) !important;
+        height: var(--vh-1080) !important;
+        flex: none !important;
         overflow: hidden !important;
       }
       .screenshot-img {
         width: 100% !important;
         height: 100% !important;
-        object-fit: cover !important;
-        object-position: top center !important;
+        object-fit: fill !important;
         display: block !important;
       }
       .doodle-note-pill {
@@ -862,7 +884,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -873,24 +895,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 490px; --vw-1080: 980px; --vh-1080: 448px; --cw-760: 688px; --ch-760: 353px; --vw-760: 688px; --vh-760: 315px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://awaastech.com</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://awaastech.com</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/landingpage.png" alt="Landing Page: Modern Residential Gateway" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/landingpage.png" alt="Landing Page: Modern Residential Gateway" loading="eager" />
           </div>
         </div>
 
@@ -919,7 +943,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -930,24 +954,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 919px; --ch-1080: 720px; --vw-1080: 919px; --vh-1080: 678px; --cw-760: 653px; --ch-760: 520px; --vw-760: 653px; --vh-760: 482px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/register/society-details</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/register/society-details</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/registerpagesallfiedldcomplete.png" alt="Registration: Self-Service Society Setup" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/registerpagesallfiedldcomplete.png" alt="Registration: Self-Service Society Setup" loading="eager" />
           </div>
         </div>
 
@@ -976,7 +1002,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -987,24 +1013,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 431px; --vw-1080: 980px; --vh-1080: 389px; --cw-760: 688px; --ch-760: 311px; --vw-760: 688px; --vh-760: 273px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/verify-email</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/verify-email</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/verifymailid.png" alt="Email OTP Verification: Secure Security Gate" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/verifymailid.png" alt="Email OTP Verification: Secure Security Gate" loading="eager" />
           </div>
         </div>
 
@@ -1033,7 +1061,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1044,24 +1072,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 485px; --vw-1080: 980px; --vh-1080: 443px; --cw-760: 688px; --ch-760: 349px; --vw-760: 688px; --vh-760: 311px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/login</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/login</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/loginpage.png" alt="Unified Login: Intelligent Role Redirection" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/loginpage.png" alt="Unified Login: Intelligent Role Redirection" loading="eager" />
           </div>
         </div>
 
@@ -1090,7 +1120,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1101,24 +1131,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 505px; --vw-1080: 980px; --vh-1080: 463px; --cw-760: 688px; --ch-760: 363px; --vw-760: 688px; --vh-760: 325px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/overview</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/overview</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/adminsdashboard.png" alt="Overview: Central Operations Center" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/adminsdashboard.png" alt="Overview: Central Operations Center" loading="eager" />
           </div>
         </div>
 
@@ -1147,7 +1179,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1158,24 +1190,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 553px; --vw-1080: 980px; --vh-1080: 511px; --cw-760: 688px; --ch-760: 397px; --vw-760: 688px; --vh-760: 359px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/profile</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/profile</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/adminsprofilesettings.png" alt="My Profile: Account Security & RBAC Settings" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/adminsprofilesettings.png" alt="My Profile: Account Security & RBAC Settings" loading="eager" />
           </div>
         </div>
 
@@ -1204,7 +1238,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1215,24 +1249,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 586px; --ch-1080: 720px; --vw-1080: 586px; --vh-1080: 678px; --cw-760: 416px; --ch-760: 520px; --vw-760: 416px; --vh-760: 482px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/members</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/members</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/membersregistrypage.png" alt="Member Registry: Wings, Flats & Occupancy" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/membersregistrypage.png" alt="Member Registry: Wings, Flats & Occupancy" loading="eager" />
           </div>
         </div>
 
@@ -1261,7 +1297,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1272,24 +1308,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 952px; --ch-1080: 720px; --vw-1080: 952px; --vh-1080: 678px; --cw-760: 677px; --ch-760: 520px; --vw-760: 677px; --vh-760: 482px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/notices</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/notices</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/noticeboardpage.png" alt="Notice Board: Circulars & Community Alerts" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/noticeboardpage.png" alt="Notice Board: Circulars & Community Alerts" loading="eager" />
           </div>
         </div>
 
@@ -1318,7 +1356,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1329,24 +1367,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 881px; --ch-1080: 720px; --vw-1080: 881px; --vh-1080: 678px; --cw-760: 626px; --ch-760: 520px; --vw-760: 626px; --vh-760: 482px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/meetings</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/meetings</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/meetingpage.png" alt="Global Meetings: Agendas, Quorum & Minutes" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/meetingpage.png" alt="Global Meetings: Agendas, Quorum & Minutes" loading="eager" />
           </div>
         </div>
 
@@ -1375,7 +1415,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1386,24 +1426,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 666px; --vw-1080: 980px; --vh-1080: 624px; --cw-760: 688px; --ch-760: 476px; --vw-760: 688px; --vh-760: 438px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/bills</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/bills</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/billingpage.png" alt="Billing System: Automated Invoicing & Dues" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/billingpage.png" alt="Billing System: Automated Invoicing & Dues" loading="eager" />
           </div>
         </div>
 
@@ -1432,7 +1474,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1443,24 +1485,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 500px; --vw-1080: 980px; --vh-1080: 458px; --cw-760: 688px; --ch-760: 360px; --vw-760: 688px; --vh-760: 322px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/complaints</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/complaints</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/complaintspage.png" alt="Complaints: Smart AI-Assisted Helpdesk" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/complaintspage.png" alt="Complaints: Smart AI-Assisted Helpdesk" loading="eager" />
           </div>
         </div>
 
@@ -1489,7 +1533,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1500,24 +1544,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 497px; --vw-1080: 980px; --vh-1080: 455px; --cw-760: 688px; --ch-760: 358px; --vw-760: 688px; --vh-760: 320px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/parcels</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/parcels</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/parceltrackingpage.png" alt="Parcel Gate Locker: 4-Digit Claim PINs" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/parceltrackingpage.png" alt="Parcel Gate Locker: 4-Digit Claim PINs" loading="eager" />
           </div>
         </div>
 
@@ -1546,7 +1592,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1557,24 +1603,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 505px; --vw-1080: 980px; --vh-1080: 463px; --cw-760: 688px; --ch-760: 363px; --vw-760: 688px; --vh-760: 325px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/staff-dir</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/staff-dir</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/domesticstaffpage.png" alt="Domestic Staff Directory: Attendance & Passes" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/domesticstaffpage.png" alt="Domestic Staff Directory: Attendance & Passes" loading="eager" />
           </div>
         </div>
 
@@ -1603,7 +1651,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1614,24 +1662,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 508px; --vw-1080: 980px; --vh-1080: 466px; --cw-760: 688px; --ch-760: 365px; --vw-760: 688px; --vh-760: 327px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/amenities</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/amenities</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/facilitypage.png" alt="Facility Bookings: Conflict-Free Scheduling" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/facilitypage.png" alt="Facility Bookings: Conflict-Free Scheduling" loading="eager" />
           </div>
         </div>
 
@@ -1660,7 +1710,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1671,24 +1721,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 497px; --vw-1080: 980px; --vh-1080: 455px; --cw-760: 688px; --ch-760: 358px; --vw-760: 688px; --vh-760: 320px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/agm</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/agm</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/digitalvotingpage.png" alt="Digital AGM & Voting: 1-Flat-1-Vote Ballots" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/digitalvotingpage.png" alt="Digital AGM & Voting: 1-Flat-1-Vote Ballots" loading="eager" />
           </div>
         </div>
 
@@ -1717,7 +1769,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1728,24 +1780,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 535px; --vw-1080: 980px; --vh-1080: 493px; --cw-760: 688px; --ch-760: 384px; --vw-760: 688px; --vh-760: 346px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/accounting</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/accounting</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/tallyaccontantpage.png" alt="Tally & Accounting: Double-Entry Ledger ERP" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/tallyaccontantpage.png" alt="Tally & Accounting: Double-Entry Ledger ERP" loading="eager" />
           </div>
         </div>
 
@@ -1774,7 +1828,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1785,24 +1839,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 896px; --ch-1080: 720px; --vw-1080: 896px; --vh-1080: 678px; --cw-760: 637px; --ch-760: 520px; --vw-760: 637px; --vh-760: 482px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/sustainability</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/sustainability</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/greensociety&sustainabilityERPpage.png" alt="Green Sustainability: Solar, Water & ESG" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/greensociety&sustainabilityERPpage.png" alt="Green Sustainability: Solar, Water & ESG" loading="eager" />
           </div>
         </div>
 
@@ -1831,7 +1887,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1842,24 +1898,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 661px; --vw-1080: 980px; --vh-1080: 619px; --cw-760: 688px; --ch-760: 472px; --vw-760: 688px; --vh-760: 434px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/whatsapp</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/whatsapp</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/whatsappbusinessbotsimulatorpage.png" alt="WhatsApp Bot: AI Resident Concierge" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/whatsappbusinessbotsimulatorpage.png" alt="WhatsApp Bot: AI Resident Concierge" loading="eager" />
           </div>
         </div>
 
@@ -1888,7 +1946,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1899,24 +1957,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 980px; --ch-1080: 497px; --vw-1080: 980px; --vh-1080: 455px; --cw-760: 688px; --ch-760: 358px; --vw-760: 688px; --vh-760: 320px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/theme</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/theme</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/enterprisethemepage.png" alt="White-Label Theme: Custom Society Branding" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/enterprisethemepage.png" alt="White-Label Theme: Custom Society Branding" loading="eager" />
           </div>
         </div>
 
@@ -1945,7 +2005,7 @@
         </div>
       </div>
 
-      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <!-- Slide Body: Clean Typography + Card Adjusted Exactly to Image Size -->
       <div class="slide-content screenshot-slide-content">
         <div class="title-container">
           <h2 class="slide-title screenshot-slide-title">
@@ -1956,24 +2016,26 @@
           </p>
         </div>
 
-        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
-        <div class="browser-mockup">
-          <div class="browser-topbar">
-            <div class="browser-dots">
-              <span class="b-dot b-red"></span>
-              <span class="b-dot b-yellow"></span>
-              <span class="b-dot b-green"></span>
+        <!-- Centered Card Container (Card adjusts to image size: Zero crop, zero empty borders) -->
+        <div class="browser-card-container">
+          <div class="browser-mockup" style="--cw-1080: 633px; --ch-1080: 720px; --vw-1080: 633px; --vh-1080: 678px; --cw-760: 450px; --ch-760: 520px; --vw-760: 450px; --vh-760: 482px;">
+            <div class="browser-topbar">
+              <div class="browser-dots">
+                <span class="b-dot b-red"></span>
+                <span class="b-dot b-yellow"></span>
+                <span class="b-dot b-green"></span>
+              </div>
+              <div class="browser-address-bar">
+                <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>https://app.awaastech.com/admin/analytics</span>
+              </div>
+              <div class="browser-live-badge">
+                Live Interface
+              </div>
             </div>
-            <div class="browser-address-bar">
-              <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-              <span>https://app.awaastech.com/admin/analytics</span>
+            <div class="browser-viewport">
+              <img class="screenshot-img" src="screenshots/analyticspage.png" alt="Analytics Reports: Financial & Operational Telemetry" loading="eager" />
             </div>
-            <div class="browser-live-badge">
-              Live Interface
-            </div>
-          </div>
-          <div class="browser-viewport">
-            <img class="screenshot-img" src="screenshots/analyticspage.png" alt="Analytics Reports: Financial & Operational Telemetry" loading="eager" />
           </div>
         </div>
 
