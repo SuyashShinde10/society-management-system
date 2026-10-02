@@ -1995,38 +1995,37 @@ def generate_html():
       <p style="font-size: 13px; color: var(--muted); margin-bottom: 14px;">
         Ready to share with your carousel PDF on LinkedIn:
       </p>
-      <textarea id="captionTextarea" readonly style="width: 100%; height: 260px; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 13px; border: 1px solid var(--border); border-radius: 12px; background: #FAFAF7; color: var(--charcoal); resize: vertical; line-height: 1.5; margin-bottom: 16px;">🚀 Inside Awaastech — The Next-Gen Housing Society ERP (Live 22-Slide Tour by Menu Tabs) 🏙️✨
+      <textarea id="captionTextarea" readonly style="width: 100%; height: 260px; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 13px; border: 1px solid var(--border); border-radius: 12px; background: #FAFAF7; color: var(--charcoal); resize: vertical; line-height: 1.5; margin-bottom: 16px;">Most residential societies manage ₹50,00,000+ in annual funds using WhatsApp groups and paper registers.
 
-Managing modern residential societies requires micro-city governance. From maintenance fee collisions to manual gate logs and paper meeting minutes, fragmented tools cause operational friction.
+And when they try commercial society apps?
+❌ Payment collisions &amp; double-charges during month-end runs
+❌ Delivery drivers stranded with lost Amazon parcels
+❌ Clunky, legacy UIs built like software from 2012
 
-Here is the complete live product walkthrough inside Awaastech, structured exactly around our 16 core menu modules:
+I spent the last few months rebuilding society management from first principles.
 
-🔹 Public Landing &amp; Onboarding: Conversion-optimized hero, self-service society setup, two-factor OTP verification, and role-based login.
-🔹 Menu Tab 01 — Overview: Real-time collections, active announcements, and pending grievance counters.
-🔹 Menu Tab 02 — My Profile: Bank account setup, audit trails, and strict RBAC permission matrix.
-🔹 Menu Tab 03 — Member Registry: Tower wing directory, flat ledger, and verified owner vs. tenant records.
-🔹 Menu Tab 04 — Notice Board: Emergency circulars and community broadcasts with instant push notifications.
-🔹 Menu Tab 05 — Global Meetings: Committee &amp; AGM scheduling, quorum tracking, and certified minutes.
-🔹 Menu Tab 06 — Billing System: Automated bulk invoices protected by Redis Lua distributed locks.
-🔹 Menu Tab 07 — Complaints: LangGraph AI-assisted dispute reconciliation &amp; category-based SLA tracking.
-🔹 Menu Tab 08 — Parcel Gate Locker: Secure 4-digit claim PINs for Swiggy, Amazon &amp; courier handoffs.
-🔹 Menu Tab 09 — Domestic Staff Directory: Maids, drivers &amp; security gate passes with biometric timestamps.
-🔹 Menu Tab 10 — Facility Bookings: Conflict-free clubhouse, pool &amp; court reservations with concurrency locks.
-🔹 Menu Tab 11 — Digital AGM &amp; Voting: 1-flat-1-vote tamper-evident ballots and real-time verifiable poll counts.
-🔹 Menu Tab 12 — Tally &amp; Accounting: Double-entry ledger, journal entries, cashbooks, and 1-click Tally export.
-🔹 Menu Tab 13 — Green Sustainability: Solar generation telemetry, rainwater sensors, and ESG carbon scorecards.
-🔹 Menu Tab 14 — WhatsApp Bot Simulator: Direct conversational concierge without requiring an app download.
-🔹 Menu Tab 15 — White-Label Theme: Bespoke color palettes, dark modes, and community branding.
-🔹 Menu Tab 16 — Analytics Reports: Collection velocity, occupancy trends, and predictive financial insights.
+Meet Awaastech 🏙️ — a production-grade, distributed Society Management ERP.
 
-💡 Engineering Takeaway: Real-world society operations demand distributed locks, geofenced escrow, idempotent webhooks, and granular RBAC.
+Swipe through the 23-slide carousel below for a live walkthrough across all 16 core menu tabs 📄👇
 
-⭐ Open source on GitHub: https://github.com/SuyashShinde10/society-management-system
-🌐 Live deployment: https://awaastech.vercel.app
+What makes the architecture different under the hood?
 
-What feature would your housing society benefit from the most? Drop your thoughts below! 👇
+⚡ Concurrency Locks: Redis Lua distributed scripts guarantee zero double-charges on concurrent UPI maintenance payments.
+🤖 LangGraph AI Agents: Autonomous dispute triaging and automated maintenance ticket classification.
+📍 GPS-Geofenced Escrow: turf.js spatial polygons release contractor milestone funds only when physically on-site.
+📦 4-Digit Parcel Gate Lockers: Zero lost Swiggy, Amazon, and courier deliveries at the security gate.
+🗳️ Digital AGM Governance: 1-Flat-1-Vote encrypted ballots and verifiable real-time vote tallying.
+📘 Auditor-Grade Accounting: Double-entry ledger with 1-click XML export to Tally ERP.
+📱 WhatsApp Bot Simulator: Resident concierge queries handled without forcing app downloads.
 
-#SystemDesign #WebDevelopment #ReactJS #NodeJS #FullStack #SoftwareEngineering #HousingSociety #ERP #OpenSource #TechCommunity</textarea>
+Slide 22 gives a sneak peek into Part 2: The Resident &amp; Member Portal + Gatekeeper Security App!
+
+⭐ Fully Open-Source on GitHub: https://github.com/SuyashShinde10/society-management-system
+
+Question for engineers and RWA members:
+What is the single most frustrating operational issue in your housing society today? Let’s discuss in the comments! 👇
+
+#SystemDesign #SoftwareEngineering #WebDevelopment #FullStack #ReactJS #NodeJS #OpenSource #TechLeadership</textarea>
       <div style="display: flex; justify-content: flex-end; gap: 10px;">
         <button class="btn" onclick="closeLinkedInPostModal()">Close</button>
         <button class="btn btn-primary" onclick="copyCaptionToClipboard()">📋 Copy Caption</button>
