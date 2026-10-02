@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import Dispute from '../models/Dispute';
 import MaintenanceBill from '../models/MaintenanceBill';
+import User from '../models/User';
+import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
+import { emailQueue } from '../workers/emailQueue';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 // @ts-ignore
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
@@ -41,6 +44,39 @@ export const initiateDispute = async (req: Request, res: Response) => {
 
       // Update bill to show dispute is in progress
       await MaintenanceBill.findByIdAndUpdate(maintenanceBillId, { aiDisputeStatus: 'In-Progress' });
+
+      // Send dispute registration notification email to resident
+      (async () => {
+        try {
+          const user = (req as any).user;
+          const bill = await MaintenanceBill.findById(maintenanceBillId);
+          if (user && user.email) {
+            const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+            const disputeHtml = getProfessionalEmailTemplate({
+              title: 'Billing Grievance & Dispute',
+              subtitle: 'DISPUTE REGISTERED FOR REVIEW',
+              greeting: `Hello ${user.name || 'Resident'},`,
+              bodyText: `Your dispute inquiry regarding maintenance bill "<strong>${bill?.title || 'Maintenance Bill'}</strong>" (₹${bill?.amount || '0'}) has been formally registered.<br><br>The management committee and our dispute resolution team have opened a review docket. You can track updates and submit payment proof directly in the portal.`,
+              highlightBox: `Dispute Case: #${dispute._id.toString().slice(-6).toUpperCase()}`,
+              highlightBoxLabel: `Status: In-Progress Review`,
+              actionButton: {
+                text: 'View Dispute Details',
+                url: `${appUrl}/resident`
+              },
+              warningText: 'Late payment penalties for this bill are paused while under committee mediation.',
+              footerText: 'Society Finance Grievance & Mediation Desk'
+            });
+
+            await emailQueue.add('sendEmailJob', {
+              email: user.email,
+              subject: `Dispute Registered: ${bill?.title || 'Maintenance Bill'} (Case #${dispute._id.toString().slice(-6).toUpperCase()})`,
+              html: disputeHtml
+            });
+          }
+        } catch (e: any) {
+          logger.error('// DISPUTE_EMAIL_ERROR:', e.message);
+        }
+      })();
     }
 
     res.status(200).json({ dispute });
@@ -71,6 +107,38 @@ export const sendMessage = async (req: Request, res: Response) => {
 
         dispute.status = 'Resolved';
         await dispute.save();
+
+        // Send dispute resolution confirmation email
+        (async () => {
+          try {
+            const resident = await User.findById(dispute.userId);
+            const bill = await MaintenanceBill.findById(dispute.maintenanceBillId);
+            if (resident && resident.email) {
+              const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+              const resolvedHtml = getProfessionalEmailTemplate({
+                title: 'Billing Grievance & Dispute',
+                subtitle: 'DISPUTE RESOLVED & BILL UPDATED',
+                greeting: `Hello ${resident.name || 'Resident'},`,
+                bodyText: `Your maintenance bill dispute for "<strong>${bill?.title || 'Maintenance Bill'}</strong>" has been formally resolved and closed.<br><br>The official ledger and bill status have been updated in your resident portal account.`,
+                highlightBox: 'Status: Resolved ✅',
+                highlightBoxLabel: `Case #${dispute._id.toString().slice(-6).toUpperCase()}`,
+                actionButton: {
+                  text: 'View Updated Ledger',
+                  url: `${appUrl}/resident`
+                },
+                footerText: 'Society Finance Grievance & Mediation Desk'
+              });
+
+              await emailQueue.add('sendEmailJob', {
+                email: resident.email,
+                subject: `Dispute Resolved: ${bill?.title || 'Maintenance Bill'}`,
+                html: resolvedHtml
+              });
+            }
+          } catch (e: any) {
+            logger.error('// DISPUTE_RESOLVED_EMAIL_ERROR:', e.message);
+          }
+        })();
 
         return "Dispute resolved successfully. If payment was made via Stripe, it will be automatically updated.";
       },

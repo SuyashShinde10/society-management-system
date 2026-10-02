@@ -85,3 +85,13 @@ export const castVote = async (req: Request, res: Response) => {
     res.status(400).json({ error: error.message || 'Failed to cast vote' });
   }
 };
+
+export const cancelBooking = async (req: Request, res: Response) => {
+  try {
+    const booking = await lifestyleService.cancelAmenityBooking(req.params.id, (req as any).user);
+    res.status(200).json({ message: 'Booking cancelled and slot released', booking });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message || 'Failed to cancel booking' });
+  }
+};
+

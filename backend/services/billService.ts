@@ -278,3 +278,48 @@ export const sendDueReminders = async (societyId: string) => {
 
   return { success: true, count: sentCount };
 };
+
+export const sendOverdueAlerts = async (societyId: string) => {
+  const now = new Date();
+  const overdueBills = await MaintenanceBill.find({
+    societyId,
+    status: 'Pending',
+    isPaid: false,
+    dueDate: { $lt: now }
+  }).populate('userId', 'name email');
+
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  let sentCount = 0;
+
+  for (const b of overdueBills) {
+    const u = b.userId as any;
+    if (u && u.email) {
+      const dueStr = b.dueDate ? new Date(b.dueDate).toDateString() : 'Overdue';
+      const penaltyAmount = Math.round(b.amount * 0.05); // 5% late fee penalty
+      const totalOutstanding = b.amount + penaltyAmount;
+      const html = getProfessionalEmailTemplate({
+        title: 'Overdue Notice',
+        subtitle: 'LATE PAYMENT PENALTY WARNING',
+        greeting: `Hello ${u.name},`,
+        bodyText: `Your maintenance bill for "<strong>${b.title}</strong>" of <strong>₹${b.amount}</strong> was due on <strong>${dueStr}</strong> and is now past due.<br><br>Late payment penalty charges (₹${penaltyAmount}) have been added to your dues. Please clear this balance immediately to avoid suspension of society services.`,
+        highlightBox: `₹${totalOutstanding}`,
+        highlightBoxLabel: `Total Due (Principal: ₹${b.amount} + Penalty: ₹${penaltyAmount})`,
+        actionButton: {
+          text: 'Pay Outstanding Bill Now',
+          url: `${appUrl}/resident`
+        },
+        warningText: 'Unpaid dues exceeding 15 days may result in restriction of society clubhouse and parking privileges.',
+        footerText: 'Society Accounts & Billing Enforcement'
+      });
+
+      await emailQueue.add('sendEmailJob', {
+        email: u.email,
+        subject: `OVERDUE NOTICE: Late Fee Applied on ${b.title}`,
+        html
+      });
+      sentCount++;
+    }
+  }
+
+  return { success: true, count: sentCount };
+};

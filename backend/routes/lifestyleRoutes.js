@@ -6,6 +6,7 @@ const {
   createAmenity,
   bookSlot,
   getBookings,
+  cancelBooking,
   createClassified,
   getClassifieds,
   createResolution,
@@ -18,6 +19,7 @@ router.get('/amenities', protect, getAmenities);
 router.post('/amenities', protect, createAmenity);
 router.post('/amenities/book', protect, bookSlot);
 router.get('/amenities/bookings', protect, getBookings);
+router.post('/amenities/bookings/:id/cancel', protect, cancelBooking);
 
 // Classifieds
 router.get('/classifieds', protect, getClassifieds);

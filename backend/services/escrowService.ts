@@ -1,8 +1,12 @@
 import EscrowAccount from '../models/EscrowAccount';
 import Society from '../models/Society';
+import Project from '../models/Project';
+import VendorQuote from '../models/VendorQuote';
 import * as turf from '@turf/turf';
 import withDistributedLock from '../utils/distributedLock';
 import logger from '../utils/logger';
+import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
+import { emailQueue } from '../workers/emailQueue';
 import { IAuthUserContext } from '../types';
 
 // ── Internal Types ──────────────────────────────────────────────────────────
@@ -65,6 +69,46 @@ export const createEscrow = async (data: ICreateEscrowData, user: IAuthUserConte
   });
 
   await escrow.save();
+
+  // Send Work Order Approval & Escrow Funding Confirmation email to Vendor
+  (async () => {
+    try {
+      const quote = await VendorQuote.findById(vendorQuoteId);
+      const project = await Project.findById(projectId);
+      if (quote) {
+        quote.status = 'Selected';
+        await quote.save();
+      }
+
+      if (quote && quote.vendorEmail) {
+        const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const projectTitle = project?.title || 'Society Work Order';
+        const workOrderHtml = getProfessionalEmailTemplate({
+          title: 'Procurement & Escrow',
+          subtitle: 'OFFICIAL WORK ORDER & ESCROW ALLOCATION',
+          greeting: `Hello ${quote.vendorName},`,
+          bodyText: `Congratulations! Your quotation for "<strong>${projectTitle}</strong>" has been officially approved by the society management committee.<br><br><strong>Project Title:</strong> ${projectTitle}<br><strong>Allocated Escrow Amount:</strong> ₹${amount}<br><strong>Agreed Timeline:</strong> ${quote.timeline || 'As per project schedule'}<br><br>The funds are now securely held in digital escrow and will be automatically disbursed upon geofence arrival check-in and committee verification of deliverables.`,
+          highlightBox: `Escrow Secured: ₹${amount}`,
+          highlightBoxLabel: `Status: Work Order Approved`,
+          actionButton: {
+            text: 'View Project Portal',
+            url: `${appUrl}/login`
+          },
+          warningText: 'Work must strictly adhere to the approved project specifications and timeline.',
+          footerText: 'Society Procurement & Vendor Management'
+        });
+
+        await emailQueue.add('sendEmailJob', {
+          email: quote.vendorEmail,
+          subject: `Work Order Approved: ${projectTitle} (₹${amount})`,
+          html: workOrderHtml
+        });
+      }
+    } catch (err: any) {
+      logger.error('// VENDOR_WORK_ORDER_EMAIL_ERROR:', err.message);
+    }
+  })();
+
   return escrow;
 };
 

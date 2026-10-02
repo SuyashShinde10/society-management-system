@@ -123,3 +123,17 @@ export const sendDueReminders = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
   }
 };
+
+// @desc  Send overdue late-penalty alerts to defaulter residents
+// @route POST /api/bills/overdue-reminders
+// @access Admin
+export const sendOverdueAlerts = async (req: Request, res: Response) => {
+  try {
+    const result = await billService.sendOverdueAlerts((req as any).user.societyId);
+    res.json({ message: `Sent ${result.count} overdue penalty alert email(s) successfully.`, ...result });
+  } catch (error) {
+    logger.error('Error sending overdue alerts:', error);
+    res.status(500).json({ message: 'INTERNAL_SERVER_ERROR' });
+  }
+};
+

@@ -201,6 +201,58 @@ export const checkInStaff = async (staffId: string, guardUser: any) => {
 
   await attendance.save();
   logger.info(`[STAFF CHECK-IN] ${staff.name} (${staff.role}) entered premises.`);
+
+  // Notify assigned flat residents of staff entry
+  (async () => {
+    try {
+      if (staff.flatsAssigned && staff.flatsAssigned.length > 0) {
+        for (const assignment of staff.flatsAssigned) {
+          let resident = null;
+          if (assignment.residentId) {
+            resident = await User.findById(assignment.residentId).select('name email');
+          }
+          if (!resident && assignment.wing && assignment.flatNumber) {
+            resident = await User.findOne({
+              societyId: guardUser.societyId,
+              role: 'member',
+              $or: [
+                { wing: assignment.wing, flatNumber: assignment.flatNumber },
+                { 'flatDetails.wing': assignment.wing, 'flatDetails.flatNumber': assignment.flatNumber }
+              ],
+              isActive: true
+            }).select('name email');
+          }
+
+          if (resident && resident.email) {
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const staffEmailHtml = getProfessionalEmailTemplate({
+              title: 'Security Gate Operations',
+              subtitle: 'DOMESTIC STAFF PUNCH-IN ALERT',
+              greeting: `Hello ${resident.name},`,
+              bodyText: `Your registered ${staff.role.toLowerCase()}, <strong>${staff.name}</strong>, has entered the society through gate security at <strong>${timeStr}</strong> today.`,
+              highlightBox: `${staff.name} • ${staff.role}`,
+              highlightBoxLabel: `Gate Punch-In: ${timeStr}`,
+              actionButton: {
+                text: 'View Staff & Gate Activity',
+                url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/resident`
+              },
+              warningText: `Police Verification: ${staff.policeVerified ? 'Verified ✅' : 'Pending'}. If you did not expect your staff today, contact the security gate.`,
+              footerText: 'Society Gate & Security Management'
+            });
+
+            await emailQueue.add('sendEmailJob', {
+              email: resident.email,
+              subject: `Staff Entry: ${staff.name} (${staff.role}) arrived at Gate`,
+              html: staffEmailHtml
+            });
+          }
+        }
+      }
+    } catch (err: any) {
+      logger.error('// STAFF_CHECKIN_EMAIL_ERROR:', err.message);
+    }
+  })();
+
   return attendance;
 };
 

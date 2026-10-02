@@ -125,6 +125,32 @@ export const login = async (email: string, password: string, ip: string) => {
     String((user.societyId as any)?._id),
   );
 
+  // Send security notification on login (skipped in automated tests to avoid mock pollution)
+  if (user.email && process.env.NODE_ENV !== 'test') {
+    try {
+      const loginAlertHtml = getProfessionalEmailTemplate({
+        title: 'Security Alert',
+        subtitle: 'NEW LOGIN DETECTED',
+        greeting: `Hello ${user.name || 'User'},`,
+        bodyText: `A new login to your Society Management portal was detected from IP address <strong>${ip || 'Unknown'}</strong> on <strong>${new Date().toLocaleString()}</strong>.<br><br>If this was you, you can safely ignore this alert. If you did not log in, someone may have compromised your credentials. Please change your password immediately.`,
+        highlightBox: `IP: ${ip || 'Unknown'}`,
+        highlightBoxLabel: `Session Started: ${new Date().toLocaleTimeString()}`,
+        actionButton: {
+          text: 'Review Account Security',
+          url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`
+        },
+        warningText: 'Never share your login credentials or OTPs with anyone.',
+        footerText: 'Society Portal Security & Fraud Protection'
+      });
+
+      emailQueue.add('sendEmailJob', {
+        email: user.email,
+        subject: 'Security Alert: New Login to Your Account',
+        html: loginAlertHtml
+      }).catch(() => {});
+    } catch (e: any) {}
+  }
+
   return { user, isSecurity, accessToken, refreshToken };
 };
 
@@ -213,6 +239,32 @@ export const resetPassword = async (email: string, otp: string, newPassword: str
   await user.save();
 
   await Otp.deleteOne({ email });
+
+  // Send security alert email confirming password was reset
+  try {
+    const alertHtml = getProfessionalEmailTemplate({
+      title: 'Security Alert',
+      subtitle: 'PASSWORD RESET COMPLETED',
+      greeting: `Hello ${user.name || 'Resident'},`,
+      bodyText: `Your account password has been successfully reset using an OTP verification code on <strong>${new Date().toLocaleString()}</strong>.<br><br>If you initiated this change, no further action is required. If you did NOT request this password change, your account may be compromised. Please notify society management immediately.`,
+      highlightBox: 'Password Reset Successful',
+      highlightBoxLabel: 'Account Security Notice',
+      actionButton: {
+        text: 'Login to Society Portal',
+        url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`
+      },
+      warningText: 'Never share your passwords, OTP codes, or login credentials with anyone.',
+      footerText: 'Society Management System • Security Team'
+    });
+
+    await emailQueue.add('sendEmailJob', {
+      email: user.email,
+      subject: 'Security Alert: Password Changed Successfully',
+      html: alertHtml
+    });
+  } catch (err: any) {
+    logger.error('// PASSWORD_RESET_ALERT_EMAIL_ERROR:', err.message);
+  }
 };
 
 export const logout = async (user: any, token: string, ip: string) => {
