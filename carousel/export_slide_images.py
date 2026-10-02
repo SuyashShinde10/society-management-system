@@ -9,14 +9,14 @@ ASSETS_DIR = os.path.join(CAROUSEL_DIR, "assets")
 HTML_PATH = os.path.join(CAROUSEL_DIR, "index.html")
 CHROME = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
 
-TOTAL_SLIDES = 22
+TOTAL_SLIDES = 23
 
 with open(HTML_PATH, "r", encoding="utf-8") as f:
     full_html = f.read()
 
 os.makedirs(ASSETS_DIR, exist_ok=True)
 
-# Clean up older slide PNGs beyond 22 if present
+# Clean up older slide PNGs beyond 23 if present
 for old_i in range(TOTAL_SLIDES + 1, 30):
     old_f = os.path.join(ASSETS_DIR, f"awaastech_slide_{old_i:02d}.png")
     if os.path.exists(old_f):
@@ -50,6 +50,24 @@ for i in range(1, TOTAL_SLIDES + 1):
           .slide-page-num { font-size: 13px !important; padding: 5px 12px !important; }
           .slide-footer { font-size: 13px !important; padding-top: 12px !important; }
           .slide-author, .slide-swipe-hint { font-size: 13px !important; }
+          /* Coming Next Styles */
+          .coming-next-content { padding-top: 10px !important; }
+          .monitor-doodle-left { width: 65px !important; height: 65px !important; top: 0px !important; left: 20px !important; }
+          .monitor-doodle-right { width: 65px !important; height: 65px !important; top: 0px !important; right: 20px !important; }
+          .dashboards-grid { gap: 20px !important; max-width: 920px !important; margin-bottom: 24px !important; }
+          .dash-card { border-radius: 18px !important; padding: 16px 18px !important; gap: 10px !important; }
+          .dash-card-title { font-size: 17px !important; }
+          .dash-badge { font-size: 11px !important; padding: 3px 8px !important; }
+          .dash-mockup-mini { height: 115px !important; border-radius: 10px !important; padding: 8px 10px !important; gap: 8px !important; }
+          .mini-sidebar { width: 26px !important; gap: 4px !important; padding: 6px 3px !important; }
+          .mini-bar { height: 3px !important; }
+          .mini-kpi-label { height: 3px !important; }
+          .mini-kpi-val { height: 6px !important; }
+          .mini-row { height: 4px !important; }
+          .dash-desc { font-size: 13.5px !important; line-height: 1.35 !important; }
+          .bottom-teaser-box { max-width: 920px !important; margin-top: 10px !important; }
+          .teaser-stamp { font-size: 14px !important; padding: 8px 18px !important; }
+          .stay-tuned-text { font-size: 26px !important; }
         </style></head>"""
     )
     

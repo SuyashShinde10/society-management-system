@@ -284,10 +284,21 @@ slides_data = [
         "url": "https://app.awaastech.com/admin/analytics",
         "doodle_note": "End-to-End Analytical Depth 📊",
         "footer_author": "frontend/src/components/Analytics.jsx",
-        "footer_hint": "Next: Platform Wrap-Up 👉"
+        "footer_hint": "Next: Coming in Part 2 👉"
     },
     {
         "id": 22,
+        "type": "coming_next",
+        "tab_label": "Sneak Peek",
+        "tag": "Coming in Part 2",
+        "title": "Coming Next: The Dashboards",
+        "subtitle": "Part 2: A live tour inside all 4 dedicated role interfaces — spotlighting the Resident & Member Portal.",
+        "doodle_note": "Part 2 Teaser 🚀",
+        "footer_author": "frontend/src/pages/MemberDashboard.jsx",
+        "footer_hint": "Next: Platform Wrap-Up 👉"
+    },
+    {
+        "id": 23,
         "type": "outro",
         "tab_label": "Production Summary",
         "tag": "Architecture Takeaways",
@@ -404,8 +415,177 @@ def generate_html():
       </div>
     </div>
 '''
+        elif s["type"] == "coming_next":
+            # Slide 22: Coming Next: The Dashboards (Spotlighting Resident & Member Portal)
+            slide_content = f'''
+    <!-- SLIDE {sid}: COMING NEXT / DASHBOARDS TEASER -->
+    <div class="slide-wrapper slide-item" id="slide-{sid}" style="display: none;">
+      <div class="slide-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="slide-tag"><span class="dot"></span> {s["tag"]}</div>
+          <span class="doodle-note-pill">{s["doodle_note"]}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          {svg_star_terracotta}
+          <span class="slide-page-num">{slide_num_str}</span>
+        </div>
+      </div>
+      
+      <div class="slide-content coming-next-content">
+        <!-- Top Monitor Doodles -->
+        <svg class="monitor-doodle-left" viewBox="0 0 100 100" fill="none">
+          <rect x="10" y="15" width="80" height="55" rx="6" stroke="#2C2C2C" stroke-width="2.5"/>
+          <line x1="10" y1="55" x2="90" y2="55" stroke="#2C2C2C" stroke-width="1.8"/>
+          <line x1="20" y1="28" x2="40" y2="28" stroke="#D9734E" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="20" y1="38" x2="35" y2="38" stroke="#6B705C" stroke-width="2" stroke-linecap="round"/>
+          <path d="M50 70 L50 85 M35 85 L65 85" stroke="#2C2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        
+        <svg class="monitor-doodle-right" viewBox="0 0 100 100" fill="none">
+          <rect x="10" y="15" width="80" height="55" rx="6" stroke="#2C2C2C" stroke-width="2.5"/>
+          <line x1="10" y1="55" x2="90" y2="55" stroke="#2C2C2C" stroke-width="1.8"/>
+          <circle cx="30" cy="35" r="8" stroke="#D9734E" stroke-width="2"/>
+          <line x1="45" y1="30" x2="75" y2="30" stroke="#6B705C" stroke-width="2" stroke-linecap="round"/>
+          <line x1="45" y1="40" x2="65" y2="40" stroke="#6B705C" stroke-width="2" stroke-linecap="round"/>
+          <path d="M50 70 L50 85 M35 85 L65 85" stroke="#2C2C2C" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+
+        <div class="title-container" style="text-align: center; margin-bottom: 10px;">
+          <h2 class="slide-title" style="font-size: 38px; margin-bottom: 3px;">{s["title"]}</h2>
+          <p class="slide-subtitle" style="font-size: 15px;">{s["subtitle"]}</p>
+        </div>
+
+        <!-- 4 Dashboards Grid -->
+        <div class="dashboards-grid">
+          <!-- 1. Admin Dashboard -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">1. Admin Dashboard</span>
+              <span class="dash-badge">Operations ERP</span>
+            </div>
+            <div class="dash-mockup-mini">
+              <div class="mini-sidebar">
+                <div class="mini-bar"></div><div class="mini-bar"></div><div class="mini-bar"></div><div class="mini-bar"></div>
+              </div>
+              <div class="mini-main">
+                <div class="mini-kpis">
+                  <div class="mini-kpi"><div class="mini-kpi-label"></div><div class="mini-kpi-val"></div></div>
+                  <div class="mini-kpi"><div class="mini-kpi-label"></div><div class="mini-kpi-val" style="width: 50%;"></div></div>
+                  <div class="mini-kpi"><div class="mini-kpi-label"></div><div class="mini-kpi-val" style="width: 60%;"></div></div>
+                </div>
+                <div class="mini-table">
+                  <div class="mini-row" style="width: 90%;"></div>
+                  <div class="mini-row" style="width: 75%;"></div>
+                  <div class="mini-row" style="width: 85%;"></div>
+                </div>
+              </div>
+            </div>
+            <p class="dash-desc">Complete financial telemetry, member wing registries, dues accounting, and staff attendance.</p>
+          </div>
+
+          <!-- 2. Resident & Member Portal (HIGHLIGHT SPOTLIGHT) -->
+          <div class="dash-card dash-card-highlight">
+            <div class="dash-card-header">
+              <span class="dash-card-title" style="color: var(--accent);">2. Resident &amp; Member Portal</span>
+              <span class="dash-badge dash-badge-accent">⭐ Resident App</span>
+            </div>
+            <div class="dash-mockup-mini" style="border-color: rgba(217, 115, 78, 0.3);">
+              <div class="mini-sidebar">
+                <div class="mini-bar"></div><div class="mini-bar"></div><div class="mini-bar"></div>
+              </div>
+              <div class="mini-main">
+                <div class="mini-kpis">
+                  <div class="mini-kpi" style="border-color: rgba(217, 115, 78, 0.2);"><div class="mini-kpi-label"></div><div class="mini-kpi-val" style="background: var(--accent);"></div></div>
+                  <div class="mini-kpi"><div class="mini-kpi-label"></div><div class="mini-kpi-val"></div></div>
+                </div>
+                <div class="mini-table">
+                  <div class="mini-row" style="background: #FDF0EB; width: 95%;"></div>
+                  <div class="mini-row" style="width: 80%;"></div>
+                  <div class="mini-row" style="width: 65%;"></div>
+                </div>
+              </div>
+            </div>
+            <p class="dash-desc"><strong>Member Experience:</strong> 1-click UPI bills, instant guest gate passes, clubhouse bookings, and AGM voting.</p>
+          </div>
+
+          <!-- 3. Gatekeeper App -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">3. Gatekeeper App</span>
+              <span class="dash-badge">Security Guard</span>
+            </div>
+            <div class="dash-mockup-mini">
+              <div class="mini-sidebar olive">
+                <div class="mini-bar"></div><div class="mini-bar"></div>
+              </div>
+              <div class="mini-main">
+                <div class="mini-kpis">
+                  <div class="mini-kpi"><div class="mini-kpi-label"></div><div class="mini-kpi-val"></div></div>
+                  <div class="mini-kpi"><div class="mini-kpi-label"></div><div class="mini-kpi-val"></div></div>
+                </div>
+                <div class="mini-table">
+                  <div class="mini-row" style="width: 80%;"></div>
+                  <div class="mini-row" style="width: 70%;"></div>
+                  <div class="mini-row" style="width: 90%;"></div>
+                </div>
+              </div>
+            </div>
+            <p class="dash-desc">Fast number-plate scanning, courier parcel locker OTP handoffs, and domestic staff pass check-ins.</p>
+          </div>
+
+          <!-- 4. SuperAdmin Center -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">4. SuperAdmin Center</span>
+              <span class="dash-badge">Multi-Tenant</span>
+            </div>
+            <div class="dash-mockup-mini">
+              <div class="mini-sidebar charcoal">
+                <div class="mini-bar"></div><div class="mini-bar"></div><div class="mini-bar"></div>
+              </div>
+              <div class="mini-main">
+                <div class="mini-kpis">
+                  <div class="mini-kpi"><div class="mini-kpi-label"></div><div class="mini-kpi-val"></div></div>
+                  <div class="mini-kpi"><div class="mini-kpi-label"></div><div class="mini-kpi-val"></div></div>
+                </div>
+                <div class="mini-table">
+                  <div class="mini-row" style="width: 85%;"></div>
+                  <div class="mini-row" style="width: 60%;"></div>
+                  <div class="mini-row" style="width: 95%;"></div>
+                </div>
+              </div>
+            </div>
+            <p class="dash-desc">Multi-society provisioning, enterprise white-label branding, global telemetry, and billing locks.</p>
+          </div>
+        </div>
+
+        <!-- Bottom Teaser & Stay Tuned Callout -->
+        <div class="bottom-teaser-box">
+          <div class="teaser-stamp">
+            <span>🏷️</span> Part 2 Teaser
+          </div>
+          
+          <div class="stay-tuned-group">
+            <svg style="width: 42px; height: 32px;" viewBox="0 0 60 40">
+              <path class="doodle-arrow-path" d="M10 20 Q 30 5 50 25 M 40 20 L 50 25 L 45 35" />
+            </svg>
+            <span class="stay-tuned-text">Follow &amp; stay tuned for Part 2!</span>
+            <svg style="width: 42px; height: 32px; transform: scaleX(-1);" viewBox="0 0 60 40">
+              <path class="doodle-arrow-path" d="M10 20 Q 30 5 50 25 M 40 20 L 50 25 L 45 35" />
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="slide-footer">
+        <span class="slide-author">{s["footer_author"]}</span>
+        <span class="slide-swipe-hint">{s["footer_hint"]}</span>
+      </div>
+    </div>
+'''
         elif s["type"] == "outro":
-            # Slide 22: Outro Slide
+            # Slide 23: Outro Slide
             slide_content = f'''
     <!-- SLIDE {sid}: OUTRO / SUMMARY -->
     <div class="slide-wrapper slide-item" id="slide-{sid}" style="display: none;">
@@ -990,6 +1170,209 @@ def generate_html():
       display: block;
     }}
 
+    /* Coming Next Slide Styles */
+    .coming-next-content {{
+      align-items: center;
+      justify-content: flex-start;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+    }}
+
+    .monitor-doodle-left {{
+      position: absolute;
+      top: -4px;
+      left: 12px;
+      width: 44px;
+      height: 44px;
+    }}
+
+    .monitor-doodle-right {{
+      position: absolute;
+      top: -4px;
+      right: 12px;
+      width: 44px;
+      height: 44px;
+    }}
+
+    .dashboards-grid {{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+      max-width: 680px;
+      margin-bottom: 10px;
+    }}
+
+    .dash-card {{
+      background: #FFFFFF;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }}
+
+    .dash-card-highlight {{
+      border-color: var(--accent);
+      background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF9 100%);
+      box-shadow: 0 10px 24px rgba(217, 115, 78, 0.10);
+    }}
+
+    .dash-card-header {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }}
+
+    .dash-card-title {{
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--charcoal);
+    }}
+
+    .dash-badge {{
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: var(--olive-light);
+      color: var(--olive);
+    }}
+
+    .dash-badge-accent {{
+      background: #FDF0EB;
+      color: var(--accent);
+      border: 1px solid rgba(217, 115, 78, 0.2);
+    }}
+
+    .dash-mockup-mini {{
+      background: #FBFBF9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 8px;
+      display: flex;
+      gap: 6px;
+      height: 70px;
+      overflow: hidden;
+    }}
+
+    .mini-sidebar {{
+      width: 18px;
+      border-radius: 4px;
+      background: var(--accent);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 4px 2px;
+    }}
+
+    .mini-sidebar.olive {{ background: var(--olive); }}
+    .mini-sidebar.charcoal {{ background: var(--charcoal); }}
+
+    .mini-bar {{
+      height: 2px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1px;
+    }}
+
+    .mini-main {{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }}
+
+    .mini-kpis {{
+      display: flex;
+      gap: 4px;
+    }}
+    .mini-kpi {{
+      flex: 1;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }}
+    .mini-kpi-label {{ height: 2px; width: 60%; background: #DDD; border-radius: 1px; }}
+    .mini-kpi-val {{ height: 4px; width: 40%; background: var(--charcoal); border-radius: 1px; }}
+
+    .mini-table {{
+      flex: 1;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }}
+    .mini-row {{
+      height: 3px;
+      background: #EAECE5;
+      border-radius: 1px;
+      width: 100%;
+    }}
+
+    .dash-desc {{
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.3;
+    }}
+
+    .bottom-teaser-box {{
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      margin-top: 4px;
+    }}
+
+    .teaser-stamp {{
+      background: #FDF0EB;
+      border: 1.5px dashed var(--accent);
+      color: var(--accent);
+      padding: 5px 12px;
+      border-radius: 18px;
+      font-weight: 700;
+      font-size: 11.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transform: rotate(-3deg);
+    }}
+
+    .stay-tuned-group {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }}
+
+    .stay-tuned-text {{
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--charcoal);
+    }}
+
+    .doodle-arrow-path {{
+      stroke: var(--accent);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }}
+
     /* Footer of Slide */
     .slide-footer {{
       display: flex;
@@ -1344,6 +1727,69 @@ def generate_html():
       }}
       .slide-author, .slide-swipe-hint {{
         font-size: 13px !important;
+      }}
+      /* Coming Next Slide Print Styles (1080px) */
+      .coming-next-content {{
+        padding-top: 10px !important;
+      }}
+      .monitor-doodle-left {{
+        width: 65px !important;
+        height: 65px !important;
+        top: 0px !important;
+        left: 20px !important;
+      }}
+      .monitor-doodle-right {{
+        width: 65px !important;
+        height: 65px !important;
+        top: 0px !important;
+        right: 20px !important;
+      }}
+      .dashboards-grid {{
+        gap: 20px !important;
+        max-width: 920px !important;
+        margin-bottom: 24px !important;
+      }}
+      .dash-card {{
+        border-radius: 18px !important;
+        padding: 16px 18px !important;
+        gap: 10px !important;
+      }}
+      .dash-card-title {{
+        font-size: 17px !important;
+      }}
+      .dash-badge {{
+        font-size: 11px !important;
+        padding: 3px 8px !important;
+      }}
+      .dash-mockup-mini {{
+        height: 115px !important;
+        border-radius: 10px !important;
+        padding: 8px 10px !important;
+        gap: 8px !important;
+      }}
+      .mini-sidebar {{
+        width: 26px !important;
+        gap: 4px !important;
+        padding: 6px 3px !important;
+      }}
+      .mini-bar {{ height: 3px !important; }}
+      .mini-kpi-label {{ height: 3px !important; }}
+      .mini-kpi-val {{ height: 6px !important; }}
+      .mini-row {{ height: 4px !important; }}
+      .dash-desc {{
+        font-size: 13.5px !important;
+        line-height: 1.35 !important;
+      }}
+      .bottom-teaser-box {{
+        max-width: 920px !important;
+        margin-top: 10px !important;
+      }}
+      .teaser-stamp {{
+        font-size: 14px !important;
+        padding: 8px 18px !important;
+      }}
+      .stay-tuned-text {{
+        font-size: 26px !important;
       }}
     }}
   </style>
