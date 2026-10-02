@@ -11,8 +11,8 @@ const { hasPermission } = require('../middleware/rbac');
 const validateRequest = require('../middleware/validateRequest');
 const { createExpenseSchema } = require('../validations/schemas');
 
-// Admin-only expense management via 'manage:expenses' permission
-router.get('/', protect, hasPermission('manage:expenses'), getExpenses);
+// Expense management — read is accessible to members for transparency, manage is admin-only
+router.get('/', protect, hasPermission('read:expenses'), getExpenses);
 router.post('/', protect, hasPermission('manage:expenses'), validateRequest(createExpenseSchema), addExpense);
 router.delete('/:id', protect, hasPermission('manage:expenses'), deleteExpense);
 

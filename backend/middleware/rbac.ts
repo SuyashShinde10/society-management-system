@@ -10,7 +10,7 @@ type Permission =
   | 'create:user' | 'read:user' | 'update:user' | 'delete:user'
   | 'create:staff' | 'read:staff' | 'update:staff' | 'delete:staff'
   | 'manage:bills' | 'manage:complaints' | 'manage:notices'
-  | 'manage:expenses' | 'manage:meetings' | 'manage:visitors'
+  | 'manage:expenses' | 'read:expenses' | 'manage:meetings' | 'manage:visitors'
   | 'manage:parking' | 'manage:vendors' | 'manage:escrow'
   | 'create:complaints' | 'read:complaints'
   | 'read:bills' | 'read:notices' | 'read:meetings'
@@ -38,6 +38,7 @@ const roles: Record<UserRole, Permission[] | ['*']> = {
     'read:bills', 'read:notices', 'read:meetings',
     'read:parking', 'read:vendors',
     'create:visitors', 'read:visitors',
+    'read:expenses',
   ],
   security: [
     'create:visitors', 'read:visitors', 'manage:parking', 'read:parking',
