@@ -10,22 +10,25 @@ ROOT_DIR = r"d:\Projects\society-management-system"
 
 os.makedirs(ASSETS_DIR, exist_ok=True)
 
-# 26 Curated Slides Covering the Complete Flow
+# 22 Slides Arranged in Exact Menu Tabs Order:
+# 1 Cover + 4 Onboarding/Auth + 16 Menu Tabs (1:1 with app sidebar) + 1 Production Outro
 slides_data = [
     {
         "id": 1,
         "type": "cover",
-        "tag": "Introducing Society Management 2.0",
+        "tab_label": "Introducing Society Management 2.0",
+        "tag": "Production Architecture Tour",
         "title": "Living Spaces,<br/><span style=\"font-style: italic; color: var(--accent); position: relative; display: inline-block;\">Beautifully Managed.<svg style=\"position: absolute; bottom: -8px; left: 0; width: 100%; height: 12px;\" viewBox=\"0 0 200 12\" fill=\"none\"><path d=\"M2 6C30 -2 50 14 80 6C110 -2 130 14 160 6C180 -1 195 10 198 6\" stroke=\"#D9734E\" stroke-width=\"3\" stroke-linecap=\"round\"/></svg></span>",
-        "subtitle": "<strong>Awaastech: Production-Grade Society Management</strong><br/>A comprehensive product &amp; interface tour — from public landing to enterprise analytics.",
-        "pills": ["👥 4 Dedicated Roles", "🔒 Redis Lua Locks", "📍 GPS Geofenced Escrow", "🤖 LangGraph AI Agent", "📊 Tally ERP & Analytics"],
+        "subtitle": "<strong>Awaastech: Production-Grade Society Management</strong><br/>A live interface tour following the complete resident &amp; admin menu navigation.",
+        "pills": ["👥 4 Tailored Roles", "🔒 Redis Lua Locks", "📍 GPS Geofenced Escrow", "🤖 LangGraph AI Agent", "📊 Tally ERP & Analytics"],
         "doodle_note": "Distributed Systems Under The Hood ⚡",
         "footer_author": "✨ Awaastech Engineering",
-        "footer_hint": "Swipe to begin tour 👉"
+        "footer_hint": "Swipe to explore 👉"
     },
     {
         "id": 2,
         "type": "screenshot",
+        "tab_label": "Public Gateway",
         "tag": "First Impressions",
         "title": "Landing Page: Modern Residential Gateway",
         "subtitle": "A clean, conversion-focused public portal introducing smart society governance, role highlights, and instant onboarding.",
@@ -33,288 +36,261 @@ slides_data = [
         "url": "https://awaastech.com",
         "doodle_note": "Clean & Conversion Focused 🚀",
         "footer_author": "frontend/src/pages/LandingPage.jsx",
-        "footer_hint": "Next: Full Landing Experience 👉"
+        "footer_hint": "Next: Society Registration 👉"
     },
     {
         "id": 3,
         "type": "screenshot",
-        "tag": "Platform Overview",
-        "title": "Full Landing Experience: Architecture & Value",
-        "subtitle": "Complete feature breakdown highlighting financial ledgers, gate security, AI dispute redressal, and transparent society pricing.",
-        "screenshot": "fulllandingpage.png",
-        "url": "https://awaastech.com/#features",
-        "doodle_note": "Complete Modular Architecture 📦",
-        "footer_author": "Public Showcase & Trust Matrix",
-        "footer_hint": "Next: Society Registration 👉"
+        "tab_label": "Society Provisioning",
+        "tag": "Onboarding Flow",
+        "title": "Registration: Self-Service Society Setup",
+        "subtitle": "Comprehensive onboarding capturing society address, tower wings, flat counts, bank details, and admin credentials.",
+        "screenshot": "registerpagesallfiedldcomplete.png",
+        "url": "https://app.awaastech.com/register/society-details",
+        "doodle_note": "Structured Schema Validation 📋",
+        "footer_author": "frontend/src/pages/Register.jsx",
+        "footer_hint": "Next: Identity Verification 👉"
     },
     {
         "id": 4,
         "type": "screenshot",
-        "tag": "Onboarding Flow",
-        "title": "Society Registration: Self-Service Signup",
-        "subtitle": "Zero-friction entry point allowing residential management committees to register their society in under 60 seconds.",
-        "screenshot": "registerpage.png",
-        "url": "https://app.awaastech.com/register",
-        "doodle_note": "Zero-Friction Signup ⚡",
-        "footer_author": "frontend/src/pages/Register.jsx",
-        "footer_hint": "Next: Complete Setup Form 👉"
-    },
-    {
-        "id": 5,
-        "type": "screenshot",
-        "tag": "Society Provisioning",
-        "title": "Detailed Society Setup: Wings, Units & Roles",
-        "subtitle": "Deep setup capturing society address, tower wings, flat counts, bank details, and primary administrator credentials.",
-        "screenshot": "registerpagesallfiedldcomplete.png",
-        "url": "https://app.awaastech.com/register/society-details",
-        "doodle_note": "Structured Schema Validation 📋",
-        "footer_author": "Multi-Tenant Provisioning",
-        "footer_hint": "Next: Email Verification 👉"
-    },
-    {
-        "id": 6,
-        "type": "screenshot",
-        "tag": "Identity Verification",
+        "tab_label": "Identity Verification",
+        "tag": "Two-Factor Clearance",
         "title": "Email OTP Verification: Secure Security Gate",
-        "subtitle": "Time-limited cryptographic passcode verification sent via BullMQ workers to eliminate spam and unauthorized accounts.",
+        "subtitle": "Time-limited cryptographic passcode verification preventing fake accounts, spam societies, and unauthorized access.",
         "screenshot": "verifymailid.png",
         "url": "https://app.awaastech.com/verify-email",
         "doodle_note": "Anti-Bot & Spam Defense 🛡️",
         "footer_author": "backend/controllers/auth.verify.controller.ts",
-        "footer_hint": "Next: Verification Success 👉"
+        "footer_hint": "Next: Unified Sign-in 👉"
+    },
+    {
+        "id": 5,
+        "type": "screenshot",
+        "tab_label": "Authentication",
+        "tag": "Role-Based Access",
+        "title": "Unified Login: Intelligent Role Redirection",
+        "subtitle": "Single sign-in gateway directing Admins, Residents, and Security Personnel with encrypted httpOnly cookie tokens.",
+        "screenshot": "loginpage.png",
+        "url": "https://app.awaastech.com/login",
+        "doodle_note": "Granular RBAC Engine 🔑",
+        "footer_author": "frontend/src/pages/Login.jsx",
+        "footer_hint": "Next: Menu Tab 01 — Overview 👉"
+    },
+    # --- 16 MENU TABS IN EXACT SIDEBAR ORDER ---
+    {
+        "id": 6,
+        "type": "screenshot",
+        "tab_label": "Menu Tab 01",
+        "tag": "Overview",
+        "title": "Overview: Central Operations Center",
+        "subtitle": "Live telemetry showing maintenance collections, pending grievances, broadcast notices, and active staff counts.",
+        "screenshot": "adminsdashboard.png",
+        "url": "https://app.awaastech.com/admin/overview",
+        "doodle_note": "Real-Time Telemetry 📈",
+        "footer_author": "frontend/src/components/DashboardOverview.jsx",
+        "footer_hint": "Next: Menu Tab 02 — My Profile 👉"
     },
     {
         "id": 7,
         "type": "screenshot",
-        "tag": "Trust & Clearance",
-        "title": "Verification Success: Instant Clearance",
-        "subtitle": "Account activation confirmed with stateless, encrypted httpOnly cookie tokens ensuring zero XSS vulnerability.",
-        "screenshot": "mailverified.png",
-        "url": "https://app.awaastech.com/auth/verified",
-        "doodle_note": "httpOnly Cookie Tokens 🍪",
-        "footer_author": "Zero-Trust Security Handshake",
-        "footer_hint": "Next: Secure Login 👉"
+        "tab_label": "Menu Tab 02",
+        "tag": "My Profile",
+        "title": "My Profile: Account Security & RBAC Settings",
+        "subtitle": "Society profile management, bank account settlement details, session controls, and strict permission matrix.",
+        "screenshot": "adminsprofilesettings.png",
+        "url": "https://app.awaastech.com/admin/profile",
+        "doodle_note": "Bank-Grade RBAC Security 🛡️",
+        "footer_author": "frontend/src/pages/Profile.jsx",
+        "footer_hint": "Next: Menu Tab 03 — Member Registry 👉"
     },
     {
         "id": 8,
         "type": "screenshot",
-        "tag": "Authentication",
-        "title": "Unified Login: Role-Based Access Control",
-        "subtitle": "Intelligent authentication portal directing Admins, Residents, and Security Personnel to their respective dashboards.",
-        "screenshot": "loginpage.png",
-        "url": "https://app.awaastech.com/login",
-        "doodle_note": "Granular RBAC Engine 👥",
-        "footer_author": "frontend/src/pages/Login.jsx",
-        "footer_hint": "Next: Account Recovery 👉"
-    },
-    {
-        "id": 9,
-        "type": "screenshot",
-        "tag": "Account Security",
-        "title": "Password Recovery: Zero-Admin Overhead",
-        "subtitle": "Self-service recovery workflow with time-expiring cryptographic tokens, eliminating manual committee intervention.",
-        "screenshot": "forgotpasswordpage.png",
-        "url": "https://app.awaastech.com/forgot-password",
-        "doodle_note": "Self-Service Security ⏱️",
-        "footer_author": "Cryptographic Reset Tokens",
-        "footer_hint": "Next: Admin Command Center 👉"
-    },
-    {
-        "id": 10,
-        "type": "screenshot",
-        "tag": "Command Center",
-        "title": "Admin Dashboard: Central Operations Center",
-        "subtitle": "Real-time telemetry showing maintenance collections, pending grievances, broadcast notices, and active staff counts.",
-        "screenshot": "adminsdashboard.png",
-        "url": "https://app.awaastech.com/admin/dashboard",
-        "doodle_note": "Live Operations Telemetry 📈",
-        "footer_author": "frontend/src/pages/AdminDashboard.jsx",
-        "footer_hint": "Next: Resident Directory 👉"
-    },
-    {
-        "id": 11,
-        "type": "screenshot",
-        "tag": "Resident Directory",
-        "title": "Members Registry: Wings, Flats & Occupancy",
+        "tab_label": "Menu Tab 03",
+        "tag": "Member Registry",
+        "title": "Member Registry: Wings, Flats & Occupancy",
         "subtitle": "Instant resident search, verified owner vs. tenant classification, vehicle license plates, and individual unit ledgers.",
         "screenshot": "membersregistrypage.png",
         "url": "https://app.awaastech.com/admin/members",
         "doodle_note": "Instant Wing & Flat Search 🔍",
-        "footer_author": "frontend/src/pages/MembersRegistry.jsx",
-        "footer_hint": "Next: Maintenance Billing 👉"
+        "footer_author": "frontend/src/components/UserList.jsx",
+        "footer_hint": "Next: Menu Tab 04 — Notice Board 👉"
+    },
+    {
+        "id": 9,
+        "type": "screenshot",
+        "tab_label": "Menu Tab 04",
+        "tag": "Notice Board",
+        "title": "Notice Board: Circulars & Community Alerts",
+        "subtitle": "Official circulars, emergency announcements, and utility schedules broadcast to all residents with instant notifications.",
+        "screenshot": "noticeboardpage.png",
+        "url": "https://app.awaastech.com/admin/notices",
+        "doodle_note": "Instant Broadcasts 📢",
+        "footer_author": "frontend/src/components/NoticeBoard.jsx",
+        "footer_hint": "Next: Menu Tab 05 — Global Meetings 👉"
+    },
+    {
+        "id": 10,
+        "type": "screenshot",
+        "tab_label": "Menu Tab 05",
+        "tag": "Global Meetings",
+        "title": "Global Meetings: Agendas, Quorum & Minutes",
+        "subtitle": "Schedule committee meetings, notify resident members, record attendance quorum, and archive certified meeting minutes.",
+        "screenshot": "meetingpage.png",
+        "url": "https://app.awaastech.com/admin/meetings",
+        "doodle_note": "Certified Legal Minutes ⚖️",
+        "footer_author": "frontend/src/components/Meetings.jsx",
+        "footer_hint": "Next: Menu Tab 06 — Billing System 👉"
+    },
+    {
+        "id": 11,
+        "type": "screenshot",
+        "tab_label": "Menu Tab 06",
+        "tag": "Billing System",
+        "title": "Billing System: Automated Invoicing & Dues",
+        "subtitle": "Automated recurring maintenance generation with late penalty calculations and distributed locks to prevent double-charges.",
+        "screenshot": "billingpage.png",
+        "url": "https://app.awaastech.com/admin/bills",
+        "doodle_note": "Redis Lua Concurrency Locks 🔒",
+        "footer_author": "backend/services/billService.ts",
+        "footer_hint": "Next: Menu Tab 07 — Complaints 👉"
     },
     {
         "id": 12,
         "type": "screenshot",
-        "tag": "Financial Engine",
-        "title": "Maintenance Billing: Bulk Invoicing & Dues",
-        "subtitle": "Automated recurring maintenance generation with late penalty calculations and distributed locks to prevent double-charges.",
-        "screenshot": "billingpage.png",
-        "url": "https://app.awaastech.com/admin/billing",
-        "doodle_note": "Redis Lua Concurrency Locks 🔒",
-        "footer_author": "backend/services/billService.ts",
-        "footer_hint": "Next: Tally Accounting 👉"
+        "tab_label": "Menu Tab 07",
+        "tag": "Complaints",
+        "title": "Complaints: Smart AI-Assisted Helpdesk",
+        "subtitle": "Automated ticket classification, priority tagging, and transparent SLA tracking for plumbing, electrical, and security issues.",
+        "screenshot": "complaintspage.png",
+        "url": "https://app.awaastech.com/admin/complaints",
+        "doodle_note": "LangGraph Dispute Triaging 🤖",
+        "footer_author": "backend/services/aiService.ts",
+        "footer_hint": "Next: Menu Tab 08 — Parcel Gate Locker 👉"
     },
     {
         "id": 13,
         "type": "screenshot",
-        "tag": "Accounting & ERP",
-        "title": "Tally ERP & Chart of Accounts Integration",
-        "subtitle": "Auditor-grade double-entry ledger, journal entries, cashbooks, and 1-click XML/Excel exports for Tally integration.",
-        "screenshot": "tallyaccontantpage.png",
-        "url": "https://app.awaastech.com/admin/accounting",
-        "doodle_note": "Auditor-Ready Books 📘",
-        "footer_author": "Double-Entry Accounting Ledger",
-        "footer_hint": "Next: Facility Booking 👉"
+        "tab_label": "Menu Tab 08",
+        "tag": "Parcel Gate Locker",
+        "title": "Parcel Gate Locker: 4-Digit Claim PINs",
+        "subtitle": "Gatekeepers log packages from Amazon, courier, and food deliveries with secure OTP handoff to eliminate lost deliveries.",
+        "screenshot": "parceltrackingpage.png",
+        "url": "https://app.awaastech.com/admin/parcels",
+        "doodle_note": "Zero Lost Packages 📦",
+        "footer_author": "frontend/src/components/gate/ParcelGateLocker.jsx",
+        "footer_hint": "Next: Menu Tab 09 — Domestic Staff Directory 👉"
     },
     {
         "id": 14,
         "type": "screenshot",
-        "tag": "Amenities & Booking",
-        "title": "Facility Booking: Conflict-Free Scheduling",
-        "subtitle": "Clubhouse, swimming pool, and sports court reservations powered by atomic locks to eliminate double-booking clashes.",
-        "screenshot": "facilitypage.png",
-        "url": "https://app.awaastech.com/facilities",
-        "doodle_note": "Zero Double-Bookings ⏱️",
-        "footer_author": "frontend/src/pages/FacilityPage.jsx",
-        "footer_hint": "Next: Helpdesk & Grievance 👉"
+        "tab_label": "Menu Tab 09",
+        "tag": "Domestic Staff Directory",
+        "title": "Domestic Staff Directory: Attendance & Passes",
+        "subtitle": "Maids, drivers, and maintenance staff registry with secure digital gate passes, entry timestamps, and resident ratings.",
+        "screenshot": "domesticstaffpage.png",
+        "url": "https://app.awaastech.com/admin/staff-dir",
+        "doodle_note": "Safety & Gate Verification 🛂",
+        "footer_author": "frontend/src/components/gate/StaffDirectory.jsx",
+        "footer_hint": "Next: Menu Tab 10 — Facility Bookings 👉"
     },
     {
         "id": 15,
         "type": "screenshot",
-        "tag": "Grievance Redressal",
-        "title": "Smart Helpdesk: AI-Assisted Complaints",
-        "subtitle": "Automated ticket classification, priority tagging, and transparent SLA tracking for plumbing, electrical, and security issues.",
-        "screenshot": "complaintspage.png",
-        "url": "https://app.awaastech.com/complaints",
-        "doodle_note": "LangGraph Dispute Triaging 🤖",
-        "footer_author": "backend/services/aiService.ts",
-        "footer_hint": "Next: Digital Notice Board 👉"
+        "tab_label": "Menu Tab 10",
+        "tag": "Facility Bookings",
+        "title": "Facility Bookings: Conflict-Free Scheduling",
+        "subtitle": "Clubhouse, swimming pool, and sports court reservations powered by atomic locks to eliminate double-booking clashes.",
+        "screenshot": "facilitypage.png",
+        "url": "https://app.awaastech.com/admin/amenities",
+        "doodle_note": "Zero Double-Bookings ⏱️",
+        "footer_author": "frontend/src/components/lifestyle/AmenityBooking.jsx",
+        "footer_hint": "Next: Menu Tab 11 — Digital AGM & Voting 👉"
     },
     {
         "id": 16,
         "type": "screenshot",
-        "tag": "Community Broadcasts",
-        "title": "Digital Notice Board: Broadcasts & Circulars",
-        "subtitle": "Official circulars, emergency announcements, and utility schedules broadcast to all residents with instant push notifications.",
-        "screenshot": "noticeboardpage.png",
-        "url": "https://app.awaastech.com/notices",
-        "doodle_note": "Instant Community Broadcasts 📢",
-        "footer_author": "frontend/src/pages/NoticeBoard.jsx",
-        "footer_hint": "Next: Society Meetings 👉"
+        "tab_label": "Menu Tab 11",
+        "tag": "Digital AGM & Voting",
+        "title": "Digital AGM & Voting: 1-Flat-1-Vote Ballots",
+        "subtitle": "Tamper-evident community ballots, candidate elections, and real-time verifiable poll counts for transparent governance.",
+        "screenshot": "digitalvotingpage.png",
+        "url": "https://app.awaastech.com/admin/agm",
+        "doodle_note": "Tamper-Evident Ballots 🗳️",
+        "footer_author": "frontend/src/components/lifestyle/DigitalAGM.jsx",
+        "footer_hint": "Next: Menu Tab 12 — Tally & Accounting 👉"
     },
     {
         "id": 17,
         "type": "screenshot",
-        "tag": "Governance & AGMs",
-        "title": "Meetings & AGMs: Quorum, Agendas & Minutes",
-        "subtitle": "Schedule committee meetings, notify resident members, record attendance quorum, and archive certified meeting minutes.",
-        "screenshot": "meetingpage.png",
-        "url": "https://app.awaastech.com/meetings",
-        "doodle_note": "Certified Legal Minutes ⚖️",
-        "footer_author": "frontend/src/components/Meetings.jsx",
-        "footer_hint": "Next: Digital Voting 👉"
+        "tab_label": "Menu Tab 12",
+        "tag": "Tally & Accounting",
+        "title": "Tally & Accounting: Double-Entry Ledger ERP",
+        "subtitle": "Auditor-grade double-entry ledger, journal entries, cashbooks, and 1-click XML/Excel exports for Tally integration.",
+        "screenshot": "tallyaccontantpage.png",
+        "url": "https://app.awaastech.com/admin/accounting",
+        "doodle_note": "Auditor-Ready Books 📘",
+        "footer_author": "frontend/src/components/finance/AccountingCenter.jsx",
+        "footer_hint": "Next: Menu Tab 13 — Green Sustainability 👉"
     },
     {
         "id": 18,
         "type": "screenshot",
-        "tag": "Democratic Participation",
-        "title": "Digital Voting: 1-Flat-1-Vote Resolutions",
-        "subtitle": "Tamper-evident community ballots, candidate elections, and real-time verifiable poll counts for transparent governance.",
-        "screenshot": "digitalvotingpage.png",
-        "url": "https://app.awaastech.com/voting",
-        "doodle_note": "Tamper-Evident Ballots 🗳️",
-        "footer_author": "Cryptographic Poll Integrity",
-        "footer_hint": "Next: Domestic Staff Management 👉"
+        "tab_label": "Menu Tab 13",
+        "tag": "Green Sustainability",
+        "title": "Green Sustainability: Solar, Water & ESG",
+        "subtitle": "Live solar panel telemetry, rainwater harvesting levels, waste segregation tracking, and community carbon scorecards.",
+        "screenshot": "greensociety&sustainabilityERPpage.png",
+        "url": "https://app.awaastech.com/admin/sustainability",
+        "doodle_note": "Net-Zero Community Living ☀️",
+        "footer_author": "frontend/src/components/sustainability/GreenSustainability.jsx",
+        "footer_hint": "Next: Menu Tab 14 — WhatsApp Bot Simulator 👉"
     },
     {
         "id": 19,
         "type": "screenshot",
-        "tag": "Gate Security",
-        "title": "Domestic Staff: Daily Attendance & Passes",
-        "subtitle": "Maids, drivers, and maintenance staff registry with secure digital gate passes, entry timestamps, and resident ratings.",
-        "screenshot": "domesticstaffpage.png",
-        "url": "https://app.awaastech.com/staff",
-        "doodle_note": "Safety & Gate Verification 🛂",
-        "footer_author": "frontend/src/pages/DomesticStaff.jsx",
-        "footer_hint": "Next: Smart Parcel Tracking 👉"
+        "tab_label": "Menu Tab 14",
+        "tag": "WhatsApp Bot Simulator",
+        "title": "WhatsApp Bot: AI Resident Concierge",
+        "subtitle": "Allow residents to query dues, approve delivery drivers, and report issues directly inside WhatsApp without downloading an app.",
+        "screenshot": "whatsappbusinessbotsimulatorpage.png",
+        "url": "https://app.awaastech.com/admin/whatsapp",
+        "doodle_note": "Zero App Download Needed 📱",
+        "footer_author": "frontend/src/components/omnichannel/WhatsAppSimulator.jsx",
+        "footer_hint": "Next: Menu Tab 15 — White-Label Theme 👉"
     },
     {
         "id": 20,
         "type": "screenshot",
-        "tag": "Delivery Concierge",
-        "title": "Smart Parcel Desk: 4-Digit Claim PINs",
-        "subtitle": "Gatekeepers log packages from Amazon, courier, and food deliveries with secure OTP handoff to eliminate lost deliveries.",
-        "screenshot": "parceltrackingpage.png",
-        "url": "https://app.awaastech.com/parcels",
-        "doodle_note": "Zero Lost Packages 📍",
-        "footer_author": "frontend/src/pages/ParcelTracking.jsx",
-        "footer_hint": "Next: WhatsApp AI Bot 👉"
+        "tab_label": "Menu Tab 15",
+        "tag": "White-Label Theme",
+        "title": "White-Label Theme: Custom Society Branding",
+        "subtitle": "Multi-tenant branding engine allowing housing societies to configure bespoke color palettes, dark modes, and community logos.",
+        "screenshot": "enterprisethemepage.png",
+        "url": "https://app.awaastech.com/admin/theme",
+        "doodle_note": "Multi-Tenant White-Label 🖌️",
+        "footer_author": "frontend/src/components/ThemeSettings.jsx",
+        "footer_hint": "Next: Menu Tab 16 — Analytics Reports 👉"
     },
     {
         "id": 21,
         "type": "screenshot",
-        "tag": "Conversational UI",
-        "title": "WhatsApp Bot: AI Resident Concierge",
-        "subtitle": "Allow residents to query dues, approve delivery drivers, and report issues directly inside WhatsApp without downloading an app.",
-        "screenshot": "whatsappbusinessbotsimulatorpage.png",
-        "url": "https://app.awaastech.com/whatsapp-simulator",
-        "doodle_note": "Zero App Download Needed 📱",
-        "footer_author": "WhatsApp Cloud API Simulator",
-        "footer_hint": "Next: Green Society ERP 👉"
-    },
-    {
-        "id": 22,
-        "type": "screenshot",
-        "tag": "Eco & ESG Metrics",
-        "title": "Green Society ERP: Solar, Water & ESG",
-        "subtitle": "Live solar panel telemetry, rainwater harvesting levels, waste segregation tracking, and community carbon scorecards.",
-        "screenshot": "greensociety&sustainabilityERPpage.png",
-        "url": "https://app.awaastech.com/sustainability",
-        "doodle_note": "Net-Zero Community Living ☀️",
-        "footer_author": "IoT Telemetry & ESG Metrics",
-        "footer_hint": "Next: Enterprise Themes 👉"
-    },
-    {
-        "id": 23,
-        "type": "screenshot",
-        "tag": "Enterprise Branding",
-        "title": "White-Label Styling: Custom Society Themes",
-        "subtitle": "Multi-tenant branding engine allowing housing societies to configure bespoke color palettes, dark modes, and community logos.",
-        "screenshot": "enterprisethemepage.png",
-        "url": "https://app.awaastech.com/admin/themes",
-        "doodle_note": "Multi-Tenant White-Label 🖌️",
-        "footer_author": "Dynamic CSS Token Injection",
-        "footer_hint": "Next: Admin Settings 👉"
-    },
-    {
-        "id": 24,
-        "type": "screenshot",
-        "tag": "Administration",
-        "title": "Profile & Settings: Granular RBAC Security",
-        "subtitle": "Bank-grade security settings, audit logs, society configuration, and strict permission matrices across 35+ API endpoints.",
-        "screenshot": "adminsprofilesettings.png",
-        "url": "https://app.awaastech.com/admin/settings",
-        "doodle_note": "Bank-Grade RBAC Security 🛡️",
-        "footer_author": "backend/middleware/rbac.ts",
-        "footer_hint": "Next: Society Analytics Finale 👉"
-    },
-    {
-        "id": 25,
-        "type": "screenshot",
-        "tag": "Deep Intelligence",
-        "title": "Society Analytics: Financial & Operational Telemetry",
+        "tab_label": "Menu Tab 16",
+        "tag": "Analytics Reports",
+        "title": "Analytics Reports: Financial & Operational Telemetry",
         "subtitle": "Comprehensive analytics tracking collection velocity, occupancy ratios, expense breakdowns, and predictive cash flow.",
         "screenshot": "analyticspage.png",
-        "url": "https://app.awaastech.com/analytics",
+        "url": "https://app.awaastech.com/admin/analytics",
         "doodle_note": "End-to-End Analytical Depth 📊",
-        "footer_author": "frontend/src/pages/AnalyticsPage.jsx",
+        "footer_author": "frontend/src/components/Analytics.jsx",
         "footer_hint": "Next: Platform Wrap-Up 👉"
     },
     {
-        "id": 26,
+        "id": 22,
         "type": "outro",
-        "tag": "Production Architecture",
+        "tab_label": "Production Summary",
+        "tag": "Architecture Takeaways",
         "title": "Built for Modern Communities.<br/><span style=\"font-style: italic; color: var(--accent);\">Production-Grade Engineering.</span>",
         "subtitle": "From automated maintenance billing to AI dispute reconciliation and ALPR security — Awaastech redefines society management.",
         "pills": ["Node.js & Express", "TypeScript & RBAC", "MongoDB & Redis Lua", "BullMQ Async DLQ", "React 19 & Tailwind", "LangGraph AI Agents"],
@@ -330,10 +306,8 @@ def generate_html():
     slides_html = []
     
     # SVG Doodle definitions
-    svg_star_terracotta = '<svg class="doodle-star" style="width: 28px; height: 28px; fill: var(--accent);" viewBox="0 0 40 40"><path d="M20 0L23 17L40 20L23 23L20 40L17 23L0 20L17 17L20 0Z"/></svg>'
-    svg_star_olive = '<svg class="doodle-star" style="width: 22px; height: 22px; fill: var(--olive);" viewBox="0 0 40 40"><path d="M20 0L23 17L40 20L23 23L20 40L17 23L0 20L17 17L20 0Z"/></svg>'
-    svg_star_charcoal = '<svg class="doodle-star" style="width: 20px; height: 20px; fill: var(--charcoal);" viewBox="0 0 40 40"><path d="M20 0L23 17L40 20L23 23L20 40L17 23L0 20L17 17L20 0Z"/></svg>'
-    svg_sparkle_4 = '<svg class="doodle-star" style="width: 22px; height: 22px; fill: var(--accent);" viewBox="0 0 24 24"><path d="M12 0C12 7 17 12 24 12C17 12 12 17 12 24C12 17 7 12 0 12C7 12 12 7 12 0Z"/></svg>'
+    svg_star_terracotta = '<svg class="doodle-star" style="width: 24px; height: 24px; fill: var(--accent);" viewBox="0 0 40 40"><path d="M20 0L23 17L40 20L23 23L20 40L17 23L0 20L17 17L20 0Z"/></svg>'
+    svg_star_olive = '<svg class="doodle-star" style="width: 20px; height: 20px; fill: var(--olive);" viewBox="0 0 40 40"><path d="M20 0L23 17L40 20L23 23L20 40L17 23L0 20L17 17L20 0Z"/></svg>'
 
     for s in slides_data:
         sid = s["id"]
@@ -404,7 +378,6 @@ def generate_html():
 
         <!-- Hand-drawn Building Sketch (Bottom Right) -->
         <svg class="building-sketch" style="position: absolute; bottom: 20px; right: 28px; width: 110px; height: 110px;" viewBox="0 0 100 100" fill="none">
-          <!-- Main Tower -->
           <rect x="55" y="15" width="40" height="80" rx="3" stroke="#2C2C2C" stroke-width="2.2"/>
           <line x1="63" y1="26" x2="71" y2="26" stroke="#2C2C2C" stroke-width="2"/>
           <line x1="79" y1="26" x2="87" y2="26" stroke="#2C2C2C" stroke-width="2"/>
@@ -414,16 +387,13 @@ def generate_html():
           <line x1="79" y1="50" x2="87" y2="50" stroke="#2C2C2C" stroke-width="2"/>
           <line x1="63" y1="62" x2="71" y2="62" stroke="#2C2C2C" stroke-width="2"/>
           <line x1="79" y1="62" x2="87" y2="62" stroke="#2C2C2C" stroke-width="2"/>
-          <!-- Shorter Tower -->
           <rect x="32" y="42" width="23" height="53" rx="2" stroke="#2C2C2C" stroke-width="2"/>
           <line x1="38" y1="52" x2="48" y2="52" stroke="#2C2C2C" stroke-width="1.8"/>
           <line x1="38" y1="64" x2="48" y2="64" stroke="#2C2C2C" stroke-width="1.8"/>
           <line x1="38" y1="76" x2="48" y2="76" stroke="#2C2C2C" stroke-width="1.8"/>
-          <!-- Low House -->
           <rect x="12" y="60" width="20" height="35" rx="2" stroke="#2C2C2C" stroke-width="2"/>
           <line x1="17" y1="70" x2="26" y2="70" stroke="#2C2C2C" stroke-width="1.8"/>
           <line x1="17" y1="80" x2="26" y2="80" stroke="#2C2C2C" stroke-width="1.8"/>
-          <!-- Ground line -->
           <line x1="5" y1="95" x2="98" y2="95" stroke="#2C2C2C" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
 
@@ -435,7 +405,7 @@ def generate_html():
     </div>
 '''
         elif s["type"] == "outro":
-            # Slide 26: Outro Slide
+            # Slide 22: Outro Slide
             slide_content = f'''
     <!-- SLIDE {sid}: OUTRO / SUMMARY -->
     <div class="slide-wrapper slide-item" id="slide-{sid}" style="display: none;">
@@ -505,43 +475,41 @@ def generate_html():
     </div>
 '''
         else:
-            # Screenshot slide (ZERO CROPPING)
+            # Full Screenshot slide: NO TEXT OVERLAP + FULL-BLEED BROWSER VIEWPORT
             shot_file = s["screenshot"]
             img_rel_path = f"screenshots/{shot_file}"
             
-            # Alternate doodle positions
             is_even = (sid % 2 == 0)
             star_markup = svg_star_terracotta if is_even else svg_star_olive
-            arrow_doodle = '''
-        <svg class="doodle-arrow" style="top: 15px; right: 35px; width: 36px; height: 36px;" viewBox="0 0 50 50">
-          <path d="M10 40 Q 25 10 40 20 M 30 10 L 40 20 L 30 30" />
-        </svg>''' if is_even else '''
-        <svg class="doodle-arrow" style="top: 18px; left: 24px; width: 34px; height: 34px; transform: scaleX(-1);" viewBox="0 0 50 50">
-          <path d="M10 40 Q 25 10 40 20 M 30 10 L 40 20 L 30 30" />
-        </svg>'''
 
             slide_content = f'''
     <!-- SLIDE {sid}: {s["title"]} -->
     <div class="slide-wrapper slide-item" id="slide-{sid}" style="display: none;">
+      
+      <!-- Slide Header: Contains Tag, Note, and Page Number with Zero Overlap -->
       <div class="slide-header">
-        <div class="slide-tag"><span class="dot"></span> {s["tag"]}</div>
-        <span class="slide-page-num">{slide_num_str}</span>
-      </div>
-      <div class="slide-content screenshot-slide-content">
-        <!-- Floating Doodle elements -->
-        <span class="doodle-note" style="top: -6px; {'right: 28px;' if is_even else 'left: 28px;'}">{s["doodle_note"]}</span>
-        <div style="position: absolute; top: -8px; {'left: 20px;' if is_even else 'right: 20px;'}">
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <div class="slide-tag"><span class="dot"></span> {s["tab_label"]}: {s["tag"]}</div>
+          <span class="doodle-note-pill">{s["doodle_note"]}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
           {star_markup}
+          <span class="slide-page-num">{slide_num_str}</span>
+        </div>
+      </div>
+
+      <!-- Slide Body: Clean Typography + Full Screenshot Frame -->
+      <div class="slide-content screenshot-slide-content">
+        <div class="title-container">
+          <h2 class="slide-title screenshot-slide-title">
+            {s["title"]}
+          </h2>
+          <p class="slide-subtitle screenshot-slide-subtitle">
+            {s["subtitle"]}
+          </p>
         </div>
 
-        <h2 class="slide-title screenshot-slide-title">
-          {s["title"]}
-        </h2>
-        <p class="slide-subtitle screenshot-slide-subtitle">
-          {s["subtitle"]}
-        </p>
-
-        <!-- Browser Mockup Window (Full Uncropped Screenshot) -->
+        <!-- Full Browser Mockup Window (Full Screenshot filling all 4 corners) -->
         <div class="browser-mockup">
           <div class="browser-topbar">
             <div class="browser-dots">
@@ -553,8 +521,8 @@ def generate_html():
               <svg style="width: 11px; height: 11px; fill: var(--olive); flex-shrink: 0;" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
               <span>{s["url"]}</span>
             </div>
-            <div style="font-size: 10px; font-weight: 600; color: var(--olive); background: var(--olive-light); padding: 2px 7px; border-radius: 8px;">
-              Live View
+            <div class="browser-live-badge">
+              Live Interface
             </div>
           </div>
           <div class="browser-viewport">
@@ -563,6 +531,8 @@ def generate_html():
         </div>
 
       </div>
+
+      <!-- Slide Footer -->
       <div class="slide-footer">
         <span class="slide-author">{s["footer_author"]}</span>
         <span class="slide-swipe-hint">{s["footer_hint"]}</span>
@@ -582,7 +552,7 @@ def generate_html():
         <img src="screenshots/{s["screenshot"]}" alt="{s["title"]}" />
         <div class="image-card-caption">
           <div>
-            <div style="font-weight: 600; font-size: 13px;">{s["title"]}</div>
+            <div style="font-weight: 600; font-size: 13px;">{s["tab_label"]} • {s["title"]}</div>
             <div style="font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace;">{s["url"]}</div>
           </div>
           <a href="screenshots/{s["screenshot"]}" target="_blank" class="btn" style="padding: 4px 10px; font-size: 11px;">Full View</a>
@@ -737,8 +707,8 @@ def generate_html():
 
     /* Slide Card */
     .slide-wrapper {{
-      width: 740px;
-      height: 740px;
+      width: 760px;
+      height: 760px;
       max-width: 100%;
       background: var(--bg);
       border-radius: 28px;
@@ -748,7 +718,7 @@ def generate_html():
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      padding: 34px 38px 24px 38px;
+      padding: 30px 36px 20px 36px;
       transition: all 0.3s ease;
     }}
 
@@ -757,11 +727,11 @@ def generate_html():
         width: 100%;
         height: auto;
         min-height: 600px;
-        padding: 24px 20px 18px 20px;
+        padding: 22px 18px 16px 18px;
       }}
     }}
 
-    /* Slide Header */
+    /* Slide Header - ZERO OVERLAPPING */
     .slide-header {{
       display: flex;
       justify-content: space-between;
@@ -792,6 +762,20 @@ def generate_html():
       background: var(--accent);
     }}
 
+    .doodle-note-pill {{
+      display: inline-flex;
+      align-items: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--olive);
+      background: #FFFDF9;
+      border: 1.5px dashed var(--olive);
+      padding: 3px 10px;
+      border-radius: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }}
+
     .slide-page-num {{
       font-size: 12px;
       font-weight: 600;
@@ -809,6 +793,7 @@ def generate_html():
       flex-direction: column;
       position: relative;
       z-index: 4;
+      min-height: 0;
     }}
 
     .cover-content {{
@@ -819,15 +804,23 @@ def generate_html():
 
     .screenshot-slide-content {{
       justify-content: flex-start;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }}
+
+    .title-container {{
+      margin-bottom: 10px;
+      position: relative;
     }}
 
     .slide-title {{
       font-family: 'Cormorant Garamond', serif;
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 600;
-      line-height: 1.18;
+      line-height: 1.15;
       color: var(--charcoal);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }}
 
     .cover-title {{
@@ -837,15 +830,15 @@ def generate_html():
     }}
 
     .screenshot-slide-title {{
-      font-size: 27px;
-      margin-bottom: 4px;
+      font-size: 26px;
+      margin-bottom: 3px;
     }}
 
     .slide-subtitle {{
-      font-size: 13.5px;
+      font-size: 13px;
       color: var(--muted);
-      line-height: 1.45;
-      margin-bottom: 12px;
+      line-height: 1.4;
+      margin-bottom: 0;
     }}
 
     .cover-subtitle-box {{
@@ -863,10 +856,10 @@ def generate_html():
 
     .screenshot-slide-subtitle {{
       font-size: 12.5px;
-      margin-bottom: 10px;
+      max-width: 95%;
     }}
 
-    /* Browser Mockup Window */
+    /* Full-Bleed Browser Mockup Window */
     .browser-mockup {{
       background: #FFFFFF;
       border: 1.5px solid var(--border);
@@ -878,6 +871,7 @@ def generate_html():
       flex: 1;
       min-height: 0;
       width: 100%;
+      margin-top: 4px;
     }}
 
     .browser-topbar {{
@@ -888,6 +882,7 @@ def generate_html():
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      flex-shrink: 0;
     }}
 
     .browser-dots {{
@@ -922,28 +917,33 @@ def generate_html():
       margin: 0 auto;
     }}
 
+    .browser-live-badge {{
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--olive);
+      background: var(--olive-light);
+      padding: 2px 8px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }}
+
+    /* FULL SCREENSHOT EXPANDED TO ALL 4 CORNERS */
     .browser-viewport {{
       flex: 1;
       min-height: 0;
-      background: #FAFAF7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px;
+      width: 100%;
+      height: 100%;
+      background: #FFFFFF;
+      position: relative;
       overflow: hidden;
     }}
 
-    /* NO CROPPING: Fully contained screenshot */
     .screenshot-img {{
-      max-width: 100%;
-      max-height: 100%;
-      width: auto;
-      height: auto;
-      object-fit: contain;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
       display: block;
-      border-radius: 6px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-      border: 1px solid #ECE8DE;
     }}
 
     /* Footer of Slide */
@@ -956,6 +956,7 @@ def generate_html():
       position: relative;
       z-index: 5;
       margin-top: 8px;
+      flex-shrink: 0;
     }}
 
     .slide-author {{
@@ -977,7 +978,7 @@ def generate_html():
     }}
 
     /* Signature Doodles */
-    .doodle-star {{ position: absolute; pointer-events: none; }}
+    .doodle-star {{ pointer-events: none; }}
     .doodle-arrow {{ position: absolute; stroke: var(--charcoal); stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }}
     .doodle-squiggle {{ position: absolute; pointer-events: none; }}
     .building-sketch {{ pointer-events: none; }}
@@ -1084,7 +1085,7 @@ def generate_html():
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      max-width: 420px;
+      max-width: 460px;
       gap: 6px;
     }}
 
@@ -1154,7 +1155,7 @@ def generate_html():
     }}
 
     .image-card:hover {{ transform: translateY(-3px); }}
-    .image-card img {{ width: 100%; height: 210px; object-fit: contain; background: #FAFAF7; display: block; border-bottom: 1px solid var(--border); }}
+    .image-card img {{ width: 100%; height: 210px; object-fit: cover; object-position: top center; background: #FAFAF7; display: block; border-bottom: 1px solid var(--border); }}
     .image-card-caption {{
       padding: 12px 16px;
       display: flex;
@@ -1219,55 +1220,75 @@ def generate_html():
         box-shadow: none !important;
         border: none !important;
         border-radius: 0 !important;
-        padding: 50px 60px 40px 60px !important;
+        padding: 44px 50px 36px 50px !important;
         background: #F9F8F3 !important;
+        box-sizing: border-box !important;
       }}
       .cover-title {{
         font-size: 58px !important;
       }}
       .screenshot-slide-title {{
-        font-size: 38px !important;
+        font-size: 34px !important;
+        margin-bottom: 6px !important;
       }}
       .slide-subtitle {{
-        font-size: 18px !important;
+        font-size: 16.5px !important;
+        line-height: 1.4 !important;
       }}
       .browser-mockup {{
         border-radius: 18px !important;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.06) !important;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.07) !important;
+        flex: 1 !important;
+        margin-top: 8px !important;
       }}
       .browser-topbar {{
-        padding: 10px 18px !important;
+        padding: 11px 18px !important;
       }}
       .b-dot {{
         width: 12px !important;
         height: 12px !important;
       }}
       .browser-address-bar {{
-        font-size: 14px !important;
+        font-size: 13.5px !important;
         padding: 5px 14px !important;
         max-width: 520px !important;
       }}
-      .screenshot-img {{
-        max-height: 580px !important;
+      .browser-live-badge {{
+        font-size: 12px !important;
+        padding: 3px 10px !important;
       }}
-      .doodle-note {{
-        font-size: 14px !important;
+      /* FULL SCREENSHOT EXPANDED EDGE TO EDGE */
+      .browser-viewport {{
+        width: 100% !important;
+        flex: 1 !important;
+        height: 100% !important;
+        overflow: hidden !important;
+      }}
+      .screenshot-img {{
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: top center !important;
+        display: block !important;
+      }}
+      .doodle-note-pill {{
+        font-size: 13px !important;
         padding: 5px 14px !important;
       }}
       .slide-tag {{
-        font-size: 14px !important;
-        padding: 8px 16px !important;
+        font-size: 13px !important;
+        padding: 6px 15px !important;
       }}
       .slide-page-num {{
-        font-size: 14px !important;
-        padding: 6px 14px !important;
+        font-size: 13px !important;
+        padding: 5px 12px !important;
       }}
       .slide-footer {{
-        font-size: 14px !important;
-        padding-top: 14px !important;
+        font-size: 13px !important;
+        padding-top: 12px !important;
       }}
       .slide-author, .slide-swipe-hint {{
-        font-size: 14px !important;
+        font-size: 13px !important;
       }}
     }}
   </style>
@@ -1279,8 +1300,8 @@ def generate_html():
     <div class="brand-group">
       <div class="brand-logo-badge">A</div>
       <div>
-        <h1 class="brand-title">Awaastech — Complete Platform Showcase</h1>
-        <p class="brand-subtitle">LinkedIn Carousel Deck • From Public Landing to Enterprise Analytics ({TOTAL_SLIDES} Slides)</p>
+        <h1 class="brand-title">Awaastech — Complete Platform Tour</h1>
+        <p class="brand-subtitle">Organized by System Menu Tabs • From Public Landing to Analytics ({TOTAL_SLIDES} Slides)</p>
       </div>
     </div>
     <div class="actions-group">
@@ -1330,29 +1351,31 @@ def generate_html():
       <p style="font-size: 13px; color: var(--muted); margin-bottom: 14px;">
         Ready to share with your carousel PDF on LinkedIn:
       </p>
-      <textarea id="captionTextarea" readonly style="width: 100%; height: 260px; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 13px; border: 1px solid var(--border); border-radius: 12px; background: #FAFAF7; color: var(--charcoal); resize: vertical; line-height: 1.5; margin-bottom: 16px;">🚀 Inside Awaastech — The Next-Gen Housing Society ERP (Complete 26-Slide Product &amp; Architecture Tour) 🏙️✨
+      <textarea id="captionTextarea" readonly style="width: 100%; height: 260px; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 13px; border: 1px solid var(--border); border-radius: 12px; background: #FAFAF7; color: var(--charcoal); resize: vertical; line-height: 1.5; margin-bottom: 16px;">🚀 Inside Awaastech — The Next-Gen Housing Society ERP (Live 22-Slide Tour by Menu Tabs) 🏙️✨
 
-Managing a modern residential society is essentially running a micro-city. From maintenance fee collisions to manual gate registers, missing parcel deliveries, and contentious AGMs, community living often suffers from fragmented tools.
+Managing modern residential societies requires micro-city governance. From maintenance fee collisions to manual gate logs and paper meeting minutes, fragmented tools cause operational friction.
 
-Here is the complete live product walkthrough inside Awaastech — an enterprise-grade, distributed housing platform uniting Admins, Residents, Security Guards, and Accountants:
+Here is the complete live product walkthrough inside Awaastech, structured exactly around our 16 core menu modules:
 
-🔹 Public Gateway: Conversion-optimized landing page breaking down the modular ecosystem.
-🔹 Onboarding &amp; Provisioning: Self-service society registration with automated wing, flat, and committee configuration.
-🔹 Identity &amp; Trust: Two-factor email OTP clearance, zero spam, and encrypted httpOnly session tokens.
-🔹 Central Command: Real-time telemetry dashboard for collections, active notices, and maintenance requests.
-🔹 Resident Directory: Flat ledger, verified tenant vs. owner records, and vehicle plate registry.
-🔹 Maintenance Invoicing: Bulk bill generation protected by Redis Lua distributed locks to eliminate double-charges.
-🔹 Double-Entry Accounting: Auditor-grade ledgers, cashbooks, and 1-click Tally export.
-🔹 Amenity Bookings: Conflict-free clubhouse, pool, and court reservations with concurrency locks.
-🔹 AI Helpdesk: LangGraph autonomous dispute resolution &amp; category-based SLA tracking.
-🔹 Community Broadcasts: Digital notice board for instant emergency alerts and AGM circulars.
-🔹 Democratic Governance: 1-flat-1-vote tamper-evident digital resolutions and election polls.
-🔹 Gate Operations: Domestic staff digital passes, ALPR vehicle recognition, and 4-digit parcel claim PINs.
-🔹 WhatsApp AI Concierge: Direct conversational bot allowing residents to query dues and approve visitors without opening an app.
-🔹 Green Society ERP: Live IoT solar generation telemetry, rainwater harvesting, and ESG carbon scorecards.
-🔹 Deep Intelligence: Advanced analytics tracking collection velocity, occupancy ratios, and expense breakdowns.
+🔹 Public Landing &amp; Onboarding: Conversion-optimized hero, self-service society setup, two-factor OTP verification, and role-based login.
+🔹 Menu Tab 01 — Overview: Real-time collections, active announcements, and pending grievance counters.
+🔹 Menu Tab 02 — My Profile: Bank account setup, audit trails, and strict RBAC permission matrix.
+🔹 Menu Tab 03 — Member Registry: Tower wing directory, flat ledger, and verified owner vs. tenant records.
+🔹 Menu Tab 04 — Notice Board: Emergency circulars and community broadcasts with instant push notifications.
+🔹 Menu Tab 05 — Global Meetings: Committee &amp; AGM scheduling, quorum tracking, and certified minutes.
+🔹 Menu Tab 06 — Billing System: Automated bulk invoices protected by Redis Lua distributed locks.
+🔹 Menu Tab 07 — Complaints: LangGraph AI-assisted dispute reconciliation &amp; category-based SLA tracking.
+🔹 Menu Tab 08 — Parcel Gate Locker: Secure 4-digit claim PINs for Swiggy, Amazon &amp; courier handoffs.
+🔹 Menu Tab 09 — Domestic Staff Directory: Maids, drivers &amp; security gate passes with biometric timestamps.
+🔹 Menu Tab 10 — Facility Bookings: Conflict-free clubhouse, pool &amp; court reservations with concurrency locks.
+🔹 Menu Tab 11 — Digital AGM &amp; Voting: 1-flat-1-vote tamper-evident ballots and real-time verifiable poll counts.
+🔹 Menu Tab 12 — Tally &amp; Accounting: Double-entry ledger, journal entries, cashbooks, and 1-click Tally export.
+🔹 Menu Tab 13 — Green Sustainability: Solar generation telemetry, rainwater sensors, and ESG carbon scorecards.
+🔹 Menu Tab 14 — WhatsApp Bot Simulator: Direct conversational concierge without requiring an app download.
+🔹 Menu Tab 15 — White-Label Theme: Bespoke color palettes, dark modes, and community branding.
+🔹 Menu Tab 16 — Analytics Reports: Collection velocity, occupancy trends, and predictive financial insights.
 
-💡 System Design Takeaway: Real-world residential operations demand distributed locks, geofenced escrow, idempotent webhooks, and granular RBAC.
+💡 Engineering Takeaway: Real-world society operations demand distributed locks, geofenced escrow, idempotent webhooks, and granular RBAC.
 
 ⭐ Open source on GitHub: https://github.com/SuyashShinde10/society-management-system
 🌐 Live deployment: https://awaastech.vercel.app
