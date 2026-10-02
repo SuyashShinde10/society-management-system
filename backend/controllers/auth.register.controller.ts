@@ -125,8 +125,12 @@ export const registerUser = async (req: Request, res: Response) => {
         subtitle: `WELCOME TO AWAASTECH — ${societyName.toUpperCase()}`,
         greeting: `Welcome, ${name}!`,
         bodyText: `Congratulations! Your society <strong>${societyName}</strong> has been successfully registered and initialized on the Awaastech Platform.<br><br>As the administrator, your society workspace is ready. You can now log into your Admin Dashboard to manage members, generate maintenance bills, broadcast notices, review complaints, coordinate staff, and monitor operations.`,
-        highlightBox: `Society: ${societyName}<br><span style="font-size: 15px; color: #475569; font-weight: normal;">Reg No: ${regNumber}</span><br><span style="font-size: 14px; color: #2563eb;">Admin Email: ${email}</span>`,
+        highlightBox: `<strong>${societyName}</strong><br><span style="font-size: 13px; color: #64748b; font-weight: normal;">Reg No: ${regNumber}</span><br><span style="font-size: 13px; color: #2563eb; font-weight: 500;">Admin Email: ${email}</span>`,
         highlightBoxLabel: 'Registered Society Details',
+        actionButton: {
+          text: 'Open Admin Dashboard',
+          url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`
+        },
         footerText: `Sent on behalf of ${societyName}. Welcome to the Awaastech community.`
       });
 

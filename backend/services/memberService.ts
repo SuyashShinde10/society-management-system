@@ -121,14 +121,27 @@ export const addMember = async (data: any, admin: any) => {
   const adminName = adminUser?.name || 'Society Admin';
   const adminEmail = adminUser?.email || 'admin@awaastech.com';
 
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const roleLabel = user.flatDetails?.wing && user.flatDetails?.flatNumber
+    ? `${user.flatDetails.residentType || 'Resident'} • Wing ${user.flatDetails.wing}-${user.flatDetails.flatNumber}`
+    : `${user.flatDetails?.residentType || 'Resident'}`;
+
   const html = getProfessionalEmailTemplate({
-    subtitle: `WELCOME TO ${societyName.toUpperCase()}`,
+    title: societyName,
+    subtitle: `RESIDENT ONBOARDING • ${societyName.toUpperCase()}`,
     greeting: `Hello ${user.name},`,
-    bodyText: `An account has been created for you by your society admin (<strong>${adminName}</strong>). Please use the following temporary credentials to log in. <strong>You must change your password immediately after logging in.</strong><br><br>If you have any questions, contact your admin at <a href="mailto:${adminEmail}">${adminEmail}</a>.`,
-    highlightBox: `${user.email}<br><span style="font-size: 20px;">Pass: ${generatedPassword}</span>`,
-    highlightBoxLabel: 'Your Login Credentials',
-    warningText: 'Do not share this password with anyone.',
-    footerText: `Sent on behalf of ${societyName}`
+    bodyText: `An account has been created for you by your society administrator (<strong>${adminName}</strong>). You can now access your resident dashboard to pay maintenance dues, manage visitors, register domestic staff, and stay informed.<br><br>If you have any questions, you can contact your admin directly at <a href="mailto:${adminEmail}" style="color: #2563eb; text-decoration: underline;">${adminEmail}</a>.`,
+    credentials: {
+      email: user.email,
+      password: generatedPassword,
+      role: roleLabel
+    },
+    actionButton: {
+      text: 'Log In to Resident Portal',
+      url: `${appUrl}/login`
+    },
+    warningText: 'Do not share this temporary password with anyone. You will be prompted to set a new password on your first login.',
+    footerText: `Sent securely on behalf of ${societyName}`
   });
 
   try {

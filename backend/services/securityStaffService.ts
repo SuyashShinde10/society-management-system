@@ -39,13 +39,24 @@ export const addSecurityStaff = async (data: any, admin: any) => {
   const adminUser = await User.findById(admin._id).populate('societyId');
   const societyName = (adminUser?.societyId as any)?.name || 'Awaastech Society';
 
+  const appUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
   const html = getProfessionalEmailTemplate({
-    subtitle: `SECURITY ONBOARDING - ${societyName.toUpperCase()}`,
+    title: societyName,
+    subtitle: `SECURITY ONBOARDING • ${societyName.toUpperCase()}`,
     greeting: `Hello ${staff.name},`,
-    bodyText: `Your security staff account has been created by the administrator. Use the credentials below to log into the security portal. <strong>You must change your password immediately.</strong>`,
-    highlightBox: `${staff.email}<br><span style="font-size: 20px;">Pass: ${generatedPassword}</span>`,
-    highlightBoxLabel: 'Your Login Credentials',
-    warningText: 'Do not share this password with anyone.',
+    bodyText: `Your security staff account has been created by the administrator. Use the credentials below to log into the security guard portal to verify visitor passes, log parcels, and manage community entries.`,
+    credentials: {
+      email: staff.email,
+      password: generatedPassword,
+      role: 'Security Gate Staff'
+    },
+    actionButton: {
+      text: 'Log In to Guard Portal',
+      url: `${appUrl}/login`
+    },
+    warningText: 'Do not share this temporary password with anyone. You will be prompted to set a new password on your first login.',
+    footerText: `Sent securely on behalf of ${societyName}`
   });
 
   try {
