@@ -622,25 +622,27 @@ const DashboardOverview = ({ onNavigate }) => {
               <div style={{ background: 'white', padding: '14px', borderRadius: '14px', border: `1px solid #EAE6DC` }}>
                 <span style={{ fontSize: '11px', color: theme.textSec, display: 'block', marginBottom: '4px' }}>Flat Details</span>
                 <span style={{ fontSize: '15px', fontWeight: '600', color: theme.textMain }}>
-                  Wing {user?.flatDetails?.wing || 'A'} • Unit {user?.flatDetails?.flatNumber || '101'}
+                  {user?.flatDetails?.wing && user?.flatDetails?.flatNumber
+                    ? `Wing ${user.flatDetails.wing} • Unit ${user.flatDetails.flatNumber}`
+                    : (user?.flatDetails?.flatNumber ? `Unit ${user.flatDetails.flatNumber}` : 'Not Assigned')}
                 </span>
               </div>
               <div style={{ background: 'white', padding: '14px', borderRadius: '14px', border: `1px solid #EAE6DC` }}>
                 <span style={{ fontSize: '11px', color: theme.textSec, display: 'block', marginBottom: '4px' }}>Tenure Type</span>
                 <span style={{ fontSize: '15px', fontWeight: '600', color: theme.textMain }}>
-                  {user?.flatDetails?.residentType || 'Owner'}
+                  {user?.flatDetails?.residentType || 'Resident'}
                 </span>
               </div>
               <div style={{ background: 'white', padding: '14px', borderRadius: '14px', border: `1px solid #EAE6DC` }}>
                 <span style={{ fontSize: '11px', color: theme.textSec, display: 'block', marginBottom: '4px' }}>Allocated Parking</span>
-                <span style={{ fontSize: '15px', fontWeight: '600', color: theme.textMain }}>
-                  {user?.parkingSlot || 'Slot P-101'}
+                <span style={{ fontSize: '15px', fontWeight: '600', color: user?.parkingSlot ? theme.textMain : theme.textSec }}>
+                  {user?.parkingSlot || 'Not Allocated'}
                 </span>
               </div>
               <div style={{ background: 'white', padding: '14px', borderRadius: '14px', border: `1px solid #EAE6DC` }}>
                 <span style={{ fontSize: '11px', color: theme.textSec, display: 'block', marginBottom: '4px' }}>Registered Vehicle</span>
-                <span style={{ fontSize: '15px', fontWeight: '600', color: theme.textMain }}>
-                  {user?.vehicleNumber || 'MH-12-AB-1234'}
+                <span style={{ fontSize: '15px', fontWeight: '600', color: user?.vehicleNumber ? theme.textMain : theme.textSec }}>
+                  {user?.vehicleNumber || 'Not Registered'}
                 </span>
               </div>
             </div>

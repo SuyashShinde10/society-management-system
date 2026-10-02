@@ -109,11 +109,11 @@ const Profile = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div>
                   <label className="mono-label">PARKING_SLOT</label>
-                  <input type="text" name="parkingSlot" value={formData.parkingSlot} onChange={handleChange} className="organic-input" style={{ width: '100%', padding: '12px' }} />
+                  <input type="text" name="parkingSlot" placeholder="e.g. Slot P-101" value={formData.parkingSlot} onChange={handleChange} className="organic-input" style={{ width: '100%', padding: '12px' }} />
                 </div>
                 <div>
                   <label className="mono-label">VEHICLE_NUMBER</label>
-                  <input type="text" name="vehicleNumber" value={formData.vehicleNumber} onChange={handleChange} className="organic-input" style={{ width: '100%', padding: '12px' }} />
+                  <input type="text" name="vehicleNumber" placeholder="e.g. MH-12-AB-1234" value={formData.vehicleNumber} onChange={handleChange} className="organic-input" style={{ width: '100%', padding: '12px', textTransform: 'uppercase' }} />
                 </div>
               </div>
             )}

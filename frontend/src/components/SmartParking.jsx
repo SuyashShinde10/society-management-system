@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import api from '../api';
 import theme from '../theme';
 import { toast } from 'sonner';
 import { Car, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
+import AuthContext from '../context/AuthContext';
 
 const SmartParking = () => {
+  const { user } = useContext(AuthContext);
   const [spaces, setSpaces] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Enforcement state
   const [lat, setLat] = useState('12.9005');
   const [lng, setLng] = useState('77.5005');
-  const [plate, setPlate] = useState('MH-12-CD-5678');
+  const [plate, setPlate] = useState(user?.vehicleNumber || '');
   const [enforceResult, setEnforceResult] = useState(null);
 
   useEffect(() => {
@@ -100,7 +102,8 @@ const SmartParking = () => {
               <input 
                 type="text" 
                 value={plate} 
-                onChange={(e) => setPlate(e.target.value)} 
+                onChange={(e) => setPlate(e.target.value.toUpperCase())} 
+                placeholder="e.g. MH-12-AB-1234"
                 required 
                 style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1px solid ${theme.border}`, background: '#F9F8F3', outline: 'none', fontFamily: "'Outfit', sans-serif" }} 
               />
