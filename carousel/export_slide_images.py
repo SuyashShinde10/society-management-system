@@ -54,20 +54,31 @@ for i in range(1, TOTAL_SLIDES + 1):
           .coming-next-content { padding-top: 10px !important; }
           .monitor-doodle-left { width: 65px !important; height: 65px !important; top: 0px !important; left: 20px !important; }
           .monitor-doodle-right { width: 65px !important; height: 65px !important; top: 0px !important; right: 20px !important; }
-          .dashboards-grid { gap: 20px !important; max-width: 920px !important; margin-bottom: 24px !important; }
-          .dash-card { border-radius: 18px !important; padding: 16px 18px !important; gap: 10px !important; }
-          .dash-card-title { font-size: 17px !important; }
-          .dash-badge { font-size: 11px !important; padding: 3px 8px !important; }
-          .dash-mockup-mini { height: 115px !important; border-radius: 10px !important; padding: 8px 10px !important; gap: 8px !important; }
-          .mini-sidebar { width: 26px !important; gap: 4px !important; padding: 6px 3px !important; }
-          .mini-bar { height: 3px !important; }
-          .mini-kpi-label { height: 3px !important; }
-          .mini-kpi-val { height: 6px !important; }
-          .mini-row { height: 4px !important; }
-          .dash-desc { font-size: 13.5px !important; line-height: 1.35 !important; }
-          .bottom-teaser-box { max-width: 920px !important; margin-top: 10px !important; }
-          .teaser-stamp { font-size: 14px !important; padding: 8px 18px !important; }
-          .stay-tuned-text { font-size: 26px !important; }
+          .dashboards-grid-2col { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 24px !important; width: 100% !important; max-width: 960px !important; margin-bottom: 24px !important; }
+          .dash-card-lg { border-radius: 20px !important; padding: 22px 24px !important; gap: 14px !important; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04) !important; }
+          .dash-card-highlight { border-color: var(--accent) !important; border-width: 2px !important; background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF9 100%) !important; box-shadow: 0 16px 36px rgba(217, 115, 78, 0.12) !important; }
+          .dash-card-title { font-size: 20px !important; }
+          .dash-badge { font-size: 12px !important; padding: 4px 10px !important; border-radius: 12px !important; }
+          .dash-badge-accent { background: #FDF0EB !important; color: var(--accent) !important; }
+          .dash-mockup-rich { height: 180px !important; border-radius: 12px !important; padding: 12px 14px !important; gap: 12px !important; }
+          .rich-sidebar { width: 36px !important; border-radius: 8px !important; gap: 6px !important; padding: 8px 4px !important; }
+          .rich-sidebar-dot { width: 8px !important; height: 8px !important; }
+          .rich-sidebar-bar { width: 20px !important; height: 4px !important; border-radius: 2px !important; }
+          .rich-main { gap: 10px !important; }
+          .rich-topbar { padding: 6px 10px !important; border-radius: 8px !important; font-size: 12px !important; }
+          .rich-avatar { width: 14px !important; height: 14px !important; }
+          .rich-kpis { gap: 8px !important; }
+          .rich-kpi { padding: 8px 10px !important; border-radius: 8px !important; gap: 4px !important; }
+          .rich-kpi-label { height: 4px !important; border-radius: 2px !important; }
+          .rich-kpi-val { height: 8px !important; border-radius: 2px !important; }
+          .rich-list { padding: 8px 10px !important; border-radius: 8px !important; gap: 6px !important; }
+          .rich-list-row { height: 6px !important; border-radius: 3px !important; }
+          .feature-bullets { gap: 8px !important; }
+          .feature-bullet-item { font-size: 13.5px !important; gap: 8px !important; line-height: 1.35 !important; }
+          .bullet-icon { font-size: 15px !important; }
+          .bottom-teaser-box { max-width: 960px !important; margin-top: 8px !important; }
+          .teaser-stamp { font-size: 14.5px !important; padding: 8px 20px !important; border-radius: 24px !important; }
+          .stay-tuned-text { font-size: 28px !important; }
         </style></head>"""
     )
     
