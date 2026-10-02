@@ -26,7 +26,7 @@ import {
   Bot,
   ExternalLink
 } from 'lucide-react';
-import { StatsCardsSkeleton } from './ui/DashboardSkeleton';
+import { OverviewSkeleton } from './ui/DashboardSkeleton';
 
 const DashboardOverview = ({ onNavigate }) => {
   const { user } = useContext(AuthContext);
@@ -122,15 +122,7 @@ const DashboardOverview = ({ onNavigate }) => {
   }, [user]);
 
   if (loading) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 10px' }}>
-          <div style={{ background: '#EAE6DC', width: '44px', height: '44px', borderRadius: '12px' }} />
-          <div style={{ background: '#EAE6DC', width: '240px', height: '28px', borderRadius: '6px' }} />
-        </div>
-        <StatsCardsSkeleton count={user?.role === 'admin' ? 6 : 4} />
-      </div>
-    );
+    return <OverviewSkeleton isAdmin={user?.role === 'admin'} />;
   }
 
   const cardVariants = {

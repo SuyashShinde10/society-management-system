@@ -209,4 +209,241 @@ export const DashboardPageSkeleton = () => (
   </SocietySkeletonTheme>
 );
 
+/**
+ * Overview Page Skeleton mirroring the complete DashboardOverview component
+ */
+export const OverviewSkeleton = ({ isAdmin = false }) => (
+  <SocietySkeletonTheme>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '100%' }}>
+      {/* 1. Welcome Banner Skeleton */}
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #FAF8F5 100%)',
+          borderRadius: '24px',
+          border: '1px solid #EAE6DC',
+          padding: '24px 30px',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '20px'
+        }}
+      >
+        <div style={{ flex: 1, minWidth: '260px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <Skeleton width={110} height={16} borderRadius={6} />
+            <Skeleton width={130} height={16} borderRadius={6} />
+          </div>
+          <Skeleton width={220} height={36} borderRadius={8} style={{ marginBottom: '8px' }} />
+          <Skeleton width="65%" height={16} borderRadius={6} />
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          <Skeleton width={150} height={42} borderRadius={14} />
+          <Skeleton width={130} height={42} borderRadius={14} />
+        </div>
+      </div>
+
+      {/* 2. Metrics Row Skeleton */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '16px' }}>
+        {Array.from({ length: isAdmin ? 6 : 4 }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              background: 'white',
+              borderRadius: '20px',
+              padding: '20px',
+              border: '1px solid #EAE6DC',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Skeleton width={100} height={16} borderRadius={6} />
+              <Skeleton width={34} height={34} borderRadius={10} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+              <Skeleton width={55} height={38} borderRadius={8} />
+              <Skeleton width={70} height={16} borderRadius={6} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 3. Quick Actions Hub Skeleton */}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '0 4px' }}>
+          <Skeleton width={180} height={24} borderRadius={6} />
+          <Skeleton width={110} height={14} borderRadius={4} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                background: 'white',
+                borderRadius: '18px',
+                padding: '18px',
+                border: '1px solid #EAE6DC',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
+              }}
+            >
+              <Skeleton width={40} height={40} borderRadius={12} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <Skeleton width={90} height={16} borderRadius={6} />
+                <Skeleton width={130} height={12} borderRadius={4} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 4. Two-Column Dashboard Feeds Skeleton */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px' }}>
+        
+        {/* Left Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          
+          {/* Notices Card Skeleton */}
+          <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #EAE6DC', padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '12px', borderBottom: '1px solid #F1F5F9' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Skeleton width={32} height={32} borderRadius={10} />
+                <Skeleton width={180} height={22} borderRadius={6} />
+              </div>
+              <Skeleton width={60} height={16} borderRadius={4} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <div key={idx} style={{ padding: '14px 16px', borderRadius: '14px', background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Skeleton width={80} height={16} borderRadius={6} />
+                    <Skeleton width={50} height={12} borderRadius={4} />
+                  </div>
+                  <Skeleton width="85%" height={16} borderRadius={6} />
+                  <Skeleton width="60%" height={12} borderRadius={4} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Gate Parcels Card Skeleton */}
+          <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #EAE6DC', padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '12px', borderBottom: '1px solid #F1F5F9' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Skeleton width={32} height={32} borderRadius={10} />
+                <Skeleton width={180} height={22} borderRadius={6} />
+              </div>
+              <Skeleton width={60} height={16} borderRadius={4} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {Array.from({ length: 2 }).map((_, idx) => (
+                <div key={idx} style={{ padding: '14px 16px', borderRadius: '14px', background: '#FFFDF5', border: '1px solid #FEF3C7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <Skeleton width={120} height={16} borderRadius={6} />
+                    <Skeleton width={90} height={12} borderRadius={4} />
+                  </div>
+                  <Skeleton width={65} height={24} borderRadius={20} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Complaints Card Skeleton */}
+          <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #EAE6DC', padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '12px', borderBottom: '1px solid #F1F5F9' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Skeleton width={32} height={32} borderRadius={10} />
+                <Skeleton width={180} height={22} borderRadius={6} />
+              </div>
+              <Skeleton width={70} height={16} borderRadius={4} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {Array.from({ length: 2 }).map((_, idx) => (
+                <div key={idx} style={{ padding: '14px 16px', borderRadius: '14px', background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <Skeleton width={140} height={16} borderRadius={6} />
+                    <Skeleton width={100} height={12} borderRadius={4} />
+                  </div>
+                  <Skeleton width={70} height={24} borderRadius={20} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Right Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          
+          {/* Unit Profile Skeleton */}
+          <div style={{ background: '#FAF8F5', borderRadius: '24px', border: '1px solid #EAE6DC', padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <Skeleton width={140} height={16} borderRadius={6} />
+              <Skeleton width={80} height={14} borderRadius={4} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <div key={idx} style={{ background: 'white', padding: '14px', borderRadius: '14px', border: '1px solid #EAE6DC', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <Skeleton width={70} height={12} borderRadius={4} />
+                  <Skeleton width={110} height={16} borderRadius={6} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Financial Ledger Preview Skeleton */}
+          <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #EAE6DC', padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Skeleton width={28} height={28} borderRadius={8} />
+                <Skeleton width={160} height={20} borderRadius={6} />
+              </div>
+              <Skeleton width={70} height={20} borderRadius={6} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '12px 0', borderBottom: '1px dashed #E2E8F0' }}>
+              <Skeleton width={140} height={14} borderRadius={4} />
+              <Skeleton width={90} height={24} borderRadius={6} />
+            </div>
+            <Skeleton count={2} height={13} borderRadius={4} />
+            <Skeleton width="100%" height={42} borderRadius={12} />
+          </div>
+
+          {/* Hotlines Skeleton */}
+          <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #EAE6DC', padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <Skeleton width={28} height={28} borderRadius={8} />
+              <Skeleton width={180} height={20} borderRadius={6} />
+            </div>
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: '12px', background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <Skeleton width={140} height={14} borderRadius={4} />
+                  <Skeleton width={90} height={10} borderRadius={4} />
+                </div>
+                <Skeleton width={55} height={22} borderRadius={8} />
+              </div>
+            ))}
+          </div>
+
+          {/* AI Banner Skeleton */}
+          <div style={{ background: '#4338CA', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)' }} />
+              <Skeleton width={130} height={14} borderRadius={4} baseColor="rgba(255,255,255,0.2)" highlightColor="rgba(255,255,255,0.3)" />
+            </div>
+            <Skeleton width="85%" height={24} borderRadius={6} baseColor="rgba(255,255,255,0.2)" highlightColor="rgba(255,255,255,0.3)" />
+            <Skeleton count={2} height={13} borderRadius={4} baseColor="rgba(255,255,255,0.15)" highlightColor="rgba(255,255,255,0.25)" />
+            <Skeleton width={140} height={38} borderRadius={12} baseColor="white" highlightColor="#F8FAFC" />
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </SocietySkeletonTheme>
+);
+
 export default DashboardPageSkeleton;
