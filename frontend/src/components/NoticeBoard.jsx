@@ -7,6 +7,7 @@ import theme from '../theme';
 import { Bell } from 'lucide-react';
 import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
+import { CardsGridSkeleton } from './ui/DashboardSkeleton';
 
 const NoticeBoard = () => {
   const { user } = useContext(AuthContext);
@@ -182,9 +183,7 @@ const NoticeBoard = () => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '60vh', overflowY: 'auto', paddingRight: '10px' }}>
           {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
-              <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
-            </div>
+            <CardsGridSkeleton count={4} />
           ) : paginatedNotices.length === 0 ? (
             <EmptyState
               icon={Bell}

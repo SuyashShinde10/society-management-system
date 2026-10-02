@@ -10,6 +10,7 @@ import getErrorMessage from '../utils/errorHandler';
 import { ReceiptText } from 'lucide-react';
 import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
+import { TableSkeleton } from './ui/DashboardSkeleton';
 
 // Decomposed Subcomponents
 import BillCard from './bills/BillCard';
@@ -241,9 +242,7 @@ const MaintenanceBills = () => {
 
       {/* Loading Skeleton */}
       {isLoading && (
-        <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>
-          Loading maintenance bills...
-        </div>
+        <TableSkeleton rows={5} cols={5} />
       )}
 
       {/* Empty State */}

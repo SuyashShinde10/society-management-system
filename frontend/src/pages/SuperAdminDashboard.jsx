@@ -7,6 +7,7 @@ import { Server, Trash2, Power, Send, AlertCircle, X, Download, UserCircle, Shie
 import { toast } from 'sonner';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DashboardPageSkeleton } from '../components/ui/DashboardSkeleton';
 
 const SuperAdminDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -140,7 +141,7 @@ const SuperAdminDashboard = () => {
   };
 
   if (loading) {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: theme.bg, fontFamily: "'Outfit', sans-serif" }}>INITIALIZING SYSTEM...</div>;
+    return <DashboardPageSkeleton />;
   }
 
   const inputStyle = { width: '100%', padding: '12px 16px', border: `1px solid ${theme.border}`, borderRadius: '8px', fontSize: '15px', fontFamily: "'Outfit', sans-serif", outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' };

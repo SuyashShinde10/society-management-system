@@ -7,6 +7,7 @@ import theme from '../theme';
 import { AlertCircle } from 'lucide-react';
 import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
+import { CardsGridSkeleton } from './ui/DashboardSkeleton';
 
 const ComplaintBox = () => {
   const { user } = useContext(AuthContext);
@@ -199,9 +200,7 @@ const ComplaintBox = () => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh', paddingRight: '10px' }}>
           {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
-              <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '30px', height: '30px', objectFit: 'contain' }} />
-            </div>
+            <CardsGridSkeleton count={4} />
           ) : filteredComplaints.length === 0 ? (
             <EmptyState
               icon={AlertCircle}

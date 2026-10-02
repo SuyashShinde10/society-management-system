@@ -6,6 +6,7 @@ import api from '../api';
 import theme from '../theme';
 import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
+import { TableSkeleton } from './ui/DashboardSkeleton';
 
 const VisitorLogs = () => {
   const { data: visitors = [], isLoading: loading, isError, error, refetch } = useQuery({
@@ -50,7 +51,7 @@ const VisitorLogs = () => {
       </div>
 
       {loading ? (
-        <p style={{ textAlign: 'center', color: '#64748B' }}>Loading visitor logs...</p>
+        <TableSkeleton rows={5} cols={5} />
       ) : isError ? (
         <ComponentError title="Failed to load visitor logs" error={error?.message || 'Failed to fetch logs'} onRetry={() => refetch()} />
       ) : visitors.length === 0 ? (

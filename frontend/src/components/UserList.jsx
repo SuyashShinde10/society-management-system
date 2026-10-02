@@ -6,6 +6,7 @@ import theme from '../theme';
 import { Users, Search, Edit2, Trash2 } from 'lucide-react';
 import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
+import { CardsGridSkeleton } from './ui/DashboardSkeleton';
 
 const UserList = ({ refreshTrigger }) => {
   const { user } = useContext(AuthContext);
@@ -126,9 +127,7 @@ const UserList = ({ refreshTrigger }) => {
       </div>
 
       {isLoading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '60px', background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}` }}>
-          <img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
-        </div>
+        <CardsGridSkeleton count={6} />
       ) : fetchError ? (
         <ComponentError title="Failed to load resident registry" error={fetchError} onRetry={fetchUsers} />
       ) : displayedUsers.length === 0 ? (

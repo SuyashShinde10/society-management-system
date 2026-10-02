@@ -9,6 +9,7 @@ import {
   LineChart, Line, Legend, AreaChart, Area,
   PieChart, Pie, Cell
 } from 'recharts';
+import { StatsCardsSkeleton, ChartSkeleton } from './ui/DashboardSkeleton';
 
 const Analytics = () => {
   const { user } = useContext(AuthContext);
@@ -42,27 +43,13 @@ const Analytics = () => {
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'pulse 1.5s infinite ease-in-out' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 10px' }}>
-          <div style={{ background: '#E5E7EB', width: '44px', height: '44px', borderRadius: '12px' }}></div>
-          <div style={{ background: '#E5E7EB', width: '200px', height: '32px', borderRadius: '8px' }}></div>
+          <div style={{ background: '#EAE6DC', width: '44px', height: '44px', borderRadius: '12px' }} />
+          <div style={{ background: '#EAE6DC', width: '220px', height: '28px', borderRadius: '6px' }} />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-          {[1,2,3].map(i => (
-            <div key={i} style={{ border: `1px solid ${theme.border}`, padding: '24px', borderRadius: '20px', background: 'white', height: '100px' }}>
-               <div style={{ background: '#E5E7EB', width: '100px', height: '16px', borderRadius: '4px', marginBottom: '10px' }}></div>
-               <div style={{ background: '#E5E7EB', width: '60px', height: '32px', borderRadius: '8px' }}></div>
-            </div>
-          ))}
-        </div>
-        <div style={{ background: '#E5E7EB', height: '300px', borderRadius: '20px', width: '100%' }}></div>
-        <style>{`
-          @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-          }
-        `}</style>
+        <StatsCardsSkeleton count={3} />
+        <ChartSkeleton />
       </div>
     );
   }

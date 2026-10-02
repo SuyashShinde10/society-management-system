@@ -13,6 +13,7 @@ import ParcelGateLocker from '../components/gate/ParcelGateLocker';
 import StaffDirectory from '../components/gate/StaffDirectory';
 import GuestPassManager from '../components/gate/GuestPassManager';
 import GuardIntercom from '../components/gate/GuardIntercom';
+import { TableSkeleton, DashboardPageSkeleton } from '../components/ui/DashboardSkeleton';
 
 const SecurityDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -20,6 +21,10 @@ const SecurityDashboard = () => {
   const [activeSection, setActiveSection] = useState('visitors');
   const [visitors, setVisitors] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  if (!user) {
+    return <DashboardPageSkeleton />;
+  }
 
   
   // New Visitor Form State
@@ -339,7 +344,7 @@ const SecurityDashboard = () => {
           </h3>
           
           {loading ? (
-            <p style={{ textAlign: 'center', color: '#64748B' }}>Loading entries...</p>
+            <TableSkeleton rows={4} cols={4} />
           ) : visitors.length === 0 ? (
             <p style={{ textAlign: 'center', color: '#64748B', padding: '20px' }}>No visitors recorded today.</p>
           ) : (

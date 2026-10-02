@@ -7,12 +7,13 @@ import sys
 sys.stdout.reconfigure(encoding='utf-8')
 
 CAROUSEL_DIR = r"d:\Projects\society-management-system\carousel"
+ASSETS_DIR = os.path.join(CAROUSEL_DIR, "assets")
 ROOT_DIR = r"d:\Projects\society-management-system"
 HTML_PATH = os.path.join(CAROUSEL_DIR, "index.html")
 CHROME = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
 
-def generate_pdf():
-    print("Generating 26-slide LinkedIn Carousel PDF via Headless Chrome...")
+def render_pdf_via_chrome():
+    print("Rendering 26-slide LinkedIn Carousel PDF via Headless Chrome...")
     pdf_out_carousel = os.path.join(CAROUSEL_DIR, "Awaastech-LinkedIn-Carousel.pdf")
     pdf_out_root = os.path.join(ROOT_DIR, "Awaastech-LinkedIn-Carousel.pdf")
     
@@ -34,16 +35,17 @@ def generate_pdf():
         print("Chrome error:", res.stderr)
         raise RuntimeError("Chrome failed to export PDF")
     
+    # Copy to root as well
     with open(pdf_out_carousel, "rb") as fsrc:
         data = fsrc.read()
     with open(pdf_out_root, "wb") as fdst:
         fdst.write(data)
     
     reader = pypdf.PdfReader(pdf_out_carousel)
-    print(f"Generated Carousel PDF successfully with {len(reader.pages)} slides!")
-    print(f"Slide 1 size: {reader.pages[0].mediabox}")
+    print(f"Successfully generated Carousel PDF with {len(reader.pages)} pages!")
+    print(f"Page 1 size: {reader.pages[0].mediabox}")
     print(f"Saved to: {pdf_out_carousel}")
     print(f"Saved to: {pdf_out_root}")
 
 if __name__ == "__main__":
-    generate_pdf()
+    render_pdf_via_chrome()

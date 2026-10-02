@@ -4,6 +4,7 @@ import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { motion } from 'framer-motion';
 import { Bell, AlertCircle, Users, UserMinus, Receipt, Wallet, Activity } from 'lucide-react';
+import { StatsCardsSkeleton } from './ui/DashboardSkeleton';
 
 const DashboardOverview = ({ onNavigate }) => {
   const { user } = useContext(AuthContext);
@@ -61,9 +62,12 @@ const DashboardOverview = ({ onNavigate }) => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px', fontFamily: "'Outfit', sans-serif", background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, gap: '20px' }}>
-        <img src="/awaastech-logo.png" alt="Loading Logo" className="organic-pulse" style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
-        <span style={{ color: theme.textSec, fontWeight: '500' }}>Loading Metrics...</span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 10px' }}>
+          <div style={{ background: '#EAE6DC', width: '44px', height: '44px', borderRadius: '12px' }} />
+          <div style={{ background: '#EAE6DC', width: '200px', height: '28px', borderRadius: '6px' }} />
+        </div>
+        <StatsCardsSkeleton count={user?.role === 'admin' ? 6 : 4} />
       </div>
     );
   }

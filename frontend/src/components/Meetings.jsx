@@ -6,6 +6,7 @@ import theme from '../theme';
 import { Calendar } from 'lucide-react';
 import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
+import { CardsGridSkeleton } from './ui/DashboardSkeleton';
 
 const Meetings = () => {
   const { user } = useContext(AuthContext);
@@ -155,7 +156,7 @@ const Meetings = () => {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', maxHeight: '60vh', overflowY: 'auto', paddingRight: '10px', paddingBottom: '20px' }}>
           {isLoading ? (
-            <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'center', padding: '40px', background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}><img src="/awaastech-logo.png" alt="Loading" className="organic-pulse" style={{ width: '40px', height: '40px', objectFit: 'contain' }} /></div>
+            <div style={{ gridColumn: '1 / -1' }}><CardsGridSkeleton count={4} /></div>
           ) : fetchError ? (
             <div style={{ gridColumn: '1 / -1' }}>
               <ComponentError title="Failed to load meetings" error={fetchError} onRetry={fetchMeetings} />

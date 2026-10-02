@@ -30,6 +30,7 @@ import WhatsAppSimulator from '../components/omnichannel/WhatsAppSimulator';
 // Shared UI Atoms
 import AnimatedText from '../components/ui/AnimatedText';
 import BackgroundBlobs from '../components/ui/BackgroundBlobs';
+import { DashboardPageSkeleton } from '../components/ui/DashboardSkeleton';
 
 const MemberDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -39,11 +40,7 @@ const MemberDashboard = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   if (!user) {
-    return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Outfit', sans-serif", backgroundColor: theme.bg }}>
-        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: '40px', height: '40px', border: `3px solid ${theme.border}`, borderTopColor: theme.accent, borderRadius: '50%' }} />
-      </div>
-    );
+    return <DashboardPageSkeleton />;
   }
 
   const navItems = [

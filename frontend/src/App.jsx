@@ -34,23 +34,8 @@ import RoleRoute from './components/RoleRoute';
 
 // Error Boundary
 import ErrorBoundary from './ErrorBoundary';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-
-const PageSkeleton = () => (
-  <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#F9F8F3', padding: '20px' }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-      <Skeleton width={150} height={40} />
-      <Skeleton width={200} height={40} />
-    </div>
-    <Skeleton height={200} style={{ marginBottom: '20px' }} />
-    <div style={{ display: 'flex', gap: '20px' }}>
-      <Skeleton height={300} style={{ flex: 1 }} />
-      <Skeleton height={300} style={{ flex: 1 }} />
-      <Skeleton height={300} style={{ flex: 1 }} />
-    </div>
-  </div>
-);
+import LandingPageLoader from './components/loading-ui/LandingPageLoader';
+import { DashboardPageSkeleton } from './components/ui/DashboardSkeleton';
 
 const App = () => {
   return (
@@ -59,79 +44,121 @@ const App = () => {
         <Router>
         <Toaster position="top-right" richColors closeButton />
         <ErrorBoundary>
-          <React.Suspense fallback={<PageSkeleton />}>
-            <Routes>
-              {/* Public */}
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-              <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-              <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
-              <Route path="/vendor/quote/:projectId" element={<VendorQuoteSubmit />} />
+          <Routes>
+            {/* Public Landing Page with PulsatingDots loader (skeleton removed) */}
+            <Route
+              path="/"
+              element={
+                <React.Suspense fallback={<LandingPageLoader />}>
+                  <Home />
+                </React.Suspense>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <React.Suspense fallback={<LandingPageLoader />}>
+                  <PublicRoute><Login /></PublicRoute>
+                </React.Suspense>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <React.Suspense fallback={<LandingPageLoader />}>
+                  <PublicRoute><Register /></PublicRoute>
+                </React.Suspense>
+              }
+            />
+            <Route
+              path="/forgot-password"
+              element={
+                <React.Suspense fallback={<LandingPageLoader />}>
+                  <PublicRoute><ForgotPassword /></PublicRoute>
+                </React.Suspense>
+              }
+            />
+            <Route
+              path="/vendor/quote/:projectId"
+              element={
+                <React.Suspense fallback={<LandingPageLoader />}>
+                  <VendorQuoteSubmit />
+                </React.Suspense>
+              }
+            />
 
-              {/* Protected: standalone profile for security/superadmin */}
-              <Route path="/profile" element={
-                <PrivateRoute>
+            {/* Protected: standalone profile for security/superadmin */}
+            <Route path="/profile" element={
+              <PrivateRoute>
+                <React.Suspense fallback={<DashboardPageSkeleton />}>
                   <div style={{ backgroundColor: '#F9F8F3', minHeight: '100vh', padding: '40px 20px', display: 'flex', flexDirection: 'column' }}>
                     <Profile />
                   </div>
-                </PrivateRoute>
-              } />
+                </React.Suspense>
+              </PrivateRoute>
+            } />
 
-              {/* Admin dashboard */}
-              <Route
-                path="/dashboard"
-                element={
-                  <PrivateRoute>
-                    <RoleRoute role="admin">
+            {/* Admin dashboard with matching UI skeleton */}
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <RoleRoute role="admin">
+                    <React.Suspense fallback={<DashboardPageSkeleton />}>
                       <AdminDashboard />
-                    </RoleRoute>
-                  </PrivateRoute>
-                }
-              />
-              <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+                    </React.Suspense>
+                  </RoleRoute>
+                </PrivateRoute>
+              }
+            />
+            <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
 
-              {/* Member dashboard */}
-              <Route
-                path="/resident"
-                element={
-                  <PrivateRoute>
-                    <RoleRoute role="member">
+            {/* Member dashboard with matching UI skeleton */}
+            <Route
+              path="/resident"
+              element={
+                <PrivateRoute>
+                  <RoleRoute role="member">
+                    <React.Suspense fallback={<DashboardPageSkeleton />}>
                       <MemberDashboard />
-                    </RoleRoute>
-                  </PrivateRoute>
-                }
-              />
-              <Route path="/member" element={<Navigate to="/resident" replace />} />
+                    </React.Suspense>
+                  </RoleRoute>
+                </PrivateRoute>
+              }
+            />
+            <Route path="/member" element={<Navigate to="/resident" replace />} />
 
-
-              {/* Superadmin dashboard */}
-              <Route
-                path="/superadmin"
-                element={
-                  <PrivateRoute>
-                    <RoleRoute role="superadmin">
+            {/* Superadmin dashboard with matching UI skeleton */}
+            <Route
+              path="/superadmin"
+              element={
+                <PrivateRoute>
+                  <RoleRoute role="superadmin">
+                    <React.Suspense fallback={<DashboardPageSkeleton />}>
                       <SuperAdminDashboard />
-                    </RoleRoute>
-                  </PrivateRoute>
-                }
-              />
+                    </React.Suspense>
+                  </RoleRoute>
+                </PrivateRoute>
+              }
+            />
 
-              {/* Security dashboard */}
-              <Route
-                path="/security"
-                element={
-                  <PrivateRoute>
-                    <RoleRoute role="security">
+            {/* Security dashboard with matching UI skeleton */}
+            <Route
+              path="/security"
+              element={
+                <PrivateRoute>
+                  <RoleRoute role="security">
+                    <React.Suspense fallback={<DashboardPageSkeleton />}>
                       <SecurityDashboard />
-                    </RoleRoute>
-                  </PrivateRoute>
-                }
-              />
+                    </React.Suspense>
+                  </RoleRoute>
+                </PrivateRoute>
+              }
+            />
 
-              {/* 404 — shows a proper error page instead of silently redirecting */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </React.Suspense>
+            {/* 404 — shows a proper error page instead of silently redirecting */}
+            <Route path="*" element={<React.Suspense fallback={<LandingPageLoader />}><NotFound /></React.Suspense>} />
+          </Routes>
         </ErrorBoundary>
       </Router>
     </AuthProvider>
