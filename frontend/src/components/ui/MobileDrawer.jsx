@@ -82,12 +82,15 @@ const MobileDrawer = ({
               {hubs && hubs.length > 0 ? (
                 hubs.map((hub) => (
                   <div key={hub.category} className="space-y-1">
-                    <div className="flex items-center justify-between px-2 pb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                        {hub.category}
-                      </span>
+                    <div className="flex items-center justify-between px-2.5 py-1.5 mb-1 rounded-lg bg-[#FAF8F5] border border-[#EFECE5]">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-2 h-2 rounded-full bg-[#D9734E] shrink-0"></span>
+                        <span className="text-[12px] font-bold tracking-wide text-slate-800 uppercase">
+                          {hub.category}
+                        </span>
+                      </div>
                       {hub.tag && (
-                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600 shadow-2xs shrink-0">
                           {hub.tag}
                         </span>
                       )}

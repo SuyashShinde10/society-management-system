@@ -61,48 +61,93 @@ const VisitorLogs = () => {
           description="There are currently no visitor check-ins recorded at the gate."
         />
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
-            <thead>
-              <tr style={{ borderBottom: `2px solid ${theme.border}` }}>
-                <th style={{ padding: '16px', color: theme.textSec, fontWeight: '600', fontSize: '13px', textTransform: 'uppercase' }}>Visitor</th>
-                <th style={{ padding: '16px', color: theme.textSec, fontWeight: '600', fontSize: '13px', textTransform: 'uppercase' }}>Purpose</th>
-                <th style={{ padding: '16px', color: theme.textSec, fontWeight: '600', fontSize: '13px', textTransform: 'uppercase' }}>Destination</th>
-                <th style={{ padding: '16px', color: theme.textSec, fontWeight: '600', fontSize: '13px', textTransform: 'uppercase' }}>Time In/Out</th>
-                <th style={{ padding: '16px', color: theme.textSec, fontWeight: '600', fontSize: '13px', textTransform: 'uppercase' }}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visitors.map((visitor) => (
-                <tr key={visitor._id} style={{ borderBottom: `1px solid ${theme.border}` }}>
-                  <td style={{ padding: '16px' }}>
-                    <div style={{ fontWeight: '500', color: theme.textMain }}>{visitor.name}</div>
-                    <div style={{ fontSize: '13px', color: theme.textSec }}>{visitor.phone}</div>
-                  </td>
-                  <td style={{ padding: '16px', color: theme.textMain }}>{visitor.purpose}</td>
-                  <td style={{ padding: '16px', color: theme.textMain }}>
-                    Flat {visitor.wing}-{visitor.flatNumber}
-                  </td>
-                  <td style={{ padding: '16px', fontSize: '13px', color: theme.textSec }}>
-                    <div>In: {new Date(visitor.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                    {visitor.checkOutTime && (
-                      <div>Out: {new Date(visitor.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                    )}
-                  </td>
-                  <td style={{ padding: '16px' }}>
-                    <span style={{ 
-                      padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
-                      background: visitor.status === 'Inside' ? '#FEF2F2' : '#F0FDF4',
-                      color: visitor.status === 'Inside' ? '#EF4444' : '#16A34A'
-                    }}>
-                      {visitor.status === 'Inside' ? 'INSIDE' : 'CHECKED OUT'}
-                    </span>
-                  </td>
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block" style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid ${theme.border}` }}>
+                  <th style={{ padding: '16px', color: theme.textSec, fontWeight: '600', fontSize: '13px', textTransform: 'uppercase' }}>Visitor</th>
+                  <th style={{ padding: '16px', color: theme.textSec, fontWeight: '600', fontSize: '13px', textTransform: 'uppercase' }}>Purpose</th>
+                  <th style={{ padding: '16px', color: theme.textSec, fontWeight: '600', fontSize: '13px', textTransform: 'uppercase' }}>Destination</th>
+                  <th style={{ padding: '16px', color: theme.textSec, fontWeight: '600', fontSize: '13px', textTransform: 'uppercase' }}>Time In/Out</th>
+                  <th style={{ padding: '16px', color: theme.textSec, fontWeight: '600', fontSize: '13px', textTransform: 'uppercase' }}>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {visitors.map((visitor) => (
+                  <tr key={visitor._id} style={{ borderBottom: `1px solid ${theme.border}` }}>
+                    <td style={{ padding: '16px' }}>
+                      <div style={{ fontWeight: '500', color: theme.textMain }}>{visitor.name}</div>
+                      <div style={{ fontSize: '13px', color: theme.textSec }}>{visitor.phone}</div>
+                    </td>
+                    <td style={{ padding: '16px', color: theme.textMain }}>{visitor.purpose}</td>
+                    <td style={{ padding: '16px', color: theme.textMain }}>
+                      Flat {visitor.wing}-{visitor.flatNumber}
+                    </td>
+                    <td style={{ padding: '16px', fontSize: '13px', color: theme.textSec }}>
+                      <div>In: {new Date(visitor.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                      {visitor.checkOutTime && (
+                        <div>Out: {new Date(visitor.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                      )}
+                    </td>
+                    <td style={{ padding: '16px' }}>
+                      <span style={{ 
+                        padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
+                        background: visitor.status === 'Inside' ? '#FEF2F2' : '#F0FDF4',
+                        color: visitor.status === 'Inside' ? '#EF4444' : '#16A34A'
+                      }}>
+                        {visitor.status === 'Inside' ? 'INSIDE' : 'CHECKED OUT'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card Stack View */}
+          <div className="md:hidden flex flex-col gap-3">
+            {visitors.map((visitor) => (
+              <div 
+                key={visitor._id}
+                className="bg-white border border-[#E8E4D9] rounded-2xl p-4 flex flex-col gap-2.5 shadow-2xs"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-slate-900 text-sm">{visitor.name}</div>
+                  <span style={{ 
+                    padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700',
+                    background: visitor.status === 'Inside' ? '#FEF2F2' : '#F0FDF4',
+                    color: visitor.status === 'Inside' ? '#EF4444' : '#16A34A'
+                  }}>
+                    {visitor.status === 'Inside' ? 'INSIDE' : 'CHECKED OUT'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs bg-[#FAF9F6] p-2.5 rounded-xl border border-slate-100">
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">Visiting Unit:</span>
+                    <span className="font-semibold text-slate-800">Wing {visitor.wing}-{visitor.flatNumber}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">Purpose:</span>
+                    <span className="font-semibold text-slate-800 truncate block">{visitor.purpose}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">Contact:</span>
+                    <a href={`tel:${visitor.phone}`} className="text-slate-800 hover:text-[#D9734E] font-medium">{visitor.phone}</a>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">Time In:</span>
+                    <span className="font-medium text-slate-700">
+                      {new Date(visitor.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

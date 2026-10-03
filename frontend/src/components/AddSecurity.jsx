@@ -4,6 +4,7 @@ import { Shield, ShieldCheck, Mail, Phone, Calendar, Clock, MapPin, Loader2, Key
 import api from '../api';
 import theme from '../theme';
 import AuthContext from '../context/AuthContext';
+import FormError from './ui/FormError';
 
 const AddSecurity = ({ onAdd }) => {
   const { user } = useContext(AuthContext);
@@ -15,6 +16,7 @@ const AddSecurity = ({ onAdd }) => {
   const [joinDate, setJoinDate] = useState(new Date().toISOString().split('T')[0]);
   const [shift, setShift] = useState('Day');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const [generatedCreds, setGeneratedCreds] = useState(null);
 
   // OTP State
@@ -35,10 +37,11 @@ const AddSecurity = ({ onAdd }) => {
   }, [timer]);
 
   const sendOTP = async () => {
-    if (!email) {
-      toast.error('Please enter an email address first.');
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setErrors((prev) => ({ ...prev, email: 'A valid email address is required to send verification code.' }));
       return;
     }
+    setErrors((prev) => ({ ...prev, email: null }));
     setLoading(true);
     try {
       await api.post('/auth/send-otp', { 
@@ -51,17 +54,20 @@ const AddSecurity = ({ onAdd }) => {
       setTimer(120);
       toast.success('OTP sent to the email!');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to send OTP.');
+      const msg = error.response?.data?.message || 'Failed to send OTP.';
+      setErrors((prev) => ({ ...prev, email: msg }));
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   const verifyOTP = async () => {
-    if (!otp) {
-      toast.error('Please enter the OTP.');
+    if (!otp || otp.trim().length < 4) {
+      setErrors((prev) => ({ ...prev, otp: 'Please enter the full OTP code.' }));
       return;
     }
+    setErrors((prev) => ({ ...prev, otp: null }));
     setLoading(true);
     try {
       await api.post('/auth/verify-otp', { email, otp });
@@ -69,7 +75,9 @@ const AddSecurity = ({ onAdd }) => {
       setTimer(0);
       toast.success('Email verified successfully!');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Invalid OTP.');
+      const msg = error.response?.data?.message || 'Invalid OTP.';
+      setErrors((prev) => ({ ...prev, otp: msg }));
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -77,16 +85,34 @@ const AddSecurity = ({ onAdd }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isVerified) {
-      toast.error('Please verify the email first.');
+    const newErrors = {};
+
+    if (!name.trim()) newErrors.name = 'Full name is required.';
+    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) newErrors.email = 'A valid email is required.';
+    if (!isVerified) newErrors.email = 'Please verify email before adding staff.';
+    if (!phone.trim() || !/^\d{10}$/.test(phone)) newErrors.phone = 'Phone number must be exactly 10 digits.';
+    if (!age || Number(age) < 18 || Number(age) > 75) newErrors.age = 'Age must be between 18 and 75.';
+    if (!address.trim()) newErrors.address = 'Permanent address is required.';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please review the highlighted fields.');
       return;
     }
+
+    setErrors({});
     setLoading(true);
     setGeneratedCreds(null);
 
     try {
       const response = await api.post('/auth/add-security-staff', {
-        name, email, phone, age, address, joinDate, shift
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        age: Number(age),
+        address: address.trim(),
+        joinDate,
+        shift
       });
       toast.success('Security Staff added successfully.');
       setGeneratedCreds({ email, password: response.data.generatedPassword });
@@ -96,6 +122,7 @@ const AddSecurity = ({ onAdd }) => {
       setName(''); setEmail(''); setPhone('');
       setAge(''); setAddress(''); setJoinDate(new Date().toISOString().split('T')[0]); setShift('Day');
       setIsVerified(false); setOtpSent(false); setOtp(''); setTimer(0);
+      setErrors({});
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to add security staff. Please try again.');
     } finally {
@@ -139,22 +166,34 @@ const AddSecurity = ({ onAdd }) => {
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Full Name</label>
-              <input type="text" placeholder="e.g. Ramesh Singh" value={name} onChange={(e) => setName(e.target.value)} required 
-                style={{ width: '100%', padding: '12px 16px', background: 'white', border: `1px solid ${theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Full Name *</label>
+              <input 
+                type="text" 
+                placeholder="e.g. Ramesh Singh" 
+                value={name} 
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (errors.name) setErrors(prev => ({ ...prev, name: null }));
+                }} 
+                required 
+                style={{ width: '100%', padding: '12px 16px', background: 'white', border: `1px solid ${errors.name ? '#E11D48' : theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
               />
+              <FormError error={errors.name} />
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Email Address</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Email Address *</label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <input 
                   type="email" 
                   placeholder="e.g. ramesh@example.com" 
                   value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (errors.email) setErrors(prev => ({ ...prev, email: null }));
+                  }} 
                   required 
                   disabled={otpSent || isVerified}
-                  style={{ flex: 1, padding: '12px 16px', background: 'white', border: `1px solid ${theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
+                  style={{ flex: 1, padding: '12px 16px', background: 'white', border: `1px solid ${errors.email ? '#E11D48' : theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
                 />
                 {!isVerified && (
                   <button
@@ -178,51 +217,85 @@ const AddSecurity = ({ onAdd }) => {
                   </div>
                 )}
               </div>
+              <FormError error={errors.email} />
               
               {otpSent && !isVerified && (
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                  <input 
-                    type="text" 
-                    placeholder="Enter OTP" 
-                    value={otp} 
-                    onChange={(e) => setOtp(e.target.value)} 
-                    style={{ flex: 1, padding: '12px 16px', background: 'white', border: `2px solid ${theme.accent}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
-                    maxLength={6}
-                  />
-                  <button
-                    type="button"
-                    onClick={verifyOTP}
-                    disabled={loading}
-                    style={{
-                      padding: '0 20px', borderRadius: '12px', backgroundColor: theme.accent, color: 'white',
-                      border: 'none', fontWeight: '600', fontFamily: "'Outfit', sans-serif", cursor: loading ? 'not-allowed' : 'pointer',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)', transition: 'transform 0.2s'
-                    }}
-                    onMouseOver={(e) => !loading ? e.target.style.transform = 'translateY(-2px)' : null}
-                    onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-                  >
-                    Confirm
-                  </button>
+                <div style={{ marginTop: '10px' }}>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <input 
+                      type="text" 
+                      placeholder="Enter OTP" 
+                      value={otp} 
+                      onChange={(e) => {
+                        setOtp(e.target.value);
+                        if (errors.otp) setErrors(prev => ({ ...prev, otp: null }));
+                      }} 
+                      style={{ flex: 1, padding: '12px 16px', background: 'white', border: `2px solid ${errors.otp ? '#E11D48' : theme.accent}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
+                      maxLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={verifyOTP}
+                      disabled={loading}
+                      style={{
+                        padding: '0 20px', borderRadius: '12px', backgroundColor: theme.accent, color: 'white',
+                        border: 'none', fontWeight: '600', fontFamily: "'Outfit', sans-serif", cursor: loading ? 'not-allowed' : 'pointer',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)', transition: 'transform 0.2s'
+                      }}
+                      onMouseOver={(e) => !loading ? e.target.style.transform = 'translateY(-2px)' : null}
+                      onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                    >
+                      Confirm
+                    </button>
+                  </div>
+                  <FormError error={errors.otp} />
                 </div>
               )}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Phone Number</label>
-              <input type="tel" placeholder="e.g. 9876543210" value={phone} onChange={(e) => setPhone(e.target.value)} required 
-                style={{ width: '100%', padding: '12px 16px', background: 'white', border: `1px solid ${theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Phone Number *</label>
+              <input 
+                type="tel" 
+                placeholder="e.g. 9876543210" 
+                value={phone} 
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  if (errors.phone) setErrors(prev => ({ ...prev, phone: null }));
+                }} 
+                required 
+                style={{ width: '100%', padding: '12px 16px', background: 'white', border: `1px solid ${errors.phone ? '#E11D48' : theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
               />
+              <FormError error={errors.phone} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Age</label>
-              <input type="number" placeholder="e.g. 35" value={age} onChange={(e) => setAge(e.target.value)} required 
-                style={{ width: '100%', padding: '12px 16px', background: 'white', border: `1px solid ${theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Age *</label>
+              <input 
+                type="number" 
+                placeholder="e.g. 35" 
+                value={age} 
+                onChange={(e) => {
+                  setAge(e.target.value);
+                  if (errors.age) setErrors(prev => ({ ...prev, age: null }));
+                }} 
+                required 
+                style={{ width: '100%', padding: '12px 16px', background: 'white', border: `1px solid ${errors.age ? '#E11D48' : theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
               />
+              <FormError error={errors.age} />
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Permanent Address</label>
-              <input type="text" placeholder="Full permanent address" value={address} onChange={(e) => setAddress(e.target.value)} required 
-                style={{ width: '100%', padding: '12px 16px', background: 'white', border: `1px solid ${theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: theme.textSec, marginBottom: '8px' }}>Permanent Address *</label>
+              <input 
+                type="text" 
+                placeholder="Full permanent address" 
+                value={address} 
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  if (errors.address) setErrors(prev => ({ ...prev, address: null }));
+                }} 
+                required 
+                style={{ width: '100%', padding: '12px 16px', background: 'white', border: `1px solid ${errors.address ? '#E11D48' : theme.border}`, borderRadius: '12px', fontSize: '15px', color: theme.textMain, outline: 'none', boxSizing: 'border-box' }}
               />
+              <FormError error={errors.address} />
             </div>
           </div>
         </div>

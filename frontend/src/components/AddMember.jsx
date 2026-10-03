@@ -4,6 +4,7 @@ import api from '../api';
 import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { UserPlus, Building, Copy, CheckCircle2 } from 'lucide-react';
+import FormError from './ui/FormError';
 
 const AddMember = ({ onAdd }) => {
   const { user } = useContext(AuthContext);
@@ -17,6 +18,7 @@ const AddMember = ({ onAdd }) => {
   const [residentType, setResidentType] = useState('Owner');
   const [role, setRole] = useState('member');
   const [limits, setLimits] = useState({ wings: [], floors: 0 });
+  const [errors, setErrors] = useState({});
 
   // OTP State
   const [otpSent, setOtpSent] = useState(false);
@@ -55,10 +57,11 @@ const AddMember = ({ onAdd }) => {
   }, [timer]);
 
   const sendOTP = async () => {
-    if (!email) {
-      toast.error('Please enter an email address first.');
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setErrors((prev) => ({ ...prev, email: 'A valid email address is required to send verification code.' }));
       return;
     }
+    setErrors((prev) => ({ ...prev, email: null }));
     setLoading(true);
     try {
       await api.post('/auth/send-otp', { 
@@ -71,17 +74,20 @@ const AddMember = ({ onAdd }) => {
       setTimer(120);
       toast.success('OTP sent to the email!');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to send OTP.');
+      const msg = error.response?.data?.message || 'Failed to send OTP.';
+      setErrors((prev) => ({ ...prev, email: msg }));
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   const verifyOTP = async () => {
-    if (!otp) {
-      toast.error('Please enter the OTP.');
+    if (!otp || otp.trim().length < 4) {
+      setErrors((prev) => ({ ...prev, otp: 'Please enter the full verification OTP code.' }));
       return;
     }
+    setErrors((prev) => ({ ...prev, otp: null }));
     setLoading(true);
     try {
       await api.post('/auth/verify-otp', { email, otp });
@@ -89,7 +95,9 @@ const AddMember = ({ onAdd }) => {
       setTimer(0);
       toast.success('Email verified successfully!');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Invalid OTP.');
+      const msg = error.response?.data?.message || 'Invalid OTP code.';
+      setErrors((prev) => ({ ...prev, otp: msg }));
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -97,26 +105,35 @@ const AddMember = ({ onAdd }) => {
 
   const handleAddMember = async (e) => {
     e.preventDefault();
-    if (!isVerified) {
-      toast.error('Please verify the email first.');
+    const newErrors = {};
+
+    if (!name.trim()) newErrors.name = 'Full legal name is required.';
+    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) newErrors.email = 'A valid email is required.';
+    if (!isVerified) newErrors.email = 'Email verification is required before onboarding.';
+    if (phone && !/^\d{10}$/.test(phone)) newErrors.phone = 'Phone number must be exactly 10 digits.';
+    if (role === 'member') {
+      if (!wing) newErrors.wing = 'Wing assignment is required.';
+      if (floor === '' || floor === null) newErrors.floor = 'Floor level is required.';
+      if (!flatNumber.trim()) newErrors.flatNumber = 'Unit / flat number is required.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please review the highlighted fields.');
       return;
     }
-    if (role === 'member' && (!wing || !floor || !flatNumber)) {
-      toast.error('Please fill all required fields.');
-      return;
-    }
-    if (phone && !/^\d{10}$/.test(phone)) {
-      toast.error('Phone number must be exactly 10 digits.');
-      return;
-    }
+
+    setErrors({});
     setLoading(true);
     setGeneratedCreds(null);
     try {
       const response = await api.post('/auth/add-member', {
-        name, email, phone,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
         wing, 
         floor, 
-        flatNumber, 
+        flatNumber: flatNumber.trim(), 
         residentType, 
         role: 'member'
       });
@@ -124,12 +141,15 @@ const AddMember = ({ onAdd }) => {
       setGeneratedCreds({ email, password: response.data.generatedPassword });
       if (onAdd) onAdd();
       
-      // Reset form (keeping OTP verified false for next entry)
+      // Reset form
       setName(''); setEmail(''); setPhone('');
       setFloor('0'); setFlatNumber(''); setResidentType('Owner');
       setIsVerified(false); setOtpSent(false); setOtp(''); setTimer(0);
+      setErrors({});
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to add member. Please try again.');
+      const msg = error.response?.data?.message || 'Failed to add member. Please try again.';
+      toast.error(msg);
+      setErrors((prev) => ({ ...prev, form: msg }));
     } finally {
       setLoading(false);
     }
@@ -200,22 +220,35 @@ const AddMember = ({ onAdd }) => {
 
         <div className="add-member-grid-2">
           <div>
-            <label className="registry-label">Legal_Name</label>
-            <input placeholder="F_NAME L_NAME" value={name} onChange={(e) => setName(e.target.value)} required className="registry-input" />
+            <label className="registry-label">Legal Name *</label>
+            <input 
+              placeholder="e.g. Rahul Sharma" 
+              value={name} 
+              onChange={(e) => {
+                setName(e.target.value);
+                if (errors.name) setErrors(prev => ({ ...prev, name: null }));
+              }} 
+              required 
+              className={`registry-input ${errors.name ? 'border-rose-500 bg-rose-50/20' : ''}`} 
+            />
+            <FormError error={errors.name} />
           </div>
         </div>
 
         <div className="add-member-grid-2">
           <div>
-            <label className="registry-label">Communication_Email</label>
+            <label className="registry-label">Communication Email *</label>
             <div style={{ display: 'flex', gap: '10px' }}>
               <input 
                 type="email" 
-                placeholder="ADDR@DOMAIN.COM" 
+                placeholder="resident@example.com" 
                 value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors(prev => ({ ...prev, email: null }));
+                }} 
                 required 
-                className="registry-input" 
+                className={`registry-input ${errors.email ? 'border-rose-500 bg-rose-50/20' : ''}`} 
                 style={{ flex: 1 }}
                 disabled={otpSent || isVerified} 
               />
@@ -241,44 +274,61 @@ const AddMember = ({ onAdd }) => {
                 </div>
               )}
             </div>
+            <FormError error={errors.email} />
 
             {otpSent && !isVerified && (
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <input 
-                  type="text" 
-                  placeholder="Enter OTP" 
-                  value={otp} 
-                  onChange={(e) => setOtp(e.target.value)} 
-                  className="registry-input" 
-                  style={{ flex: 1, borderColor: theme.accent, borderWidth: '2px' }}
-                  maxLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={verifyOTP}
-                  disabled={loading}
-                  style={{
-                    padding: '0 20px', borderRadius: '12px', backgroundColor: theme.accent, color: 'white',
-                    border: 'none', fontWeight: '600', fontFamily: "'Outfit', sans-serif", cursor: loading ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)', transition: 'transform 0.2s'
-                  }}
-                  onMouseOver={(e) => !loading ? e.target.style.transform = 'translateY(-2px)' : null}
-                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-                >
-                  Confirm
-                </button>
+              <div style={{ marginTop: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Enter 6-digit OTP" 
+                    value={otp} 
+                    onChange={(e) => {
+                      setOtp(e.target.value);
+                      if (errors.otp) setErrors(prev => ({ ...prev, otp: null }));
+                    }} 
+                    className={`registry-input ${errors.otp ? 'border-rose-500' : ''}`} 
+                    style={{ flex: 1, borderColor: errors.otp ? '#E11D48' : theme.accent, borderWidth: '2px' }}
+                    maxLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={verifyOTP}
+                    disabled={loading}
+                    style={{
+                      padding: '0 20px', borderRadius: '12px', backgroundColor: theme.accent, color: 'white',
+                      border: 'none', fontWeight: '600', fontFamily: "'Outfit', sans-serif", cursor: loading ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)', transition: 'transform 0.2s'
+                    }}
+                    onMouseOver={(e) => !loading ? e.target.style.transform = 'translateY(-2px)' : null}
+                    onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    Confirm
+                  </button>
+                </div>
+                <FormError error={errors.otp} />
               </div>
             )}
           </div>
           <div>
-            <label className="registry-label">Phone_Number</label>
-            <input type="text" placeholder="1234567890" value={phone} onChange={(e) => setPhone(e.target.value)} className="registry-input" />
+            <label className="registry-label">Phone Number</label>
+            <input 
+              type="text" 
+              placeholder="9876543210" 
+              value={phone} 
+              onChange={(e) => {
+                setPhone(e.target.value);
+                if (errors.phone) setErrors(prev => ({ ...prev, phone: null }));
+              }} 
+              className={`registry-input ${errors.phone ? 'border-rose-500 bg-rose-50/20' : ''}`} 
+            />
+            <FormError error={errors.phone} />
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px', opacity: isVerified ? 1 : 0.4, pointerEvents: isVerified ? 'auto' : 'none', transition: 'opacity 0.3s ease' }}>
               <div>
-                <label className="registry-label">Occupancy_Status</label>
+                <label className="registry-label">Occupancy Status</label>
                 <select value={residentType} onChange={(e) => setResidentType(e.target.value)} className="registry-input" style={{ height: '43px' }}>
                   <option value="Owner">OWNER</option>
                   <option value="Tenant">TENANT</option>
@@ -287,34 +337,56 @@ const AddMember = ({ onAdd }) => {
 
               <div className="add-member-grid-3">
                 <div>
-                  <label className="registry-label">Structure_Wing</label>
-                  <select value={wing} onChange={(e) => setWing(e.target.value)} required className="registry-input">
-                    <option value="">N/A</option>
+                  <label className="registry-label">Structure Wing *</label>
+                  <select 
+                    value={wing} 
+                    onChange={(e) => {
+                      setWing(e.target.value);
+                      if (errors.wing) setErrors(prev => ({ ...prev, wing: null }));
+                    }} 
+                    required 
+                    className={`registry-input ${errors.wing ? 'border-rose-500 bg-rose-50/20' : ''}`}
+                  >
+                    <option value="">Select Wing</option>
                     {limits.wings.map((w) => (
                       <option key={w} value={w}>{w}</option>
                     ))}
                   </select>
+                  <FormError error={errors.wing} />
                 </div>
 
                 <div>
-                  <label className="registry-label">Floor_Level</label>
-                  <select value={floor} onChange={(e) => setFloor(e.target.value)} required className="registry-input">
+                  <label className="registry-label">Floor Level *</label>
+                  <select 
+                    value={floor} 
+                    onChange={(e) => {
+                      setFloor(e.target.value);
+                      if (errors.floor) setErrors(prev => ({ ...prev, floor: null }));
+                    }} 
+                    required 
+                    className={`registry-input ${errors.floor ? 'border-rose-500 bg-rose-50/20' : ''}`}
+                  >
                     {[...Array(limits.floors + 1).keys()].map((f) => (
-                      <option key={f} value={f}>{f === 0 ? '00_GROUND' : f.toString().padStart(2, '0')}</option>
+                      <option key={f} value={f}>{f === 0 ? '00 Ground' : `Floor ${f.toString().padStart(2, '0')}`}</option>
                     ))}
                   </select>
+                  <FormError error={errors.floor} />
                 </div>
 
                 <div>
-                  <label className="registry-label">Unit_Number</label>
+                  <label className="registry-label">Unit Number *</label>
                   <input 
                     type="text" 
-                    placeholder="E.g. 101A, G-4" 
+                    placeholder="e.g. 101, A-402" 
                     value={flatNumber} 
-                    onChange={(e) => setFlatNumber(e.target.value)} 
+                    onChange={(e) => {
+                      setFlatNumber(e.target.value);
+                      if (errors.flatNumber) setErrors(prev => ({ ...prev, flatNumber: null }));
+                    }} 
                     required 
-                    className="registry-input" 
+                    className={`registry-input ${errors.flatNumber ? 'border-rose-500 bg-rose-50/20' : ''}`} 
                   />
+                  <FormError error={errors.flatNumber} />
                 </div>
               </div>
         </div>

@@ -45,12 +45,37 @@ const MemberDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(user?.mustChangePassword ? 'profile' : 'overview');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('member_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [onboardingOpen, setOnboardingOpen] = useState(() => {
     if (typeof window === 'undefined' || !user?._id) return false;
     return !localStorage.getItem(`awaastech_resident_onboarded_v1_${user._id}`);
   });
+
+  const activeTabItem = MEMBER_HUBS.flatMap(h => h.items).find(i => i.id === activeTab);
+  const activeTabLabel = activeTabItem?.label || (activeTab === 'overview' ? 'Overview' : activeTab === 'profile' ? 'Profile' : 'Resident Portal');
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem('member_sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  // Dynamic Page Title
+  useEffect(() => {
+    const soc = (user?.societyName && user?.societyName !== 'UNLINKED' ? user.societyName : '') || user?.societyId?.name || 'Awaastech';
+    document.title = `${activeTabLabel} — ${soc} | Awaastech`;
+  }, [activeTabLabel, user]);
 
   // Global ⌘K / Ctrl+K launcher shortcut
   useEffect(() => {
@@ -86,23 +111,31 @@ const MemberDashboard = () => {
                 <AnimatedText text={(user?.societyName && user?.societyName !== 'UNLINKED' ? user.societyName : '') || user?.societyId?.name || 'Awaastech Society'} />
               </h1>
               
-              {/* Interactive Resident Action Pill */}
-              <div className="flex items-center gap-2 mt-1">
+              {/* Interactive Resident Action Pill & Mobile Breadcrumb */}
+              <div className="flex flex-wrap items-center gap-2 mt-1">
                 <button
                   type="button"
                   onClick={() => setActiveTab('profile')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#F4F1EA] hover:bg-[#EBE7DC] border border-[#E0DBCF] transition-all cursor-pointer group"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#F4F1EA] hover:bg-[#EBE7DC] border border-[#E0DBCF] transition-all cursor-pointer group max-w-full"
                   title="View Profile & Flat Settings"
                 >
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="text-slate-800 font-semibold">{user?.name}</span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                  <span className="text-slate-800 font-semibold truncate max-w-[85px] sm:max-w-none">{user?.name}</span>
                   {user.flatDetails && (
-                    <span className="text-slate-500 font-normal">
+                    <span className="text-slate-500 font-normal shrink-0">
                       • Wing {user.flatDetails.wing}-{user.flatDetails.flatNumber}
                     </span>
                   )}
-                  <ChevronDown size={13} className="text-slate-400 group-hover:text-slate-700 transition-colors ml-0.5" />
+                  <ChevronDown size={13} className="text-slate-400 group-hover:text-slate-700 transition-colors ml-0.5 shrink-0" />
                 </button>
+
+                {/* Mobile Active Tab Breadcrumb */}
+                <div className="md:hidden flex items-center">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#D9734E]/10 text-[#D9734E] border border-[#D9734E]/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#D9734E]"></span>
+                    {activeTabLabel}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -162,7 +195,7 @@ const MemberDashboard = () => {
                 {!sidebarCollapsed && <span className="dashboard-menu-heading" style={{ margin: 0, padding: 0 }}>Resident Hubs</span>}
                 <button
                   type="button"
-                  onClick={() => setSidebarCollapsed(prev => !prev)}
+                  onClick={toggleSidebar}
                   className="hide-on-mobile"
                   style={{
                     background: 'none',

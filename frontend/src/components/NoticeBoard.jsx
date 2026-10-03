@@ -8,6 +8,7 @@ import { Bell } from 'lucide-react';
 import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
 import { CardsGridSkeleton } from './ui/DashboardSkeleton';
+import FormError from './ui/FormError';
 
 const NoticeBoard = () => {
   const { user } = useContext(AuthContext);
@@ -16,6 +17,7 @@ const NoticeBoard = () => {
   const [targetType, setTargetType] = useState('All');
   const [targetUserId, setTargetUserId] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [errors, setErrors] = useState({});
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -70,19 +72,32 @@ const NoticeBoard = () => {
 
   const handlePost = async (e) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      toast.error('Please fill in all fields.');
-      return;
+    const newErrors = {};
+
+    if (!title.trim()) {
+      newErrors.title = 'Notice headline is required.';
+    } else if (title.trim().length < 5) {
+      newErrors.title = 'Title must be at least 5 characters long.';
     }
-    if (title.trim().length < 5) {
-      toast.error('Title must be at least 5 characters long.');
-      return;
+
+    if (!content.trim()) {
+      newErrors.content = 'Notice announcement content is required.';
+    } else if (content.trim().length < 5) {
+      newErrors.content = 'Content must be at least 5 characters long.';
     }
+
     if (targetType === 'Specific' && !targetUserId) {
-      toast.error('Please select a specific member.');
+      newErrors.targetUserId = 'Please select a specific member recipient.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please check the highlighted notice fields.');
       return;
     }
-    postMutation.mutate({ title, content, targetType, targetUserId });
+
+    setErrors({});
+    postMutation.mutate({ title: title.trim(), content: content.trim(), targetType, targetUserId });
   };
 
   const handleDelete = async (id) => {
@@ -125,7 +140,10 @@ const NoticeBoard = () => {
             <div className="flex flex-col sm:flex-row gap-2.5">
               <select 
                 value={targetType} 
-                onChange={e => setTargetType(e.target.value)} 
+                onChange={e => {
+                  setTargetType(e.target.value);
+                  if (errors.targetUserId) setErrors(prev => ({ ...prev, targetUserId: null }));
+                }} 
                 className="dispatch-input"
                 style={{ flex: 1, fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '13px', borderRadius: '10px' }}
               >
@@ -134,34 +152,53 @@ const NoticeBoard = () => {
               </select>
 
               {targetType === 'Specific' && (
-                <select 
-                  value={targetUserId} 
-                  onChange={e => setTargetUserId(e.target.value)} 
-                  className="dispatch-input"
-                  style={{ flex: 1, fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '13px', borderRadius: '10px' }}
-                  required
-                >
-                  <option value="">-- Choose Member --</option>
-                  {users.map(u => (
-                    <option key={u._id} value={u._id}>{u.name} (Flat {u.flatDetails?.wing}-{u.flatDetails?.flatNumber})</option>
-                  ))}
-                </select>
+                <div style={{ flex: 1 }}>
+                  <select 
+                    value={targetUserId} 
+                    onChange={e => {
+                      setTargetUserId(e.target.value);
+                      if (errors.targetUserId) setErrors(prev => ({ ...prev, targetUserId: null }));
+                    }} 
+                    className="dispatch-input"
+                    style={{ width: '100%', fontFamily: "'Outfit', sans-serif", border: `1px solid ${errors.targetUserId ? '#E11D48' : theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '13px', borderRadius: '10px' }}
+                  >
+                    <option value="">-- Choose Member --</option>
+                    {users.map(u => (
+                      <option key={u._id} value={u._id}>{u.name} (Flat {u.flatDetails?.wing}-{u.flatDetails?.flatNumber})</option>
+                    ))}
+                  </select>
+                  <FormError error={errors.targetUserId} />
+                </div>
               )}
             </div>
 
-            <input
-              placeholder="Notice Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="dispatch-input"
-              style={{ fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box', borderRadius: '10px' }}
-            />
-            <textarea
-              placeholder="Write your announcement or notice here..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              style={{ fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '14px', minHeight: '90px', width: '100%', boxSizing: 'border-box', borderRadius: '10px' }}
-            />
+            <div>
+              <input
+                placeholder="Notice Title"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  if (errors.title) setErrors(prev => ({ ...prev, title: null }));
+                }}
+                className="dispatch-input"
+                style={{ fontFamily: "'Outfit', sans-serif", border: `1px solid ${errors.title ? '#E11D48' : theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box', borderRadius: '10px' }}
+              />
+              <FormError error={errors.title} />
+            </div>
+
+            <div>
+              <textarea
+                placeholder="Write your announcement or notice here..."
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                  if (errors.content) setErrors(prev => ({ ...prev, content: null }));
+                }}
+                style={{ fontFamily: "'Outfit', sans-serif", border: `1px solid ${errors.content ? '#E11D48' : theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '14px', minHeight: '90px', width: '100%', boxSizing: 'border-box', borderRadius: '10px' }}
+              />
+              <FormError error={errors.content} />
+            </div>
+
             <button type="submit" style={{
               background: theme.accent, color: 'white', border: 'none', padding: '14px', borderRadius: '12px',
               fontFamily: "'Outfit', sans-serif", fontWeight: '600', fontSize: '15px', cursor: 'pointer',

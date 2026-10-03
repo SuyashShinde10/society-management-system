@@ -50,8 +50,33 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState(user?.mustChangePassword ? 'profile' : 'overview');
   const [registryRefresh, setRegistryRefresh] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  const activeTabItem = ADMIN_HUBS.flatMap(h => h.items).find(i => i.id === activeTab);
+  const activeTabLabel = activeTabItem?.label || (activeTab === 'overview' ? 'Overview' : activeTab === 'profile' ? 'Profile' : 'Administration');
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem('sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  // Dynamic Page Title
+  useEffect(() => {
+    const soc = (user?.societyName && user?.societyName !== 'UNLINKED' ? user.societyName : '') || user?.societyId?.name || 'Awaastech';
+    document.title = `${activeTabLabel} — ${soc} | Awaastech`;
+  }, [activeTabLabel, user]);
 
   // Global ⌘K / Ctrl+K launcher shortcut
   useEffect(() => {
@@ -87,9 +112,20 @@ const AdminDashboard = () => {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold leading-tight truncate" style={{ fontFamily: "'Cormorant Garamond', serif", margin: '0 0 4px 0', color: theme.textMain }}>
                 <AnimatedText text={(user?.societyName && user?.societyName !== 'UNLINKED' ? user.societyName : '') || user?.societyId?.name || (user?.role === 'superadmin' ? 'Awaastech Administration' : 'Society Administration')} />
               </h1>
-              <p className="truncate text-xs sm:text-sm" style={{ margin: 0, fontWeight: '400', color: theme.textSec }}>
-                Welcome back, <strong style={{ color: theme.accent, fontWeight: '600' }}>{user?.name || 'Administrator'}</strong> (Administrator)
-              </p>
+              
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="truncate text-xs sm:text-sm" style={{ margin: 0, fontWeight: '400', color: theme.textSec }}>
+                  Welcome back, <strong style={{ color: theme.accent, fontWeight: '600' }}>{user?.name || 'Administrator'}</strong>
+                </p>
+
+                {/* Mobile Active-Screen Breadcrumb Pill */}
+                <div className="md:hidden flex items-center">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#D9734E]/10 text-[#D9734E] border border-[#D9734E]/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#D9734E]"></span>
+                    {activeTabLabel}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -138,7 +174,7 @@ const AdminDashboard = () => {
                 {!sidebarCollapsed && <span className="dashboard-menu-heading" style={{ margin: 0, padding: 0 }}>System Hubs</span>}
                 <button
                   type="button"
-                  onClick={() => setSidebarCollapsed(prev => !prev)}
+                  onClick={toggleSidebar}
                   className="hide-on-mobile"
                   style={{
                     background: 'none',

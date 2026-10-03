@@ -3,15 +3,16 @@ import { toast } from 'sonner';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
-import theme from '../theme';
 import { AlertCircle } from 'lucide-react';
 import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
 import { CardsGridSkeleton } from './ui/DashboardSkeleton';
+import FormError from './ui/FormError';
 
 const ComplaintBox = () => {
   const { user } = useContext(AuthContext);
   const [form, setForm] = useState({ title: '', description: '', attachment: '' });
+  const [errors, setErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   
@@ -80,18 +81,27 @@ const ComplaintBox = () => {
 
   const handlePost = async (e) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.description.trim()) {
-      toast.error('Please fill in all required fields.');
+    const newErrors = {};
+
+    if (!form.title.trim()) {
+      newErrors.title = 'Incident title is required.';
+    } else if (form.title.trim().length < 5) {
+      newErrors.title = 'Title must be at least 5 characters long.';
+    }
+
+    if (!form.description.trim()) {
+      newErrors.description = 'Please provide a detailed description.';
+    } else if (form.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters long.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please check the highlighted form errors.');
       return;
     }
-    if (form.title.trim().length < 5) {
-      toast.error('Title must be at least 5 characters long.');
-      return;
-    }
-    if (form.description.trim().length < 10) {
-      toast.error('Description must be at least 10 characters long.');
-      return;
-    }
+
+    setErrors({});
     postMutation.mutate(form);
   };
 
@@ -130,19 +140,32 @@ const ComplaintBox = () => {
         {user && user.role !== 'admin' && (
           <form onSubmit={handlePost} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '30px', background: 'white', padding: '24px', borderRadius: '20px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
             <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', fontWeight: '600', color: theme.textSec }}>File New Incident</span>
-            <input
-              placeholder="INCIDENT_TITLE"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="incident-input"
-            />
-            <textarea
-              placeholder="DETAILED_DESCRIPTION"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="incident-input"
-              style={{ minHeight: '80px' }}
-            />
+            <div>
+              <input
+                placeholder="Incident Title (e.g. Water leakage in lobby ceiling)"
+                value={form.title}
+                onChange={(e) => {
+                  setForm({ ...form, title: e.target.value });
+                  if (errors.title) setErrors((prev) => ({ ...prev, title: null }));
+                }}
+                className={`incident-input ${errors.title ? 'border-rose-500 bg-rose-50/20' : ''}`}
+              />
+              <FormError error={errors.title} />
+            </div>
+
+            <div>
+              <textarea
+                placeholder="Provide specific details about the issue, location, or urgency..."
+                value={form.description}
+                onChange={(e) => {
+                  setForm({ ...form, description: e.target.value });
+                  if (errors.description) setErrors((prev) => ({ ...prev, description: null }));
+                }}
+                className={`incident-input ${errors.description ? 'border-rose-500 bg-rose-50/20' : ''}`}
+                style={{ minHeight: '90px' }}
+              />
+              <FormError error={errors.description} />
+            </div>
             <div style={{ display: 'flex', gap: '10px' }}>
               <label style={{
                 flex: 1, padding: '12px', background: '#F9F8F3', border: `1px dashed ${theme.border}`, 

@@ -277,8 +277,8 @@ const DashboardOverview = ({ onNavigate }) => {
             <span className={`text-2xl sm:text-3xl font-bold font-outfit tabular-nums leading-none ${stats.complaints > 0 ? 'text-red-800' : 'text-gray-900'}`}>
               {stats.complaints}
             </span>
-            <span className={`text-xs font-semibold ${stats.complaints > 0 ? 'text-red-600' : 'text-slate-400'}`}>
-              Tickets →
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${stats.complaints > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'}`}>
+              {user?.role === 'admin' ? 'Resolve →' : 'Tickets →'}
             </span>
           </div>
         </motion.div>
@@ -304,8 +304,8 @@ const DashboardOverview = ({ onNavigate }) => {
             <span className={`text-2xl sm:text-3xl font-bold font-outfit tabular-nums leading-none ${stats.bills > 0 ? 'text-red-800' : 'text-gray-900'}`}>
               {stats.bills}
             </span>
-            <span className={`text-xs font-bold tabular-nums ${stats.bills > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-              {stats.bills > 0 ? `₹${stats.totalBillsAmount.toLocaleString()}` : 'Settled'}
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-md tabular-nums ${stats.bills > 0 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}`}>
+              {stats.bills > 0 ? (user?.role === 'admin' ? 'Verify Dues →' : 'Pay Now →') : 'Settled'}
             </span>
           </div>
         </motion.div>
@@ -462,8 +462,13 @@ const DashboardOverview = ({ onNavigate }) => {
                         {notice.createdAt ? new Date(notice.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recent'}
                       </span>
                     </div>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: theme.textMain }}>
-                      {notice.title}
+                    <div className="flex items-center justify-between gap-2">
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: theme.textMain }}>
+                        {notice.title}
+                      </div>
+                      <span className="text-[11px] font-semibold text-[#D9734E] shrink-0 hover:underline">
+                        Read →
+                      </span>
                     </div>
                     {notice.content && (
                       <p style={{ margin: '4px 0 0 0', fontSize: '12.5px', color: theme.textSec, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -524,9 +529,21 @@ const DashboardOverview = ({ onNavigate }) => {
                         Logged {parcel.createdAt ? new Date(parcel.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'recently'}
                       </div>
                     </div>
-                    <span style={{ fontSize: '12px', fontWeight: '600', background: '#FDE68A', color: '#92400E', padding: '4px 10px', borderRadius: '20px' }}>
-                      At Gate
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span style={{ fontSize: '11px', fontWeight: '600', background: '#FDE68A', color: '#92400E', padding: '4px 10px', borderRadius: '20px' }}>
+                        At Gate
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNavigate && onNavigate('parcels');
+                        }}
+                        className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-colors"
+                      >
+                        Claim
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -581,16 +598,29 @@ const DashboardOverview = ({ onNavigate }) => {
                         {ticket.category || 'General Maintenance'}
                       </div>
                     </div>
-                    <span style={{
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      padding: '4px 10px',
-                      borderRadius: '20px',
-                      background: ticket.status === 'Resolved' ? '#DCFCE7' : ticket.status === 'In Progress' ? '#DBEAFE' : '#FEF3C7',
-                      color: ticket.status === 'Resolved' ? '#166534' : ticket.status === 'In Progress' ? '#1E40AF' : '#92400E'
-                    }}>
-                      {ticket.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        padding: '4px 10px',
+                        borderRadius: '20px',
+                        background: ticket.status === 'Resolved' ? '#DCFCE7' : ticket.status === 'In Progress' ? '#DBEAFE' : '#FEF3C7',
+                        color: ticket.status === 'Resolved' ? '#166534' : ticket.status === 'In Progress' ? '#1E40AF' : '#92400E'
+                      }}>
+                        {ticket.status}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNavigate && onNavigate('complaints');
+                        }}
+                        className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 transition-colors shadow-2xs flex items-center gap-1"
+                      >
+                        <span>{user?.role === 'admin' ? 'Resolve' : 'View'}</span>
+                        <ArrowRight size={10} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

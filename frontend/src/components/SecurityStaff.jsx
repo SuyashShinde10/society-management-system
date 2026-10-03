@@ -230,45 +230,77 @@ const SecurityStaff = () => {
         {logs.length === 0 ? (
           <p style={{ color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>No recent login activity found.</p>
         ) : (
-          <div style={{ overflowX: 'auto', borderRadius: '12px', border: `1px solid ${theme.border}` }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'Outfit', sans-serif", fontSize: '14px' }}>
-              <thead style={{ background: '#F8FAFC' }}>
-                <tr>
-                  <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>Guard Name</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>Action</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>Date & Time</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>IP Address</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => (
-                  <tr key={log._id} style={{ borderBottom: `1px solid ${theme.border}` }}>
-                    <td style={{ padding: '16px', color: theme.textMain, fontWeight: '500' }}>
-                      {log.performedBy ? log.performedBy.name : 'Unknown Guard'}
-                    </td>
-                    <td style={{ padding: '16px' }}>
-                      <span style={{
-                        padding: '4px 10px',
-                        borderRadius: '20px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        background: log.action === 'Security Login' ? '#ECFDF5' : '#FEF2F2',
-                        color: log.action === 'Security Login' ? '#059669' : '#DC2626'
-                      }}>
-                        {log.action}
-                      </span>
-                    </td>
-                    <td style={{ padding: '16px', color: theme.textSec }}>
-                      {new Date(log.createdAt).toLocaleString()}
-                    </td>
-                    <td style={{ padding: '16px', color: theme.textSec }}>
-                      {log.ipAddress || 'N/A'}
-                    </td>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block" style={{ overflowX: 'auto', borderRadius: '12px', border: `1px solid ${theme.border}` }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'Outfit', sans-serif", fontSize: '14px' }}>
+                <thead style={{ background: '#F8FAFC' }}>
+                  <tr>
+                    <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>Guard Name</th>
+                    <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>Action</th>
+                    <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>Date & Time</th>
+                    <th style={{ padding: '16px', textAlign: 'left', color: theme.textSec, fontWeight: '500', borderBottom: `1px solid ${theme.border}` }}>IP Address</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {logs.map((log) => (
+                    <tr key={log._id} style={{ borderBottom: `1px solid ${theme.border}` }}>
+                      <td style={{ padding: '16px', color: theme.textMain, fontWeight: '500' }}>
+                        {log.performedBy ? log.performedBy.name : 'Unknown Guard'}
+                      </td>
+                      <td style={{ padding: '16px' }}>
+                        <span style={{
+                          padding: '4px 10px',
+                          borderRadius: '20px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          background: log.action === 'Security Login' ? '#ECFDF5' : '#FEF2F2',
+                          color: log.action === 'Security Login' ? '#059669' : '#DC2626'
+                        }}>
+                          {log.action}
+                        </span>
+                      </td>
+                      <td style={{ padding: '16px', color: theme.textSec }}>
+                        {new Date(log.createdAt).toLocaleString()}
+                      </td>
+                      <td style={{ padding: '16px', color: theme.textSec }}>
+                        {log.ipAddress || 'N/A'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card Stack View */}
+            <div className="md:hidden flex flex-col gap-3">
+              {logs.map((log) => (
+                <div
+                  key={log._id}
+                  className="bg-white p-4 rounded-xl border border-[#E8E4D9] shadow-sm flex flex-col gap-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-sm text-slate-900">
+                      {log.performedBy ? log.performedBy.name : 'Unknown Guard'}
+                    </span>
+                    <span
+                      className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
+                        log.action === 'Security Login'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-rose-50 text-rose-700 border border-rose-200'
+                      }`}
+                    >
+                      {log.action}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-slate-100">
+                    <span className="tabular-nums">{new Date(log.createdAt).toLocaleString()}</span>
+                    <span className="text-[11px] text-slate-400 font-mono">IP: {log.ipAddress || 'N/A'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -5,7 +5,6 @@
    ============================================================ */
 
 :root {
-  --primary: #2563eb;
   --secondary: #475569;
   --accent: #D9734E;
   --danger: #C05746;
@@ -14,6 +13,61 @@
   --text: #2C2C2C;
   --text-sec: #464646; /* WCAG AA 5.8:1 contrast */
   --border: #E8E4D9;
+
+  /* Harmonized Theme Variables for light and dark support */
+  --theme-bg: #F9F8F3;
+  --theme-surface: #FFFDF9;
+  --theme-text-main: #2C2C2C;
+  --theme-text-sec: #464646;
+  --theme-border: #E8E4D9;
+  --theme-accent: #D9734E;
+  --theme-field-bg: #F2F0E6;
+  --theme-resolved: #6B705C;
+  --theme-declined: #C05746;
+  --theme-pending: #D4A373;
+  --theme-danger: #C05746;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1C1A18;
+    --card-bg: #252220;
+    --text: #F0EDE7;
+    --text-sec: #A8A39D;
+    --border: #332E29;
+
+    --theme-bg: #1C1A18;
+    --theme-surface: #252220;
+    --theme-text-main: #F0EDE7;
+    --theme-text-sec: #A8A39D;
+    --theme-border: #332E29;
+    --theme-accent: #E0825F;
+    --theme-field-bg: #2B2724;
+    --theme-resolved: #889078;
+    --theme-declined: #D96B5B;
+    --theme-pending: #E0B48A;
+    --theme-danger: #D96B5B;
+  }
+}
+
+:root.dark, body.dark {
+  --bg: #1C1A18;
+  --card-bg: #252220;
+  --text: #F0EDE7;
+  --text-sec: #A8A39D;
+  --border: #332E29;
+
+  --theme-bg: #1C1A18;
+  --theme-surface: #252220;
+  --theme-text-main: #F0EDE7;
+  --theme-text-sec: #A8A39D;
+  --theme-border: #332E29;
+  --theme-accent: #E0825F;
+  --theme-field-bg: #2B2724;
+  --theme-resolved: #889078;
+  --theme-declined: #D96B5B;
+  --theme-pending: #E0B48A;
+  --theme-danger: #D96B5B;
 }
 
 * {
@@ -22,6 +76,11 @@
   word-wrap: break-word;
   scrollbar-width: thin;
   scrollbar-color: #C4C4C4 transparent;
+}
+
+/* Fast tap response for touch devices */
+button, .nav-btn, .nav-btn-active, .organic-btn, a[role="button"] {
+  touch-action: manipulation;
 }
 
 /* Tabular Numbers for all financial and metric elements */
@@ -50,7 +109,7 @@ body {
 
 .organic-input, .registry-input, .ledger-input, .incident-input {
   font-family: 'Outfit', sans-serif;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border: 1px solid var(--border);
   border-radius: 12px;
   outline: none;
@@ -64,10 +123,10 @@ body {
 }
 
 .organic-input:focus, .registry-input:focus, .ledger-input:focus, .incident-input:focus {
-  background: #FFFFFF;
+  background: var(--card-bg);
   border-color: var(--accent);
-  box-shadow: 0 4px 12px rgba(217, 115, 78, 0.1);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(217, 115, 78, 0.12);
+  /* transform removed to prevent mobile keyboard viewport re-layout jank */
 }
 
 .registry-label {
@@ -343,7 +402,7 @@ body {
 
 @media (max-width: 768px) {
   .dashboard-container {
-    padding: 12px 12px calc(80px + env(safe-area-inset-bottom, 16px)) 12px;
+    padding: 16px 16px calc(80px + env(safe-area-inset-bottom, 16px)) 16px;
   }
   .dashboard-header {
     flex-direction: row;

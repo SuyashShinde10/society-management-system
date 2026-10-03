@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import theme from '../../theme';
 import { validateAmount, validateDueDate, validateRequiredText } from '../../utils/validators';
 import BottomSheet from '../ui/BottomSheet';
+import FormError from '../ui/FormError';
 
 export const GenerateBillModal = ({
   users = [],
@@ -83,7 +84,7 @@ export const GenerateBillModal = ({
                 boxSizing: 'border-box',
               }}
             />
-            {errors.title && <span style={{ color: theme.declined, fontSize: '12px' }}>{errors.title}</span>}
+            {errors.title && <FormError error={errors.title} />}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -106,7 +107,7 @@ export const GenerateBillModal = ({
                   boxSizing: 'border-box',
                 }}
               />
-              {errors.amount && <span style={{ color: theme.declined, fontSize: '12px' }}>{errors.amount}</span>}
+              {errors.amount && <FormError error={errors.amount} />}
             </div>
 
             <div>
@@ -127,7 +128,7 @@ export const GenerateBillModal = ({
                   boxSizing: 'border-box',
                 }}
               />
-              {errors.dueDate && <span style={{ color: theme.declined, fontSize: '12px' }}>{errors.dueDate}</span>}
+              {errors.dueDate && <FormError error={errors.dueDate} />}
             </div>
           </div>
 
@@ -180,7 +181,7 @@ export const GenerateBillModal = ({
                   </option>
                 ))}
               </select>
-              {errors.targetUserId && <span style={{ color: theme.declined, fontSize: '12px' }}>{errors.targetUserId}</span>}
+              {errors.targetUserId && <FormError error={errors.targetUserId} />}
             </div>
           )}
 
