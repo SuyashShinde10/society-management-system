@@ -5,6 +5,9 @@ test.describe('Maintenance Bills Component E2E', () => {
     await page.route('**/api/**/auth/me', async (route) => {
       await route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Not authenticated' }) });
     });
+    await page.route('**/api/**/auth/refresh', async (route) => {
+      await route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Not authenticated' }) });
+    });
 
     // Navigate to root
     await page.goto('/');

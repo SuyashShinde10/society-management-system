@@ -5,6 +5,8 @@ import AuthContext from '../context/AuthContext';
 import theme from '../theme';
 import { Briefcase, Plus, Users, Cpu, Copy } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import EmptyState from './ui/EmptyState';
+import FormError from './ui/FormError';
 
 const VendorProjects = () => {
   const { user } = useContext(AuthContext);
@@ -13,6 +15,7 @@ const VendorProjects = () => {
   
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newProject, setNewProject] = useState({ title: '', description: '', specs: '', budget: '', deadline: '' });
+  const [errors, setErrors] = useState({});
   
   const [selectedProject, setSelectedProject] = useState(null);
   const [quotes, setQuotes] = useState([]);
@@ -45,12 +48,24 @@ const VendorProjects = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    const newErrors = {};
+    if (!newProject.title.trim()) newErrors.title = 'Project title is required';
+    if (!newProject.description.trim()) newErrors.description = 'Short description is required';
+    if (!newProject.specs.trim()) newErrors.specs = 'Detailed specifications are required';
+    if (!newProject.deadline) newErrors.deadline = 'Submission deadline is required';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
       setLoading(true);
       await api.post('/vendors/projects', newProject);
       toast.success('Project RFQ created successfully');
       setShowCreateForm(false);
       setNewProject({ title: '', description: '', specs: '', budget: '', deadline: '' });
+      setErrors({});
       fetchProjects();
     } catch (err) {
       toast.error('Failed to create project');
@@ -190,7 +205,16 @@ const VendorProjects = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
             <div>
               <label className="registry-label">Project Title</label>
-              <input type="text" value={newProject.title} onChange={e => setNewProject({...newProject, title: e.target.value})} className="organic-input" required />
+              <input 
+                type="text" 
+                value={newProject.title} 
+                onChange={e => {
+                  setNewProject({...newProject, title: e.target.value});
+                  if (errors.title) setErrors(prev => ({ ...prev, title: null }));
+                }} 
+                className={`organic-input ${errors.title ? 'border-rose-500 bg-rose-50/20' : ''}`} 
+              />
+              <FormError error={errors.title} />
             </div>
             <div>
               <label className="registry-label">Budget (Optional, ₹)</label>
@@ -199,15 +223,42 @@ const VendorProjects = () => {
           </div>
           <div>
             <label className="registry-label">Short Description</label>
-            <input type="text" value={newProject.description} onChange={e => setNewProject({...newProject, description: e.target.value})} className="organic-input" required />
+            <input 
+              type="text" 
+              value={newProject.description} 
+              onChange={e => {
+                setNewProject({...newProject, description: e.target.value});
+                if (errors.description) setErrors(prev => ({ ...prev, description: null }));
+              }} 
+              className={`organic-input ${errors.description ? 'border-rose-500 bg-rose-50/20' : ''}`} 
+            />
+            <FormError error={errors.description} />
           </div>
           <div>
             <label className="registry-label">Detailed Specifications (Material, Scope, etc.)</label>
-            <textarea value={newProject.specs} onChange={e => setNewProject({...newProject, specs: e.target.value})} className="organic-input" style={{ minHeight: '100px', resize: 'vertical' }} required />
+            <textarea 
+              value={newProject.specs} 
+              onChange={e => {
+                setNewProject({...newProject, specs: e.target.value});
+                if (errors.specs) setErrors(prev => ({ ...prev, specs: null }));
+              }} 
+              className={`organic-input ${errors.specs ? 'border-rose-500 bg-rose-50/20' : ''}`} 
+              style={{ minHeight: '100px', resize: 'vertical' }} 
+            />
+            <FormError error={errors.specs} />
           </div>
           <div>
             <label className="registry-label">Quote Submission Deadline</label>
-            <input type="date" value={newProject.deadline} onChange={e => setNewProject({...newProject, deadline: e.target.value})} className="organic-input" required />
+            <input 
+              type="date" 
+              value={newProject.deadline} 
+              onChange={e => {
+                setNewProject({...newProject, deadline: e.target.value});
+                if (errors.deadline) setErrors(prev => ({ ...prev, deadline: null }));
+              }} 
+              className={`organic-input ${errors.deadline ? 'border-rose-500 bg-rose-50/20' : ''}`} 
+            />
+            <FormError error={errors.deadline} />
           </div>
           <button type="submit" disabled={loading} style={{
             background: theme.textMain, color: 'white', padding: '12px 24px', border: 'none', borderRadius: '12px',
@@ -239,9 +290,15 @@ const VendorProjects = () => {
           </div>
         ))}
         {projects.length === 0 && !loading && (
-          <p style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: theme.textSec, background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
-            No projects found. Create an RFQ to start inviting vendors.
-          </p>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <EmptyState
+              type="offers"
+              title="No RFQ Projects Active"
+              description="No request-for-quote projects currently open. Create a new RFQ to invite vendor bids."
+              actionLabel="Create New RFQ"
+              onAction={() => setShowCreateForm(true)}
+            />
+          </div>
         )}
       </div>
     </div>

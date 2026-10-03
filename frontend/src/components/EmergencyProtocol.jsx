@@ -4,6 +4,7 @@ import theme from '../theme';
 import { toast } from 'sonner';
 import { AlertTriangle, MapPin, Radio, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
+import FormError from './ui/FormError';
 
 const EmergencyProtocol = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -12,25 +13,33 @@ const EmergencyProtocol = () => {
   const [message, setMessage] = useState('');
   const [useGeofence, setUseGeofence] = useState(false);
   const [zone, setZone] = useState('[\n  [77.500, 12.900],\n  [77.501, 12.900],\n  [77.501, 12.901],\n  [77.500, 12.901],\n  [77.500, 12.900]\n]');
+  const [errors, setErrors] = useState({});
 
   const handleTrigger = async (e) => {
     e.preventDefault();
-    if (!message) {
-      toast.error('Please provide an emergency message.');
-      return;
+    const newErrors = {};
+    if (!message.trim()) {
+      newErrors.message = 'Please provide emergency broadcast instructions.';
     }
 
-    setIsSubmitting(true);
     let parsedZone = [];
     if (useGeofence) {
       try {
         parsedZone = JSON.parse(zone);
+        if (!Array.isArray(parsedZone)) {
+          newErrors.zone = 'Danger zone must be a valid JSON array of coordinates.';
+        }
       } catch (err) {
-        toast.error('Invalid GeoJSON coordinates format.');
-        setIsSubmitting(false);
-        return;
+        newErrors.zone = 'Invalid GeoJSON coordinates format. Must be valid JSON array.';
       }
     }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const res = await api.post('/emergency/trigger', {
@@ -98,11 +107,15 @@ const EmergencyProtocol = () => {
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '500', color: theme.textSec }}>Alert Message Instructions</label>
               <textarea 
                 value={message} 
-                onChange={(e) => setMessage(e.target.value)} 
-                required 
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                  if (errors.message) setErrors(prev => ({ ...prev, message: null }));
+                }} 
                 placeholder="e.g. Please evacuate Block A immediately using the South stairwell. Do not use elevators."
-                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1px solid ${theme.border}`, background: '#F9F8F3', outline: 'none', fontFamily: "'Outfit', sans-serif", minHeight: '80px', resize: 'vertical' }} 
+                className={errors.message ? 'border-rose-500 bg-rose-50/20' : ''}
+                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1px solid ${errors.message ? '#f43f5e' : theme.border}`, background: '#F9F8F3', outline: 'none', fontFamily: "'Outfit', sans-serif", minHeight: '80px', resize: 'vertical' }} 
               />
+              <FormError error={errors.message} />
             </div>
 
             <div style={{ padding: '15px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
@@ -118,9 +131,13 @@ const EmergencyProtocol = () => {
                   </label>
                   <textarea 
                     value={zone} 
-                    onChange={(e) => setZone(e.target.value)} 
-                    style={{ width: '100%', padding: '12px', borderRadius: '12px', border: `1px solid ${theme.border}`, background: 'white', outline: 'none', fontFamily: 'monospace', minHeight: '120px', resize: 'vertical', fontSize: '12px' }} 
+                    onChange={(e) => {
+                      setZone(e.target.value);
+                      if (errors.zone) setErrors(prev => ({ ...prev, zone: null }));
+                    }} 
+                    style={{ width: '100%', padding: '12px', borderRadius: '12px', border: `1px solid ${errors.zone ? '#f43f5e' : theme.border}`, background: 'white', outline: 'none', fontFamily: 'monospace', minHeight: '120px', resize: 'vertical', fontSize: '12px' }} 
                   />
+                  <FormError error={errors.zone} />
                   <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#64748B' }}>Only residents within this polygon will receive the alert.</p>
                 </div>
               )}

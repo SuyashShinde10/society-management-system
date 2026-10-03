@@ -8,6 +8,7 @@ import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
 import { CardsGridSkeleton } from './ui/DashboardSkeleton';
 import FormError from './ui/FormError';
+import theme from '../theme';
 
 const ComplaintBox = () => {
   const { user } = useContext(AuthContext);

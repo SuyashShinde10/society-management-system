@@ -6,6 +6,9 @@ test.describe('Authentication Flow E2E', () => {
     await page.route('**/api/**/auth/me', async (route) => {
       await route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Not authenticated' }) });
     });
+    await page.route('**/api/**/auth/refresh', async (route) => {
+      await route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Not authenticated' }) });
+    });
     await page.route('**/api/**/auth/login', async (route) => {
       await route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Invalid credentials' }) });
     });
@@ -27,12 +30,15 @@ test.describe('Authentication Flow E2E', () => {
 
     // Verify error feedback appears
     await expect(
-      page.locator('text=Invalid credentials').or(page.locator('text=failed')).or(page.locator('.sonner-toast'))
+      page.locator('text=Invalid credentials').or(page.locator('text=failed')).or(page.locator('.sonner-toast')).first()
     ).toBeVisible({ timeout: 15000 });
   });
 
   test('should allow navigation to register page', async ({ page }) => {
     await page.route('**/api/**/auth/me', async (route) => {
+      await route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Not authenticated' }) });
+    });
+    await page.route('**/api/**/auth/refresh', async (route) => {
       await route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Not authenticated' }) });
     });
 

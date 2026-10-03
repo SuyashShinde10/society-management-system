@@ -49,8 +49,14 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        // Clear token on 401 unless on login or checking initial auth status
-        if (!window.location.pathname.includes('/login') && !error.config?.url?.includes('/auth/me')) {
+        const isAuthCheck = error.config?.url?.includes('/auth/me') || error.config?.url?.includes('/auth/refresh');
+        const isPublicPage = window.location.pathname === '/' || 
+                             window.location.pathname.includes('/login') || 
+                             window.location.pathname.includes('/register') || 
+                             window.location.pathname.includes('/forgot-password') ||
+                             window.location.pathname.startsWith('/vendor/quote');
+        // Clear token on 401 unless on public pages or checking auth status
+        if (!isPublicPage && !isAuthCheck) {
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');
           window.location.href = '/login';

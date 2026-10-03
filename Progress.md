@@ -1,5 +1,23 @@
 # Project Progress & Task Tracker
 
+## Date: October 3, 2026
+
+### Completed Tasks
+
+#### 1. GitHub Actions CI/CD Pipeline Resolution (`Frontend (Build & Playwright E2E)`)
+- **Fixed Vite Circular Chunk Dependency:** Removed the over-aggressive Rollup `manualChunks` function in `frontend/vite.config.js` that caused circular imports between `vendor-react` and `vendor-media` / `vendor-misc`. This circular dependency was breaking React 19 initialization runtime (`TypeError: Cannot set properties of undefined (setting 'Activity')`), causing the preview build to render a blank white screen.
+- **Fixed Playwright Strict-Mode Collision:** Updated `frontend/e2e/auth.spec.js` locator to use `.first()` on `text=Invalid credentials` to resolve the strict mode violation caused by having both Sonner toasts and the newly added inline `FormError` badge rendered simultaneously.
+- **Fixed Axios 401 Interceptor Redirect Loop:** Updated `frontend/src/api.js` response interceptor to prevent redirecting to `/login` when public routes (`/`, `/register`, `/forgot-password`, `/vendor/quote`) or background auth check endpoints (`/auth/me`, `/auth/refresh`) receive a 401 response.
+- **Mocked Refresh Endpoint in E2E:** Routed `**/api/**/auth/refresh` in `auth.spec.js` and `billing.spec.js` to ensure deterministic, isolated offline execution during CI testing.
+
+#### 2. UI/UX Audit & Form Validation Remediation Completion
+- **Fixed `ComplaintBox` ReferenceError:** Added missing `import theme from '../theme'` in `frontend/src/components/ComplaintBox.jsx`, restoring full Vitest unit test passes.
+- **Meetings Form Validation:** Added field-level validation and `<FormError>` error badges for title, agenda description, date/time, location, and specific member assignment in `frontend/src/components/Meetings.jsx`.
+- **Vendor RFQ Projects Polish:** Integrated `<FormError>` validation and bespoke `<EmptyState>` placeholder when no active RFQs exist in `frontend/src/components/VendorProjects.jsx`.
+- **Emergency Protocol EOC Polish:** Integrated `<FormError>` validation for evacuation instructions and GeoJSON coordinate validation in `frontend/src/components/EmergencyProtocol.jsx`.
+
+---
+
 ## Date: September 3, 2026
 
 ### Completed Tasks

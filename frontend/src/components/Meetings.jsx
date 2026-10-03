@@ -7,12 +7,14 @@ import { Calendar } from 'lucide-react';
 import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
 import { CardsGridSkeleton } from './ui/DashboardSkeleton';
+import FormError from './ui/FormError';
 
 const Meetings = () => {
   const { user } = useContext(AuthContext);
   const [meetings, setMeetings] = useState([]);
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState({ title: '', description: '', date: '', location: '', targetType: 'All', targetUserId: '' });
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [fetchError, setFetchError] = useState(null);
@@ -56,14 +58,25 @@ const Meetings = () => {
 
   const handleCreateMeeting = async (e) => {
     e.preventDefault();
+    const newErrors = {};
+    if (!form.title.trim()) newErrors.title = 'Meeting title is required';
+    if (!form.description.trim()) newErrors.description = 'Agenda description is required';
+    if (!form.date) newErrors.date = 'Meeting date and time is required';
+    if (!form.location.trim()) newErrors.location = 'Meeting location or video link is required';
     if (form.targetType === 'Specific' && !form.targetUserId) {
-      toast.error('Please select a specific member.');
+      newErrors.targetUserId = 'Please select a specific member';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+
     try {
       await api.post('/meetings', form);
       toast.success('Meeting scheduled successfully.');
       setForm({ title: '', description: '', date: '', location: '', targetType: 'All', targetUserId: '' });
+      setErrors({});
       fetchMeetings();
     } catch (error) {
       toast.error('Failed to schedule meeting.');
@@ -117,26 +130,81 @@ const Meetings = () => {
                 </select>
 
                 {form.targetType === 'Specific' && (
-                  <select 
-                    value={form.targetUserId} 
-                    onChange={e => setForm({...form, targetUserId: e.target.value})} 
-                    className="organic-input"
-                    style={{ flex: 1 }}
-                    required
-                  >
-                    <option value="">-- Choose Member --</option>
-                    {users.map(u => (
-                      <option key={u._id} value={u._id}>{u.name} (Flat {u.flatDetails?.wing}-{u.flatDetails?.flatNumber})</option>
-                    ))}
-                  </select>
+                  <div style={{ flex: 1 }}>
+                    <select 
+                      value={form.targetUserId} 
+                      onChange={e => {
+                        setForm({...form, targetUserId: e.target.value});
+                        if (errors.targetUserId) setErrors(prev => ({ ...prev, targetUserId: null }));
+                      }} 
+                      className={`organic-input ${errors.targetUserId ? 'border-rose-500 bg-rose-50/20' : ''}`}
+                      style={{ width: '100%' }}
+                    >
+                      <option value="">-- Choose Member --</option>
+                      {users.map(u => (
+                        <option key={u._id} value={u._id}>{u.name} (Flat {u.flatDetails?.wing}-{u.flatDetails?.flatNumber})</option>
+                      ))}
+                    </select>
+                    <FormError error={errors.targetUserId} />
+                  </div>
                 )}
               </div>
 
-              <input placeholder="MEETING_TITLE" value={form.title} onChange={e => setForm({...form, title: e.target.value})} required className="organic-input" />
-              <textarea placeholder="DESCRIPTION_AGENDA" value={form.description} onChange={e => setForm({...form, description: e.target.value})} required className="organic-input" style={{ minHeight: '80px', resize: 'vertical' }} />
+              <div>
+                <input 
+                  placeholder="Meeting Title" 
+                  value={form.title} 
+                  onChange={e => {
+                    setForm({...form, title: e.target.value});
+                    if (errors.title) setErrors(prev => ({ ...prev, title: null }));
+                  }} 
+                  className={`organic-input ${errors.title ? 'border-rose-500 bg-rose-50/20' : ''}`} 
+                  style={{ width: '100%' }}
+                />
+                <FormError error={errors.title} />
+              </div>
+
+              <div>
+                <textarea 
+                  placeholder="Agenda & Discussion Topics..." 
+                  value={form.description} 
+                  onChange={e => {
+                    setForm({...form, description: e.target.value});
+                    if (errors.description) setErrors(prev => ({ ...prev, description: null }));
+                  }} 
+                  className={`organic-input ${errors.description ? 'border-rose-500 bg-rose-50/20' : ''}`} 
+                  style={{ minHeight: '80px', resize: 'vertical', width: '100%' }} 
+                />
+                <FormError error={errors.description} />
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
-                <input type="datetime-local" value={form.date} onChange={e => setForm({...form, date: e.target.value})} required className="organic-input" />
-                <input placeholder="LOCATION_OR_MEET_LINK" value={form.location} onChange={e => setForm({...form, location: e.target.value})} required className="organic-input" />
+                <div>
+                  <input 
+                    type="datetime-local" 
+                    value={form.date} 
+                    onChange={e => {
+                      setForm({...form, date: e.target.value});
+                      if (errors.date) setErrors(prev => ({ ...prev, date: null }));
+                    }} 
+                    className={`organic-input ${errors.date ? 'border-rose-500 bg-rose-50/20' : ''}`} 
+                    style={{ width: '100%' }}
+                  />
+                  <FormError error={errors.date} />
+                </div>
+                <div>
+                  <input 
+                    placeholder="Location / Video Meet Link" 
+                    value={form.location} 
+                    onChange={e => {
+                      setForm({...form, location: e.target.value});
+                      if (errors.location) setErrors(prev => ({ ...prev, location: null }));
+                    }} 
+                    className={`organic-input ${errors.location ? 'border-rose-500 bg-rose-50/20' : ''}`} 
+                    style={{ width: '100%' }}
+                  />
+                  <FormError error={errors.location} />
+                </div>
               </div>
             </div>
             <button type="submit" style={{ background: theme.textMain, color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', fontSize: '15px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', transition: 'transform 0.2s' }} onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}>
