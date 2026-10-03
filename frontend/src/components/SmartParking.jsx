@@ -4,6 +4,8 @@ import theme from '../theme';
 import { toast } from 'sonner';
 import { Car, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
+import EmptyState from './ui/EmptyState';
+import { CardsGridSkeleton } from './ui/DashboardSkeleton';
 
 const SmartParking = () => {
   const { user } = useContext(AuthContext);
@@ -133,9 +135,13 @@ const SmartParking = () => {
         <div style={{ flex: 1, minWidth: '300px', background: 'white', borderRadius: '24px', padding: '30px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
           <h3 style={{ fontFamily: "'Outfit', sans-serif", margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600', color: theme.textMain }}>Allocated Spaces</h3>
           {isLoading ? (
-            <p>Loading...</p>
+            <CardsGridSkeleton count={2} />
           ) : spaces.length === 0 ? (
-            <p style={{ color: theme.textSec, fontSize: '14px' }}>No parking spaces have been mapped via GeoJSON yet.</p>
+            <EmptyState
+              icon={Car}
+              title="No Parking Spaces Mapped"
+              description="No GeoJSON parking boundaries or unit allocations have been configured yet."
+            />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               {spaces.map(s => (

@@ -5,6 +5,8 @@ import AuthContext from '../../context/AuthContext';
 import { QrCode, Plus, Share2, CheckCircle2, Clock, ShieldCheck, UserCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import EmptyState from '../ui/EmptyState';
+import { CardsGridSkeleton } from '../ui/DashboardSkeleton';
 
 const GuestPassManager = () => {
   const { user } = useContext(AuthContext);
@@ -168,13 +170,15 @@ const GuestPassManager = () => {
 
       {/* Passes Grid */}
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>Loading guest passes...</div>
+        <CardsGridSkeleton count={2} />
       ) : passes.length === 0 ? (
-        <div style={{ background: 'white', borderRadius: '20px', padding: '40px', textAlign: 'center', border: `1px solid ${theme.border}` }}>
-          <QrCode size={48} color={theme.accent} style={{ opacity: 0.4, marginBottom: '12px' }} />
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '18px', color: theme.textMain }}>No active guest passes</h4>
-          <p style={{ margin: 0, fontSize: '14px', color: theme.textSec }}>Generate a pass ahead of time so your friends or family can enter without waiting.</p>
-        </div>
+        <EmptyState
+          type="visitors"
+          title="No Active Guest Passes"
+          description="Pre-authorize visitors, deliveries, or cab drivers with an instant secure QR entry pass."
+          actionLabel="Generate Entry Pass"
+          onAction={() => setShowCreateModal(true)}
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
           {passes.map((pass) => (

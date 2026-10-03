@@ -5,6 +5,8 @@ import AuthContext from '../../context/AuthContext';
 import { Vote, CheckCircle2, Clock, Plus, BarChart3, Users, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import EmptyState from '../ui/EmptyState';
+import { CardsGridSkeleton } from '../ui/DashboardSkeleton';
 
 const DigitalAGM = () => {
   const { user } = useContext(AuthContext);
@@ -98,13 +100,15 @@ const DigitalAGM = () => {
 
       {/* Resolutions List */}
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>Loading resolutions...</div>
+        <CardsGridSkeleton count={2} />
       ) : resolutions.length === 0 ? (
-        <div style={{ background: 'white', borderRadius: '20px', padding: '40px', textAlign: 'center', border: `1px solid ${theme.border}` }}>
-          <Vote size={48} color={theme.accent} style={{ opacity: 0.4, marginBottom: '12px' }} />
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '18px', color: theme.textMain }}>No active resolutions</h4>
-          <p style={{ margin: 0, fontSize: '14px', color: theme.textSec }}>There are currently no open AGM ballots or pending voting items.</p>
-        </div>
+        <EmptyState
+          type="meetings"
+          title="No Active AGM Resolutions"
+          description="There are currently no open voting ballots or active AGM resolutions requiring resident voting."
+          actionLabel={user?.role === 'admin' ? "Create Resolution" : undefined}
+          onAction={user?.role === 'admin' ? () => setShowAddModal(true) : undefined}
+        />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {resolutions.map((res) => {

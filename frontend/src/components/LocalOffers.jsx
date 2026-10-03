@@ -3,6 +3,8 @@ import api from '../api';
 import theme from '../theme';
 import { Tag, MapPin, ExternalLink, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import EmptyState from './ui/EmptyState';
+import { CardsGridSkeleton } from './ui/DashboardSkeleton';
 
 const LocalOffers = () => {
   const [ads, setAds] = useState([]);
@@ -38,11 +40,13 @@ const LocalOffers = () => {
       </p>
 
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>Loading offers...</div>
+        <CardsGridSkeleton count={3} />
       ) : ads.length === 0 ? (
-        <div style={{ padding: '40px', textAlign: 'center', background: 'white', borderRadius: '24px', border: `1px solid ${theme.border}`, color: theme.textSec }}>
-          No local offers available at the moment.
-        </div>
+        <EmptyState
+          type="classifieds"
+          title="No Hyper-Local Offers"
+          description="Verified neighborhood merchants and service providers will list community discounts here."
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', padding: '0 10px' }}>
           {ads.map((ad, idx) => (

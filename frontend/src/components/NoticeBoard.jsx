@@ -186,6 +186,7 @@ const NoticeBoard = () => {
             <CardsGridSkeleton count={4} />
           ) : paginatedNotices.length === 0 ? (
             <EmptyState
+              type="notices"
               icon={Bell}
               title="No notices broadcasted"
               description="There are currently no active announcements or circulars on the society notice board."

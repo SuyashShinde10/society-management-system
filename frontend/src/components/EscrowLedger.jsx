@@ -4,6 +4,8 @@ import api from '../api';
 import theme from '../theme';
 import { ShieldCheck, MapPin, CheckCircle, Clock } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
+import EmptyState from './ui/EmptyState';
+import { TableSkeleton } from './ui/DashboardSkeleton';
 
 const EscrowLedger = () => {
   const { user } = useContext(AuthContext);
@@ -48,29 +50,29 @@ const EscrowLedger = () => {
         </h3>
       </div>
 
-      <div style={{ background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, overflowX: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', margin: '0 10px' }}>
-        <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse', textAlign: 'left', fontFamily: "'Outfit', sans-serif" }}>
-          <thead>
-            <tr style={{ background: '#F8FAFC', borderBottom: `1px solid ${theme.border}`, fontSize: '13px', color: theme.textSec }}>
-              <th style={{ padding: '16px 20px', fontWeight: '600' }}>Project</th>
-              <th style={{ padding: '16px 20px', fontWeight: '600' }}>Vendor</th>
-              <th style={{ padding: '16px 20px', fontWeight: '600' }}>Amount</th>
-              <th style={{ padding: '16px 20px', fontWeight: '600' }}>Geofence</th>
-              <th style={{ padding: '16px 20px', fontWeight: '600' }}>Resident</th>
-              <th style={{ padding: '16px 20px', fontWeight: '600' }}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>Loading ledger...</td>
+      {loading ? (
+        <TableSkeleton rows={4} cols={6} />
+      ) : escrows.length === 0 ? (
+        <EmptyState
+          type="bills"
+          title="No Active Escrow Contracts"
+          description="Capital projects with geofenced vendor milestone escrows will be displayed here."
+        />
+      ) : (
+        <div style={{ background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, overflowX: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', margin: '0 10px' }}>
+          <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse', textAlign: 'left', fontFamily: "'Outfit', sans-serif" }}>
+            <thead>
+              <tr style={{ background: '#F8FAFC', borderBottom: `1px solid ${theme.border}`, fontSize: '13px', color: theme.textSec }}>
+                <th style={{ padding: '16px 20px', fontWeight: '600' }}>Project</th>
+                <th style={{ padding: '16px 20px', fontWeight: '600' }}>Vendor</th>
+                <th style={{ padding: '16px 20px', fontWeight: '600' }}>Amount</th>
+                <th style={{ padding: '16px 20px', fontWeight: '600' }}>Geofence</th>
+                <th style={{ padding: '16px 20px', fontWeight: '600' }}>Resident</th>
+                <th style={{ padding: '16px 20px', fontWeight: '600' }}>Status</th>
               </tr>
-            ) : escrows.length === 0 ? (
-              <tr>
-                <td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>No active escrow transactions found.</td>
-              </tr>
-            ) : (
-              escrows.map((esc) => (
+            </thead>
+            <tbody>
+              {escrows.map((esc) => (
                 <tr key={esc._id} style={{ borderBottom: `1px solid ${theme.border}`, fontSize: '14px', color: theme.textMain }}>
                   <td style={{ padding: '16px 20px' }}>{esc.projectId?.title || 'Unknown Project'}</td>
                   <td style={{ padding: '16px 20px' }}>{esc.vendorQuoteId?.vendorName || 'Unknown Vendor'}</td>
@@ -91,11 +93,11 @@ const EscrowLedger = () => {
                   </td>
                   <td style={{ padding: '16px 20px' }}>{getStatusBadge(esc.status)}</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

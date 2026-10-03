@@ -37,6 +37,8 @@ import { DashboardPageSkeleton } from '../components/ui/DashboardSkeleton';
 import MobileBottomNav from '../components/ui/MobileBottomNav';
 import MobileDrawer from '../components/ui/MobileDrawer';
 import CommandPalette from '../components/ui/CommandPalette';
+import ResidentOnboardingModal from '../components/ui/ResidentOnboardingModal';
+import { Sparkles } from 'lucide-react';
 
 const MemberDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -45,6 +47,10 @@ const MemberDashboard = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [onboardingOpen, setOnboardingOpen] = useState(() => {
+    if (typeof window === 'undefined' || !user?._id) return false;
+    return !localStorage.getItem(`awaastech_resident_onboarded_v1_${user._id}`);
+  });
 
   // Global ⌘K / Ctrl+K launcher shortcut
   useEffect(() => {
@@ -102,6 +108,17 @@ const MemberDashboard = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+            {/* Resident Guided Tour Launcher */}
+            <button
+              type="button"
+              onClick={() => setOnboardingOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EBE5DA] border border-[#E4DACD] text-xs font-semibold text-[#8C5E43] transition-all cursor-pointer shadow-2xs"
+              title="Resident Guided Tour"
+            >
+              <Sparkles size={14} className="text-[#D9734E]" />
+              <span className="hidden sm:inline">Guide</span>
+            </button>
+
             {/* Quick Command Launcher Pill */}
             <button
               type="button"
@@ -240,6 +257,13 @@ const MemberDashboard = () => {
 
         </div>
       </div>
+
+      {/* Resident First-Run Guided Tour */}
+      <ResidentOnboardingModal
+        isOpen={onboardingOpen}
+        onClose={() => setOnboardingOpen(false)}
+        user={user}
+      />
 
       {/* Global Command Bar (⌘K / Ctrl+K) */}
       <CommandPalette

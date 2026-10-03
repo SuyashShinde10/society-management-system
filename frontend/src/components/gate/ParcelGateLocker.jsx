@@ -5,6 +5,8 @@ import AuthContext from '../../context/AuthContext';
 import { Package, CheckCircle2, Clock, ShieldCheck, Plus, Search, Key } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import EmptyState from '../ui/EmptyState';
+import { CardsGridSkeleton } from '../ui/DashboardSkeleton';
 
 const ParcelGateLocker = () => {
   const { user } = useContext(AuthContext);
@@ -115,13 +117,13 @@ const ParcelGateLocker = () => {
 
       {/* Grid of Parcels */}
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>Loading parcels...</div>
+        <CardsGridSkeleton count={2} />
       ) : parcels.length === 0 ? (
-        <div style={{ background: 'white', borderRadius: '20px', padding: '40px', textAlign: 'center', border: `1px solid ${theme.border}` }}>
-          <Package size={48} color={theme.accent} style={{ opacity: 0.4, marginBottom: '12px' }} />
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '18px', color: theme.textMain }}>No active parcels</h4>
-          <p style={{ margin: 0, fontSize: '14px', color: theme.textSec }}>There are currently no packages waiting at the gate.</p>
-        </div>
+        <EmptyState
+          type="parcels"
+          title="No Active Packages"
+          description="There are currently no deliveries awaiting resident collection at the gate locker."
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
           {parcels.map((parcel) => (

@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import EmptyState from '../ui/EmptyState';
 import ComponentError from '../ui/ComponentError';
+import { CardsGridSkeleton } from '../ui/DashboardSkeleton';
 
 const StaffDirectory = () => {
   const { user } = useContext(AuthContext);
@@ -106,14 +107,14 @@ const StaffDirectory = () => {
       </div>
 
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>Loading staff directory...</div>
+        <CardsGridSkeleton count={3} />
       ) : fetchError ? (
         <ComponentError title="Failed to load domestic staff" error={fetchError} onRetry={fetchStaff} />
       ) : staffList.length === 0 ? (
         <EmptyState
-          icon={Users}
+          type="members"
           title="No Domestic Staff Recorded"
-          description="Register verified maids, cooks, and drivers to monitor gate attendance."
+          description="Register verified maids, cooks, and drivers to monitor gate attendance and passcards."
           actionLabel={user?.role === 'admin' ? "Register New Staff" : undefined}
           onAction={user?.role === 'admin' ? () => setShowAddModal(true) : undefined}
         />

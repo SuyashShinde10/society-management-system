@@ -8,6 +8,7 @@ import { Users, Search, Edit2, Trash2, UserPlus, Phone, MessageCircle, X } from 
 import EmptyState from './ui/EmptyState';
 import ComponentError from './ui/ComponentError';
 import { CardsGridSkeleton } from './ui/DashboardSkeleton';
+import BottomSheet from './ui/BottomSheet';
 import AddMember from './AddMember';
 
 const UserList = ({ refreshTrigger, onRefresh }) => {
@@ -146,9 +147,10 @@ const UserList = ({ refreshTrigger, onRefresh }) => {
         <ComponentError title="Failed to load resident registry" error={fetchError} onRetry={fetchUsers} />
       ) : displayedUsers.length === 0 ? (
         <EmptyState
+          type={searchQuery ? "search" : "members"}
           icon={Users}
-          title="No Residents Found"
-          description={searchQuery ? "No members match your search criteria. Try a different search term." : "No registered members currently in the directory."}
+          title={searchQuery ? "No Matching Residents" : "No Residents Found"}
+          description={searchQuery ? "No members match your search criteria. Try a different search term or unit number." : "No registered members currently in the directory."}
           actionLabel="Onboard New Resident"
           onAction={() => setShowAddModal(true)}
         />
@@ -260,60 +262,22 @@ const UserList = ({ refreshTrigger, onRefresh }) => {
         </div>
       )}
 
-      {/* Slide-Over Modal for Onboarding Resident */}
-      <AnimatePresence>
-        {showAddModal && (
-          <div className="fixed inset-0 z-[1100] flex justify-end">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowAddModal(false)}
-              className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
-            />
-
-            {/* Slide-in Sheet */}
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="relative w-full max-w-lg bg-white h-full shadow-2xl flex flex-col z-10 overflow-hidden"
-            >
-              {/* Header */}
-              <div className="p-4 sm:p-5 border-b border-[#E8E4D9] flex items-center justify-between bg-[#FDFCF9]">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900 m-0" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                    Onboard New Resident
-                  </h3>
-                  <p className="text-xs text-slate-500 m-0 mt-0.5">
-                    Generate credentials and assign flat allotment
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              {/* Form Body */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-                <AddMember
-                  onAdd={() => {
-                    setShowAddModal(false);
-                    fetchUsers();
-                    if (onRefresh) onRefresh();
-                  }}
-                />
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Adaptive BottomSheet / Modal for Onboarding Resident */}
+      <BottomSheet
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Onboard New Resident"
+        subtitle="Generate credentials and assign flat allotment"
+        maxWidth="560px"
+      >
+        <AddMember
+          onAdd={() => {
+            setShowAddModal(false);
+            fetchUsers();
+            if (onRefresh) onRefresh();
+          }}
+        />
+      </BottomSheet>
     </div>
   );
 };

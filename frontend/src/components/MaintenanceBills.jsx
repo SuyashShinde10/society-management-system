@@ -237,11 +237,14 @@ const MaintenanceBills = () => {
 
       {/* Empty State */}
       {!isLoading && filteredBills.length === 0 && (
-        <div style={{ background: 'white', border: `1px solid ${theme.border}`, padding: '40px', borderRadius: '18px', textAlign: 'center' }}>
-          <p style={{ margin: 0, fontSize: '16px', color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>
-            No maintenance records found for the selected filter.
-          </p>
-        </div>
+        <EmptyState
+          type="bills"
+          icon={ReceiptText}
+          title="Zero Outstanding Invoices"
+          description="All maintenance dues, statements, and community ledger entries are fully reconciled."
+          actionLabel={user?.role === 'admin' ? "Generate Maintenance Bill" : undefined}
+          onAction={user?.role === 'admin' ? () => setShowGenerateModal(true) : undefined}
+        />
       )}
 
       {/* Bills Content */}

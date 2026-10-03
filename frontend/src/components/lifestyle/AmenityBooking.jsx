@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import EmptyState from '../ui/EmptyState';
 import ComponentError from '../ui/ComponentError';
+import { CardsGridSkeleton } from '../ui/DashboardSkeleton';
 
 const AmenityBooking = () => {
   const { user } = useContext(AuthContext);
@@ -129,12 +130,12 @@ const AmenityBooking = () => {
 
       {/* Facilities Grid */}
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>Loading facilities...</div>
+        <CardsGridSkeleton count={3} />
       ) : fetchError ? (
         <ComponentError title="Failed to load facilities" error={fetchError} onRetry={fetchData} />
       ) : amenities.length === 0 ? (
         <EmptyState
-          icon={Sparkles}
+          type="amenities"
           title="No Facilities Available"
           description="There are currently no community amenities configured for booking in your society."
           actionLabel={user?.role === 'admin' ? "Add New Facility" : undefined}

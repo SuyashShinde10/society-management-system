@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../api';
 import theme from '../theme';
-import { X, Send, Bot, User } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { toast } from 'sonner';
+import BottomSheet from './ui/BottomSheet';
 
 const AIDisputeModal = ({ bill, onClose, onResolved }) => {
   const [messages, setMessages] = useState([]);
@@ -71,34 +72,14 @@ const AIDisputeModal = ({ bill, onClose, onResolved }) => {
   };
 
   return (
-    <div className="p-3 sm:p-5" style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        background: 'white', width: '100%', maxWidth: '500px', height: '85vh', maxHeight: '650px',
-        borderRadius: '20px', display: 'flex', flexDirection: 'column',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
-      }}>
-        <div style={{
-          padding: '20px', borderBottom: `1px solid ${theme.border}`,
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-        }}>
-          <div>
-            <h3 style={{ margin: 0, fontFamily: "'Outfit', sans-serif", fontSize: '18px', color: theme.textMain }}>
-              AI Support
-            </h3>
-            <span style={{ fontSize: '12px', color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>
-              Disputing: {bill.title}
-            </span>
-          </div>
-          <button onClick={onClose} style={{
-            background: 'transparent', border: 'none', cursor: 'pointer', color: theme.textSec
-          }}>
-            <X size={20} />
-          </button>
-        </div>
+    <BottomSheet
+      isOpen={true}
+      onClose={onClose}
+      title="AI Support Assistant"
+      subtitle={`Disputing: ${bill.title} • ₹${bill.amount?.toLocaleString()}`}
+      maxWidth="500px"
+      bodyClassName="p-0 flex flex-col h-[70vh] md:h-[520px]"
+    >
 
         <div style={{
           flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '15px', background: '#F9F8F3'
@@ -150,8 +131,7 @@ const AIDisputeModal = ({ bill, onClose, onResolved }) => {
             <Send size={18} />
           </button>
         </form>
-      </div>
-    </div>
+    </BottomSheet>
   );
 };
 

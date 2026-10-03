@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import theme from '../../theme';
 import { validateAmount, validateDueDate, validateRequiredText } from '../../utils/validators';
+import BottomSheet from '../ui/BottomSheet';
 
 export const GenerateBillModal = ({
   users = [],
@@ -55,42 +56,14 @@ export const GenerateBillModal = ({
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: '16px',
-      }}
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Generate Maintenance Bill"
+      subtitle="Issue dues to individual residents or entire society"
+      maxWidth="520px"
     >
-      <div
-        style={{
-          background: 'white',
-          borderRadius: '20px',
-          padding: '30px',
-          width: '100%',
-          maxWidth: '520px',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-          border: `1px solid ${theme.border}`,
-        }}
-      >
-        <h3
-          style={{
-            margin: '0 0 16px 0',
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: '22px',
-            fontWeight: '700',
-            color: theme.textMain,
-          }}
-        >
-          Generate Maintenance Bill
-        </h3>
-
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '13px', fontFamily: "'Outfit', sans-serif", fontWeight: '600', marginBottom: '6px', color: theme.textMain }}>
               Bill Title *
@@ -268,8 +241,7 @@ export const GenerateBillModal = ({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </BottomSheet>
   );
 };
 

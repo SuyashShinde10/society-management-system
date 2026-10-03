@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import theme from '../../theme';
+import BottomSheet from '../ui/BottomSheet';
 
 export const SplitPaymentModal = ({
   bill,
@@ -52,43 +53,13 @@ export const SplitPaymentModal = ({
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: '16px',
-      }}
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      title={user?.role === 'admin' ? 'Record Maintenance Payment' : 'Pay Maintenance Bill'}
+      subtitle={`Bill: ${bill.title} • Total Due: ₹${totalAmount.toLocaleString()}`}
+      maxWidth="500px"
     >
-      <div
-        style={{
-          background: 'white',
-          borderRadius: '20px',
-          padding: '28px',
-          width: '100%',
-          maxWidth: '480px',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-          border: `1px solid ${theme.border}`,
-        }}
-      >
-        <h3
-          style={{
-            margin: '0 0 6px 0',
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: '20px',
-            fontWeight: '700',
-            color: theme.textMain,
-          }}
-        >
-          {user?.role === 'admin' ? 'Record Maintenance Payment' : 'Pay Maintenance Bill'}
-        </h3>
-        <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>
-          Bill: <strong>{bill.title}</strong> — Total Due: <strong style={{ color: theme.accent }}>₹{totalAmount.toLocaleString()}</strong>
-        </p>
 
         {/* Fast Select Buttons */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
@@ -289,8 +260,7 @@ export const SplitPaymentModal = ({
               : 'Submit for Verification'}
           </button>
         </div>
-      </div>
-    </div>
+    </BottomSheet>
   );
 };
 

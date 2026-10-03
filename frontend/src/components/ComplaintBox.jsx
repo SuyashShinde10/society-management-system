@@ -203,9 +203,10 @@ const ComplaintBox = () => {
             <CardsGridSkeleton count={4} />
           ) : filteredComplaints.length === 0 ? (
             <EmptyState
+              type="complaints"
               icon={AlertCircle}
               title="No incidents reported"
-              description="No complaints or grievances have been filed. The community is running smoothly!"
+              description="No complaints or grievances have been filed. The community is running peacefully!"
             />
           ) : (
             filteredComplaints.map((c) => (

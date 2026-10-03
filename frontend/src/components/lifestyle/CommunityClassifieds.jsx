@@ -5,6 +5,8 @@ import AuthContext from '../../context/AuthContext';
 import { ShoppingBag, Car, Tag, Plus, Phone, MapPin, Clock, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import EmptyState from '../ui/EmptyState';
+import { CardsGridSkeleton } from '../ui/DashboardSkeleton';
 
 const CommunityClassifieds = () => {
   const { user } = useContext(AuthContext);
@@ -120,13 +122,15 @@ const CommunityClassifieds = () => {
 
       {/* Listings Grid */}
       {loading ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: theme.textSec }}>Loading community board...</div>
+        <CardsGridSkeleton count={3} />
       ) : classifieds.length === 0 ? (
-        <div style={{ background: 'white', borderRadius: '20px', padding: '40px', textAlign: 'center', border: `1px solid ${theme.border}` }}>
-          <Tag size={48} color={theme.accent} style={{ opacity: 0.4, marginBottom: '12px' }} />
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '18px', color: theme.textMain }}>No listings found</h4>
-          <p style={{ margin: 0, fontSize: '14px', color: theme.textSec }}>Be the first neighbor to post a classified or offer a carpool ride!</p>
-        </div>
+        <EmptyState
+          type="classifieds"
+          title="No Community Listings"
+          description="Be the first neighbor to post a local item for sale, offer carpooling, or post a request!"
+          actionLabel="Post New Listing"
+          onAction={() => setShowPostModal(true)}
+        />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
           {classifieds.map((item) => (

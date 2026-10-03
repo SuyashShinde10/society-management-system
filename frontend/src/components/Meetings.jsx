@@ -164,6 +164,7 @@ const Meetings = () => {
           ) : meetings.length === 0 ? (
             <div style={{ gridColumn: '1 / -1' }}>
               <EmptyState
+                type="meetings"
                 icon={Calendar}
                 title="No Upcoming Meetings"
                 description="No general body or committee meetings are currently scheduled for your society."
