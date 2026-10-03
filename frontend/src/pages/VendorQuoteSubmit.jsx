@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api';
 import theme from '../theme';
-import { Briefcase, CheckCircle } from 'lucide-react';
+import { Briefcase, CheckCircle, Loader2 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 
 const VendorQuoteSubmit = () => {
@@ -21,28 +21,20 @@ const VendorQuoteSubmit = () => {
     notes: ''
   });
 
-  useEffect(() => {
-    // We only have the authenticated route for GET project details right now.
-    // Let's assume the backend needs a public route to fetch project details for a quote, 
-    // or we fetch it publicly. Wait, our `getProjectDetails` in backend is protected (`auth`).
-    // So I need to either make it public or create a public details route.
-    // For now, I'll try to fetch it if I added a public route, or I'll just skip fetching project details and only allow submission.
-    // Let's implement a quick fetch (assuming we will update backend to allow public GET for project).
-    fetchProject();
-  }, [projectId]);
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
-      // Assuming we need a public route to just get the title and specs
       const { data } = await api.get(`/vendors/projects/${projectId}/public`);
       setProject(data);
-    } catch (err) {
-      // It's okay if it fails, maybe we just show a generic submission form
-      console.log('Could not fetch project details publicly');
+    } catch {
+      // Fallback if public endpoint not yet exposed
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    fetchProject();
+  }, [fetchProject]);
 
   const [attempted, setAttempted] = useState(false);
 
@@ -100,15 +92,22 @@ const VendorQuoteSubmit = () => {
           </div>
         </div>
 
-        {project && (
-          <div style={{ background: '#F8FAFC', padding: '20px', borderRadius: '12px', marginBottom: '30px', border: '1px solid #E2E8F0' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>Project Specifications</h3>
-            <p style={{ margin: 0, fontSize: '14px', color: '#475569', whiteSpace: 'pre-wrap' }}>{project.specs}</p>
+        {loading ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', gap: '10px', color: theme.textSec }}>
+            <Loader2 className="animate-spin" size={24} />
+            <span>Loading project RFQ details...</span>
           </div>
+        ) : (
+          project && (
+            <div style={{ background: '#F8FAFC', padding: '20px', borderRadius: '12px', marginBottom: '30px', border: '1px solid #E2E8F0' }}>
+              <h3 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>Project Specifications</h3>
+              <p style={{ margin: 0, fontSize: '14px', color: '#475569', whiteSpace: 'pre-wrap' }}>{project.specs}</p>
+            </div>
+          )
         )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="registry-label" style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: '700', color: (attempted && !formData.vendorName) ? theme.danger : theme.textSec }}>Company/Vendor Name *</label>
               <input type="text" value={formData.vendorName} onChange={e => setFormData({...formData, vendorName: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: getBorder(formData.vendorName), fontFamily: "'Outfit', sans-serif" }} />
@@ -119,7 +118,7 @@ const VendorQuoteSubmit = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="registry-label" style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: '700', color: (attempted && !formData.vendorPhone) ? theme.danger : theme.textSec }}>Phone Number *</label>
               <input type="text" value={formData.vendorPhone} onChange={e => setFormData({...formData, vendorPhone: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: getBorder(formData.vendorPhone), fontFamily: "'Outfit', sans-serif" }} />

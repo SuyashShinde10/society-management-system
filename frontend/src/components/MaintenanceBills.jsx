@@ -195,14 +195,14 @@ const MaintenanceBills = () => {
   const hasMoreGroups = paginatedGroups.length < adminGroupList.length;
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '10px' }}>
+    <div className="max-w-[1000px] mx-auto p-0 sm:p-2.5">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 style={{ margin: '0 0 6px 0', fontFamily: "'Outfit', sans-serif", fontSize: '28px', fontWeight: '700', color: theme.textMain }}>
+          <h2 className="m-0 mb-1 font-outfit text-2xl sm:text-3xl font-bold text-gray-900">
             Maintenance & Utilities
           </h2>
-          <p style={{ margin: 0, fontSize: '14px', color: theme.textSec, fontFamily: "'Outfit', sans-serif" }}>
+          <p className="m-0 text-xs sm:text-sm text-gray-500 font-outfit">
             {user?.role === 'admin'
               ? 'Issue, track collections, and verify payments for society flats'
               : 'View dues, settle via split payments, and download official receipts'}
@@ -212,17 +212,7 @@ const MaintenanceBills = () => {
         {user?.role === 'admin' && (
           <button
             onClick={() => setShowGenerateModal(true)}
-            style={{
-              background: theme.accent,
-              color: 'white',
-              border: 'none',
-              padding: '12px 20px',
-              borderRadius: '12px',
-              fontFamily: "'Outfit', sans-serif",
-              fontWeight: '600',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(217, 115, 78, 0.25)',
-            }}
+            className="w-full sm:w-auto px-5 py-3 rounded-xl font-outfit font-semibold text-sm text-white bg-[#D9734E] hover:bg-[#c4633f] active:scale-[0.98] transition-all shadow-md shadow-[#D9734E]/20 text-center"
           >
             + Generate Bills
           </button>

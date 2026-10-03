@@ -13,14 +13,14 @@ const SquiggleDoodle = ({ style }) => (
 );
 
 const ArrowDoodle = ({ style }) => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={style || { position: 'absolute', top: '-15px', right: '-45px', transform: 'rotate(15deg)' }}>
+  <svg className="hidden sm:block pointer-events-none" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={style || { position: 'absolute', top: '-15px', right: '-45px', transform: 'rotate(15deg)' }}>
     <motion.path d="M5 35 Q 20 10 35 15 M 25 5 L 35 15 L 25 25" stroke="#6B705C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
       initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 1, delay: 1 }} />
   </svg>
 );
 
 const StarburstDoodle = ({ style }) => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={style || { position: 'absolute', top: '-20px', left: '-30px' }}>
+  <svg className="hidden sm:block pointer-events-none" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={style || { position: 'absolute', top: '-20px', left: '-30px' }}>
     <motion.path d="M20 0L23 17L40 20L23 23L20 40L17 23L0 20L17 17L20 0Z" fill="#D9734E" 
       initial={{ scale: 0, rotate: -90 }} whileInView={{ scale: 1, rotate: 0 }} viewport={{ once: true }} transition={{ type: "spring", stiffness: 200, delay: 1.2 }} />
   </svg>

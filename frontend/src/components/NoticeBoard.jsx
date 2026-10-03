@@ -122,15 +122,15 @@ const NoticeBoard = () => {
           <form onSubmit={handlePost} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '30px', background: 'white', padding: '24px', borderRadius: '20px', border: `1px solid ${theme.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
             <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', fontWeight: '600', color: theme.textSec }}>Compose New Broadcast</span>
             
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="flex flex-col sm:flex-row gap-2.5">
               <select 
                 value={targetType} 
                 onChange={e => setTargetType(e.target.value)} 
                 className="dispatch-input"
-                style={{ flex: 1, fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px' }}
+                style={{ flex: 1, fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '13px', borderRadius: '10px' }}
               >
-                <option value="All">TARGET: ALL MEMBERS</option>
-                <option value="Specific">TARGET: SPECIFIC MEMBER</option>
+                <option value="All">Target: All Members</option>
+                <option value="Specific">Target: Specific Member</option>
               </select>
 
               {targetType === 'Specific' && (
@@ -138,7 +138,7 @@ const NoticeBoard = () => {
                   value={targetUserId} 
                   onChange={e => setTargetUserId(e.target.value)} 
                   className="dispatch-input"
-                  style={{ flex: 1, fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px' }}
+                  style={{ flex: 1, fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '13px', borderRadius: '10px' }}
                   required
                 >
                   <option value="">-- Choose Member --</option>
@@ -150,17 +150,17 @@ const NoticeBoard = () => {
             </div>
 
             <input
-              placeholder="TITLE"
+              placeholder="Notice Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="dispatch-input"
-              style={{ fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
+              style={{ fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box', borderRadius: '10px' }}
             />
             <textarea
-              placeholder="BODY_CONTENT"
+              placeholder="Write your announcement or notice here..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              style={{ fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '10px', outline: 'none', fontSize: '13px', minHeight: '80px', width: '100%', boxSizing: 'border-box' }}
+              style={{ fontFamily: "'Outfit', sans-serif", border: `1px solid ${theme.border}`, background: theme.fieldBg, padding: '12px', outline: 'none', fontSize: '14px', minHeight: '90px', width: '100%', boxSizing: 'border-box', borderRadius: '10px' }}
             />
             <button type="submit" style={{
               background: theme.accent, color: 'white', border: 'none', padding: '14px', borderRadius: '12px',
@@ -174,14 +174,14 @@ const NoticeBoard = () => {
 
         <input 
           type="text" 
-          placeholder="SEARCH NOTICES..." 
+          placeholder="Search notices..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="organic-input" 
-          style={{ width: '100%', padding: '10px', marginBottom: '20px', boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif" }}
+          style={{ width: '100%', padding: '12px 16px', marginBottom: '16px', boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif", borderRadius: '12px' }}
         />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '60vh', overflowY: 'auto', paddingRight: '10px' }}>
+        <div className="flex flex-col gap-3.5 sm:gap-4 py-1">
           {isLoading ? (
             <CardsGridSkeleton count={4} />
           ) : paginatedNotices.length === 0 ? (
@@ -192,9 +192,12 @@ const NoticeBoard = () => {
             />
           ) : (
             paginatedNotices.map((n) => (
-              <div key={n._id} style={{ background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, padding: '24px', transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}>
+              <div 
+                key={n._id} 
+                className="bg-white rounded-2xl border border-[#E8E4D9] p-4 sm:p-6 shadow-sm hover:shadow-md transition-all"
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h4 style={{ margin: '0 0 10px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: theme.textMain, fontWeight: '600', display: 'flex', alignItems: 'center' }}>
+                  <h4 style={{ margin: '0 0 10px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', color: theme.textMain, fontWeight: '600', display: 'flex', alignItems: 'center' }}>
                     {n.title}
                     {isNew(n.createdAt) && (
                       <span style={{
@@ -204,8 +207,12 @@ const NoticeBoard = () => {
                     )}
                   </h4>
                   {user?.role === 'admin' && (
-                    <button onClick={() => handleDelete(n._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700', color: '#ef4444' }}>
-                      [X]
+                    <button 
+                      onClick={() => handleDelete(n._id)} 
+                      className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg text-xs font-bold transition-colors"
+                      title="Delete Notice"
+                    >
+                      Delete
                     </button>
                   )}
                 </div>

@@ -22,11 +22,6 @@ const SecurityDashboard = () => {
   const [visitors, setVisitors] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  if (!user) {
-    return <DashboardPageSkeleton />;
-  }
-
-  
   // New Visitor Form State
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -137,6 +132,10 @@ const SecurityDashboard = () => {
 
   const insideCount = visitors.filter(v => v.status === 'Inside').length;
 
+  if (!user) {
+    return <DashboardPageSkeleton />;
+  }
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFC', fontFamily: "'Outfit', sans-serif" }}>
       {/* Header */}
@@ -166,7 +165,7 @@ const SecurityDashboard = () => {
 
       <div className="p-4 md:p-6" style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {/* Navigation Switcher */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-2 px-2 no-scrollbar touch-pan-x sm:flex-wrap">
           {[
             { id: 'visitors', label: 'Visitors & ALPR', icon: Users },
             { id: 'parcels', label: 'Parcel Locker', icon: Package },
@@ -179,13 +178,10 @@ const SecurityDashboard = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveSection(tab.id)}
+                className="whitespace-nowrap shrink-0 flex items-center gap-2 py-2.5 px-4 rounded-xl font-semibold text-xs sm:text-sm cursor-pointer shadow-sm transition-all"
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '6px',
-                  padding: '10px 16px', borderRadius: '12px',
-                  border: 'none', cursor: 'pointer', fontWeight: '600', fontSize: '13px',
                   background: activeSection === tab.id ? '#0F172A' : 'white',
                   color: activeSection === tab.id ? 'white' : '#64748B',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
                 }}
               >
                 <Icon size={16} /> {tab.label}
@@ -230,16 +226,16 @@ const SecurityDashboard = () => {
             <Camera size={20} color="#0F172A" /> Edge ALPR Scanner
           </h3>
           <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#64748B' }}>Quick scan incoming license plates to verify Resident Parking and automatically open Boom Barrier.</p>
-          <form onSubmit={handleALPRScan} style={{ display: 'flex', gap: '10px' }}>
+          <form onSubmit={handleALPRScan} className="flex flex-col sm:flex-row gap-2.5">
             <input 
               type="text" 
               placeholder="Enter License Plate (e.g. MH-01-AB-1234)" 
               value={alprPlate}
               onChange={(e) => setAlprPlate(e.target.value)}
               required
-              style={{ flex: 1, padding: '14px', borderRadius: '10px', border: '1px solid #CBD5E1', fontSize: '15px', textTransform: 'uppercase' }}
+              className="w-full sm:flex-1 p-3.5 rounded-xl border border-[#CBD5E1] text-sm uppercase font-mono tracking-wider outline-none focus:border-slate-800"
             />
-            <button type="submit" disabled={scanningAlpr} style={{ padding: '0 20px', background: '#0F172A', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '600', cursor: scanningAlpr ? 'wait' : 'pointer' }}>
+            <button type="submit" disabled={scanningAlpr} className="w-full sm:w-auto px-6 py-3.5 bg-[#0F172A] text-white rounded-xl font-semibold text-sm cursor-pointer hover:bg-slate-800 active:scale-[0.98] transition-all text-center">
               {scanningAlpr ? 'Scanning...' : 'SCAN & VERIFY'}
             </button>
           </form>
@@ -350,7 +346,7 @@ const SecurityDashboard = () => {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {visitors.map(visitor => (
-                <div key={visitor._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', border: `1px solid ${theme.border}`, borderRadius: '12px', background: visitor.status === 'Inside' ? '#F8FAFC' : 'white' }}>
+                <div key={visitor._id} className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 p-4 border border-[#E8E4D9] rounded-xl bg-white shadow-sm">
                   <div>
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', color: '#1E293B', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       {visitor.name}
@@ -368,7 +364,7 @@ const SecurityDashboard = () => {
                   {visitor.status === 'Inside' && (
                     <button 
                       onClick={() => handleCheckOut(visitor._id)}
-                      style={{ padding: '10px 16px', background: '#F1F5F9', color: '#1E293B', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 text-slate-800 hover:bg-slate-200 rounded-xl font-semibold text-xs cursor-pointer flex items-center justify-center gap-1.5 transition-colors"
                     >
                       <CheckOutIcon size={16} /> Mark Out
                     </button>

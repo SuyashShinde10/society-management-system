@@ -111,8 +111,8 @@ const UserList = ({ refreshTrigger }) => {
             <p style={{ margin: '4px 0 0 0', color: theme.textSec, fontSize: '14px' }}>Manage all {users.length} active members</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ position: 'relative' }}>
+        <div className="w-full sm:w-auto">
+          <div style={{ position: 'relative', width: '100%' }}>
             <Search size={18} color={theme.textSec} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
             <input 
               type="text" 
@@ -120,7 +120,7 @@ const UserList = ({ refreshTrigger }) => {
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
               className="organic-input" 
-              style={{ width: '240px', padding: '10px 12px 10px 38px', borderRadius: '12px' }} 
+              style={{ width: '100%', minWidth: '200px', padding: '10px 12px 10px 38px', borderRadius: '12px' }} 
             />
           </div>
         </div>
@@ -137,18 +137,11 @@ const UserList = ({ refreshTrigger }) => {
           description={searchQuery ? "No members match your search criteria." : "No registered members currently in the directory."}
         />
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px', maxHeight: '60vh', overflowY: 'auto', padding: '10px', paddingRight: '20px' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 py-2">
           {displayedUsers.map((u) => (
             <div
               key={u._id}
-              style={{
-                border: `1px solid ${theme.border}`, background: 'white', borderRadius: '20px',
-                padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px',
-                transition: 'transform 0.2s, box-shadow 0.2s', position: 'relative',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
-              }}
-              onMouseOver={(e) => { if(editingId !== u._id) { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.06)'; } }}
-              onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}
+              className="border border-[#E8E4D9] bg-white rounded-2xl p-4 sm:p-6 flex flex-col gap-4 shadow-sm hover:shadow-md transition-all"
             >
               {editingId === u._id ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

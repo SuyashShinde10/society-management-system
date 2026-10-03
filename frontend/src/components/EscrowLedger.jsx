@@ -48,8 +48,8 @@ const EscrowLedger = () => {
         </h3>
       </div>
 
-      <div style={{ background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', margin: '0 10px' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontFamily: "'Outfit', sans-serif" }}>
+      <div style={{ background: 'white', borderRadius: '20px', border: `1px solid ${theme.border}`, overflowX: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', margin: '0 10px' }}>
+        <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse', textAlign: 'left', fontFamily: "'Outfit', sans-serif" }}>
           <thead>
             <tr style={{ background: '#F8FAFC', borderBottom: `1px solid ${theme.border}`, fontSize: '13px', color: theme.textSec }}>
               <th style={{ padding: '16px 20px', fontWeight: '600' }}>Project</th>

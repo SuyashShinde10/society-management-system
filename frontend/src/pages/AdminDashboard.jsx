@@ -38,6 +38,8 @@ import WhatsAppSimulator from '../components/omnichannel/WhatsAppSimulator';
 import AnimatedText from '../components/ui/AnimatedText';
 import BackgroundBlobs from '../components/ui/BackgroundBlobs';
 import { DashboardPageSkeleton } from '../components/ui/DashboardSkeleton';
+import MobileBottomNav from '../components/ui/MobileBottomNav';
+import MobileDrawer from '../components/ui/MobileDrawer';
 
 const AdminDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -102,22 +104,22 @@ const AdminDashboard = () => {
               className="dashboard-menu-toggle"
               onClick={() => {
                 if (window.innerWidth < 960) {
-                  setMobileMenuOpen(prev => !prev);
+                  setMobileMenuOpen(true);
                 } else {
                   setSidebarCollapsed(prev => !prev);
                 }
               }}
-              title={sidebarCollapsed ? "Expand sidebar menu" : "Collapse sidebar menu"}
+              title="Menu"
               aria-label="Toggle navigation menu"
             >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              <Menu size={20} />
             </motion.button>
 
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => { logout(); navigate('/'); }}
               className="dashboard-btn-signout"
             >
-              <LogOut size={16} /> Sign Out
+              <LogOut size={16} /> <span className="hidden sm:inline">Sign Out</span>
             </motion.button>
           </div>
         </motion.header>
@@ -125,9 +127,9 @@ const AdminDashboard = () => {
         {/* --- MAIN LAYOUT --- */}
         <div className="dashboard-layout">
           
-          {/* NAVIGATION SIDEBAR */}
+          {/* NAVIGATION SIDEBAR (Desktop) */}
           <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }}
-            className={`sidebar-nav ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'block' : 'hidden md:flex'}`}>
+            className={`sidebar-nav ${sidebarCollapsed ? 'collapsed' : ''} hidden md:flex`}>
             
             {user?.mustChangePassword && (
               <div className="dashboard-password-warning">
@@ -241,6 +243,25 @@ const AdminDashboard = () => {
 
         </div>
       </div>
+
+      {/* Mobile Drawer (Full Categorized Module List) */}
+      <MobileDrawer
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        user={user}
+        navItems={navItems}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onLogout={() => { logout(); navigate('/'); }}
+      />
+
+      {/* Persistent Mobile Bottom Navigation Bar */}
+      <MobileBottomNav
+        role="admin"
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onOpenMenu={() => setMobileMenuOpen(true)}
+      />
     </div>
   );
 };

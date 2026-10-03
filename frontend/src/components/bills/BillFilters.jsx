@@ -15,27 +15,17 @@ export const BillFilters = ({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
       {/* Top Search and Toggle Controls */}
-      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
         <input
           type="text"
           placeholder="Search by bill title or resident name..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          style={{
-            flex: '1',
-            minWidth: '240px',
-            padding: '12px 18px',
-            borderRadius: '12px',
-            border: `1px solid ${theme.border}`,
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: '14px',
-            background: 'white',
-            outline: 'none',
-          }}
+          className="w-full sm:flex-1 p-3 sm:py-3 sm:px-4 rounded-xl border border-[#E8E4D9] font-outfit text-sm bg-white outline-none focus:border-[#D9734E] shadow-sm transition-colors"
         />
 
         {showBatchToggle && (
-          <div style={{ display: 'flex', gap: '8px', background: '#F3F4F6', padding: '4px', borderRadius: '10px' }}>
+          <div className="flex gap-1.5 bg-[#F3F4F6] p-1 rounded-xl self-start sm:self-auto shrink-0">
             <button
               type="button"
               onClick={() => onToggleGroupedView(true)}
@@ -43,7 +33,7 @@ export const BillFilters = ({
                 background: isGroupedView ? 'white' : 'transparent',
                 color: isGroupedView ? theme.textMain : theme.textSec,
                 border: 'none',
-                padding: '6px 14px',
+                padding: '8px 16px',
                 borderRadius: '8px',
                 fontSize: '12px',
                 fontFamily: "'Outfit', sans-serif",
@@ -61,7 +51,7 @@ export const BillFilters = ({
                 background: !isGroupedView ? 'white' : 'transparent',
                 color: !isGroupedView ? theme.textMain : theme.textSec,
                 border: 'none',
-                padding: '6px 14px',
+                padding: '8px 16px',
                 borderRadius: '8px',
                 fontSize: '12px',
                 fontFamily: "'Outfit', sans-serif",
@@ -77,7 +67,7 @@ export const BillFilters = ({
       </div>
 
       {/* Filter Tabs */}
-      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 no-scrollbar touch-pan-x">
         {statuses.map((st) => (
           <button
             key={st}

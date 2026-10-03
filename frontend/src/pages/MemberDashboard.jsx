@@ -31,6 +31,8 @@ import WhatsAppSimulator from '../components/omnichannel/WhatsAppSimulator';
 import AnimatedText from '../components/ui/AnimatedText';
 import BackgroundBlobs from '../components/ui/BackgroundBlobs';
 import { DashboardPageSkeleton } from '../components/ui/DashboardSkeleton';
+import MobileBottomNav from '../components/ui/MobileBottomNav';
+import MobileDrawer from '../components/ui/MobileDrawer';
 
 const MemberDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -100,22 +102,22 @@ const MemberDashboard = () => {
               className="dashboard-menu-toggle"
               onClick={() => {
                 if (window.innerWidth < 960) {
-                  setMobileMenuOpen(prev => !prev);
+                  setMobileMenuOpen(true);
                 } else {
                   setSidebarCollapsed(prev => !prev);
                 }
               }}
-              title={sidebarCollapsed ? "Expand sidebar menu" : "Collapse sidebar menu"}
+              title="Menu"
               aria-label="Toggle navigation menu"
             >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              <Menu size={20} />
             </motion.button>
 
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => { logout(); navigate('/'); }}
               className="dashboard-btn-signout"
             >
-              <LogOut size={16} /> Sign Out
+              <LogOut size={16} /> <span className="hidden sm:inline">Sign Out</span>
             </motion.button>
           </div>
         </header>
@@ -123,9 +125,9 @@ const MemberDashboard = () => {
         {/* --- MAIN LAYOUT --- */}
         <div className="dashboard-layout">
           
-          {/* NAVIGATION SIDEBAR */}
+          {/* NAVIGATION SIDEBAR (Desktop) */}
           <div
-            className={`sidebar-nav ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'block' : 'hidden md:flex'}`}>
+            className={`sidebar-nav ${sidebarCollapsed ? 'collapsed' : ''} hidden md:flex`}>
             
             {user?.mustChangePassword && (
               <div className="dashboard-password-warning">
@@ -218,6 +220,25 @@ const MemberDashboard = () => {
 
         </div>
       </div>
+
+      {/* Mobile Drawer (Full Categorized Module List) */}
+      <MobileDrawer
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        user={user}
+        navItems={navItems}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onLogout={() => { logout(); navigate('/'); }}
+      />
+
+      {/* Persistent Mobile Bottom Navigation Bar */}
+      <MobileBottomNav
+        role="member"
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onOpenMenu={() => setMobileMenuOpen(true)}
+      />
     </div>
   );
 };

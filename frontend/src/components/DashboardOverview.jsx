@@ -182,56 +182,45 @@ const DashboardOverview = ({ onNavigate }) => {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+    <div className="flex flex-col gap-5 sm:gap-8">
       
       {/* ── 1. WELCOME BANNER ────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        style={{
-          background: 'linear-gradient(135deg, #FFFFFF 0%, #FAF8F5 100%)',
-          borderRadius: '24px',
-          border: `1px solid ${theme.border}`,
-          padding: '24px 30px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '20px'
-        }}
+        className="p-4 sm:p-7 rounded-2xl border border-[#E8E4D9] bg-gradient-to-br from-white to-[#FAF8F5] shadow-sm flex flex-col sm:flex-row justify-between gap-4"
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <span style={{ fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', color: theme.accent }}>
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#D9734E]">
               {getTimeGreeting()}
             </span>
-            <span style={{ color: theme.border }}>•</span>
-            <span style={{ fontSize: '13px', color: '#16A34A', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
-              <ShieldCheck size={14} color="#16A34A" /> Resident Portal Active
+            <span className="text-[#E8E4D9]">•</span>
+            <span className="text-xs text-emerald-600 flex items-center gap-1 font-semibold">
+              <ShieldCheck size={14} className="text-emerald-600" /> Resident Portal Active
             </span>
           </div>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '32px', fontWeight: '600', color: theme.textMain, margin: 0, lineHeight: 1.15 }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', serif" }} className="text-2xl sm:text-3xl font-bold text-gray-900 m-0 leading-tight">
             {user?.name || 'Resident'}
           </h2>
-          <p style={{ margin: '6px 0 0 0', fontSize: '14px', color: theme.textSec }}>
+          <p className="mt-1 text-xs sm:text-sm text-gray-500 m-0">
             Welcome to {(user?.societyName && user?.societyName !== 'UNLINKED' ? user.societyName : '') || user?.societyId?.name || 'Greenland Residency'}. Everything you need to manage your residence in one place.
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+        <div className="flex flex-wrap gap-2 self-start sm:self-center">
           {user?.flatDetails && (
-            <div style={{ background: '#F8FAFC', padding: '10px 16px', borderRadius: '14px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Home size={16} color={theme.accent} />
-              <span style={{ fontSize: '13px', fontWeight: '600', color: theme.textMain }}>
+            <div className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 flex items-center gap-2">
+              <Home size={15} color={theme.accent} />
+              <span className="text-xs font-semibold text-gray-800">
                 Wing {user.flatDetails.wing} • Unit {user.flatDetails.flatNumber}
               </span>
             </div>
           )}
           {user?.parkingSlot && (
-            <div style={{ background: '#F8FAFC', padding: '10px 16px', borderRadius: '14px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Car size={16} color="#4F46E5" />
-              <span style={{ fontSize: '13px', fontWeight: '600', color: theme.textMain }}>
+            <div className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 flex items-center gap-2">
+              <Car size={15} color="#4F46E5" />
+              <span className="text-xs font-semibold text-gray-800">
                 Parking: {user.parkingSlot}
               </span>
             </div>
@@ -244,24 +233,26 @@ const DashboardOverview = ({ onNavigate }) => {
         initial="hidden" 
         animate="visible" 
         variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '16px' }}
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
       >
         {/* Active Notices */}
         <motion.div 
           variants={cardVariants}
           whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.04)' }}
           onClick={() => onNavigate && onNavigate('notices')}
-          style={{ background: 'white', borderRadius: '20px', padding: '20px', border: `1px solid ${theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '14px', transition: 'all 0.2s' }}
+          className="bg-white rounded-2xl p-3.5 sm:p-5 border border-[#E8E4D9] cursor-pointer flex flex-col justify-between gap-2 sm:gap-3 transition-all shadow-sm"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '14px', fontWeight: '500', color: theme.textSec }}>Active Notices</span>
-            <div style={{ background: '#F9F8F3', padding: '8px', borderRadius: '10px' }}>
-              <Bell size={18} color={theme.accent} />
+          <div className="flex justify-between items-center">
+            <span className="text-xs sm:text-sm font-medium text-slate-500 truncate">Notices</span>
+            <div className="bg-[#F9F8F3] p-1.5 sm:p-2 rounded-xl shrink-0">
+              <Bell size={16} color={theme.accent} />
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '38px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>{stats.notices}</span>
-            <span style={{ fontSize: '12px', color: theme.accent, fontWeight: '500' }}>Bulletins →</span>
+          <div className="flex items-baseline justify-between">
+            <span style={{ fontFamily: "'Cormorant Garamond', serif" }} className="text-2xl sm:text-4xl font-bold text-gray-900 leading-none">
+              {stats.notices}
+            </span>
+            <span className="text-[11px] text-[#D9734E] font-semibold">View →</span>
           </div>
         </motion.div>
 
@@ -270,17 +261,25 @@ const DashboardOverview = ({ onNavigate }) => {
           variants={cardVariants}
           whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.04)' }}
           onClick={() => onNavigate && onNavigate('complaints')}
-          style={{ background: stats.complaints > 0 ? '#FEF2F2' : 'white', borderRadius: '20px', padding: '20px', border: `1px solid ${stats.complaints > 0 ? '#FEE2E2' : theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '14px', transition: 'all 0.2s' }}
+          className={`rounded-2xl p-3.5 sm:p-5 border cursor-pointer flex flex-col justify-between gap-2 sm:gap-3 transition-all shadow-sm ${
+            stats.complaints > 0 ? 'bg-red-50/50 border-red-200' : 'bg-white border-[#E8E4D9]'
+          }`}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '14px', fontWeight: '500', color: stats.complaints > 0 ? '#B91C1C' : theme.textSec }}>Pending Issues</span>
-            <div style={{ background: stats.complaints > 0 ? '#FEE2E2' : '#F9F8F3', padding: '8px', borderRadius: '10px' }}>
-              <AlertCircle size={18} color={stats.complaints > 0 ? '#DC2626' : theme.textMain} />
+          <div className="flex justify-between items-center">
+            <span className={`text-xs sm:text-sm font-medium truncate ${stats.complaints > 0 ? 'text-red-700 font-semibold' : 'text-slate-500'}`}>
+              Issues
+            </span>
+            <div className={`p-1.5 sm:p-2 rounded-xl shrink-0 ${stats.complaints > 0 ? 'bg-red-100 text-red-600' : 'bg-[#F9F8F3]'}`}>
+              <AlertCircle size={16} />
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '38px', fontWeight: '600', color: stats.complaints > 0 ? '#991B1B' : theme.textMain, lineHeight: 1 }}>{stats.complaints}</span>
-            <span style={{ fontSize: '12px', color: stats.complaints > 0 ? '#DC2626' : theme.textSec, fontWeight: '500' }}>Tickets →</span>
+          <div className="flex items-baseline justify-between">
+            <span style={{ fontFamily: "'Cormorant Garamond', serif" }} className={`text-2xl sm:text-4xl font-bold leading-none ${stats.complaints > 0 ? 'text-red-800' : 'text-gray-900'}`}>
+              {stats.complaints}
+            </span>
+            <span className={`text-[11px] font-semibold ${stats.complaints > 0 ? 'text-red-600' : 'text-slate-400'}`}>
+              Tickets →
+            </span>
           </div>
         </motion.div>
 
@@ -289,19 +288,23 @@ const DashboardOverview = ({ onNavigate }) => {
           variants={cardVariants}
           whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.04)' }}
           onClick={() => onNavigate && onNavigate('bills')}
-          style={{ background: stats.bills > 0 ? '#FEF2F2' : 'white', borderRadius: '20px', padding: '20px', border: `1px solid ${stats.bills > 0 ? '#FEE2E2' : theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '14px', transition: 'all 0.2s' }}
+          className={`rounded-2xl p-3.5 sm:p-5 border cursor-pointer flex flex-col justify-between gap-2 sm:gap-3 transition-all shadow-sm ${
+            stats.bills > 0 ? 'bg-red-50/50 border-red-200' : 'bg-white border-[#E8E4D9]'
+          }`}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '14px', fontWeight: '500', color: stats.bills > 0 ? '#B91C1C' : theme.textSec }}>
-              {user?.role === 'admin' ? 'Pending Dues' : 'My Pending Bills'}
+          <div className="flex justify-between items-center">
+            <span className={`text-xs sm:text-sm font-medium truncate ${stats.bills > 0 ? 'text-red-700 font-semibold' : 'text-slate-500'}`}>
+              {user?.role === 'admin' ? 'Pending Dues' : 'My Dues'}
             </span>
-            <div style={{ background: stats.bills > 0 ? '#FEE2E2' : '#F9F8F3', padding: '8px', borderRadius: '10px' }}>
-              <Receipt size={18} color={stats.bills > 0 ? '#DC2626' : theme.accent} />
+            <div className={`p-1.5 sm:p-2 rounded-xl shrink-0 ${stats.bills > 0 ? 'bg-red-100 text-red-600' : 'bg-[#F9F8F3]'}`}>
+              <Receipt size={16} color={stats.bills > 0 ? '#DC2626' : theme.accent} />
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '38px', fontWeight: '600', color: stats.bills > 0 ? '#991B1B' : theme.textMain, lineHeight: 1 }}>{stats.bills}</span>
-            <span style={{ fontSize: '12px', color: stats.bills > 0 ? '#DC2626' : '#16A34A', fontWeight: '600' }}>
+          <div className="flex items-baseline justify-between">
+            <span style={{ fontFamily: "'Cormorant Garamond', serif" }} className={`text-2xl sm:text-4xl font-bold leading-none ${stats.bills > 0 ? 'text-red-800' : 'text-gray-900'}`}>
+              {stats.bills}
+            </span>
+            <span className={`text-[11px] font-bold ${stats.bills > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
               {stats.bills > 0 ? `₹${stats.totalBillsAmount.toLocaleString()}` : 'Settled'}
             </span>
           </div>
@@ -312,17 +315,19 @@ const DashboardOverview = ({ onNavigate }) => {
           variants={cardVariants}
           whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.04)' }}
           onClick={() => onNavigate && onNavigate('parcels')}
-          style={{ background: 'white', borderRadius: '20px', padding: '20px', border: `1px solid ${theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '14px', transition: 'all 0.2s' }}
+          className="bg-white rounded-2xl p-3.5 sm:p-5 border border-[#E8E4D9] cursor-pointer flex flex-col justify-between gap-2 sm:gap-3 transition-all shadow-sm"
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '14px', fontWeight: '500', color: theme.textSec }}>Gate Deliveries</span>
-            <div style={{ background: '#FFFBEB', padding: '8px', borderRadius: '10px' }}>
-              <Package size={18} color="#D97706" />
+          <div className="flex justify-between items-center">
+            <span className="text-xs sm:text-sm font-medium text-slate-500 truncate">Deliveries</span>
+            <div className="bg-amber-50 p-1.5 sm:p-2 rounded-xl shrink-0">
+              <Package size={16} className="text-amber-600" />
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '38px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>{stats.parcels}</span>
-            <span style={{ fontSize: '12px', color: '#D97706', fontWeight: '500' }}>Awaiting Pickup →</span>
+          <div className="flex items-baseline justify-between">
+            <span style={{ fontFamily: "'Cormorant Garamond', serif" }} className="text-2xl sm:text-4xl font-bold text-gray-900 leading-none">
+              {stats.parcels}
+            </span>
+            <span className="text-[11px] text-amber-700 font-semibold">Pickup →</span>
           </div>
         </motion.div>
 
@@ -333,30 +338,34 @@ const DashboardOverview = ({ onNavigate }) => {
               variants={cardVariants}
               whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.04)' }}
               onClick={() => onNavigate && onNavigate('registry')}
-              style={{ background: 'white', borderRadius: '20px', padding: '20px', border: `1px solid ${theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '14px', transition: 'all 0.2s' }}
+              className="bg-white rounded-2xl p-3.5 sm:p-5 border border-[#E8E4D9] cursor-pointer flex flex-col justify-between gap-2 sm:gap-3 transition-all shadow-sm"
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', fontWeight: '500', color: theme.textSec }}>Total Members</span>
-                <div style={{ background: '#F9F8F3', padding: '8px', borderRadius: '10px' }}>
-                  <Users size={18} color={theme.accent} />
+              <div className="flex justify-between items-center">
+                <span className="text-xs sm:text-sm font-medium text-slate-500 truncate">Total Members</span>
+                <div className="bg-[#F9F8F3] p-1.5 sm:p-2 rounded-xl shrink-0">
+                  <Users size={16} color={theme.accent} />
                 </div>
               </div>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '38px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>{stats.totalMembers}</div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif" }} className="text-2xl sm:text-4xl font-bold text-gray-900 leading-none">
+                {stats.totalMembers}
+              </div>
             </motion.div>
 
             <motion.div 
               variants={cardVariants}
               whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.04)' }}
               onClick={() => onNavigate && onNavigate('registry')}
-              style={{ background: 'white', borderRadius: '20px', padding: '20px', border: `1px solid ${theme.border}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '14px', transition: 'all 0.2s' }}
+              className="bg-white rounded-2xl p-3.5 sm:p-5 border border-[#E8E4D9] cursor-pointer flex flex-col justify-between gap-2 sm:gap-3 transition-all shadow-sm"
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '14px', fontWeight: '500', color: theme.textSec }}>Past Members</span>
-                <div style={{ background: '#F9F8F3', padding: '8px', borderRadius: '10px' }}>
-                  <UserMinus size={18} color={theme.textMain} />
+              <div className="flex justify-between items-center">
+                <span className="text-xs sm:text-sm font-medium text-slate-500 truncate">Past Members</span>
+                <div className="bg-[#F9F8F3] p-1.5 sm:p-2 rounded-xl shrink-0">
+                  <UserMinus size={16} color={theme.textMain} />
                 </div>
               </div>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '38px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>{stats.pastMembers}</div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif" }} className="text-2xl sm:text-4xl font-bold text-gray-900 leading-none">
+                {stats.pastMembers}
+              </div>
             </motion.div>
           </>
         )}
@@ -364,43 +373,32 @@ const DashboardOverview = ({ onNavigate }) => {
 
       {/* ── 3. QUICK ACTIONS HUB ────────────────────────────────────────────── */}
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '0 4px' }}>
-          <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', fontWeight: '600', color: theme.textMain }}>
-            Quick Resident Actions
+        <div className="flex items-center justify-between mb-3 px-1">
+          <h3 style={{ fontFamily: "'Cormorant Garamond', serif" }} className="text-xl sm:text-2xl font-bold text-gray-900 m-0">
+            Quick Shortcuts
           </h3>
-          <span style={{ fontSize: '13px', color: theme.textSec }}>One-click shortcuts</span>
+          <span className="text-xs text-slate-500">1-click actions</span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {quickActions.map(action => {
             const ActionIcon = action.icon;
             return (
               <motion.div
                 key={action.id}
-                whileHover={{ y: -4, scale: 1.02 }}
+                whileHover={{ y: -3, scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onNavigate && onNavigate(action.id)}
-                style={{
-                  background: 'white',
-                  borderRadius: '18px',
-                  padding: '18px',
-                  border: `1px solid ${theme.border}`,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
-                  transition: 'border-color 0.2s'
-                }}
+                className="bg-white rounded-2xl p-3.5 sm:p-4 border border-[#E8E4D9] cursor-pointer flex flex-col gap-2.5 shadow-sm hover:shadow-md transition-all"
               >
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: action.bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <ActionIcon size={20} color={action.color} />
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: action.bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ActionIcon size={18} color={action.color} />
                 </div>
                 <div>
-                  <div style={{ fontSize: '15px', fontWeight: '600', color: theme.textMain, marginBottom: '2px' }}>
+                  <div className="text-xs sm:text-sm font-bold text-gray-900 truncate">
                     {action.title}
                   </div>
-                  <div style={{ fontSize: '12px', color: theme.textSec, lineHeight: '1.4' }}>
+                  <div className="text-[11px] text-slate-500 line-clamp-1 leading-snug mt-0.5">
                     {action.desc}
                   </div>
                 </div>
@@ -410,8 +408,8 @@ const DashboardOverview = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* ── 4. TWO-COLUMN DASHBOARD FEEDS ───────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px' }}>
+      {/* ── 4. TWO-COLUMN DASHBOARD FEEDS (No Horizontal Overflow) ──────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 w-full">
         
         {/* LEFT COLUMN: ACTIVITY & ANNOUNCEMENTS */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

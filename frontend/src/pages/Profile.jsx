@@ -1,5 +1,4 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
 import { toast } from 'sonner';
 import api from '../api';
 import AuthContext from '../context/AuthContext';
@@ -9,19 +8,30 @@ import { getErrorMessage } from '../utils/errorHandler';
 
 const Profile = () => {
   const { user, setUser } = useContext(AuthContext);
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: user.name || '',
-    phone: user.phone || '',
-    parkingSlot: user.parkingSlot || '',
-    vehicleNumber: user.vehicleNumber || '',
+    name: user?.name || '',
+    phone: user?.phone || '',
+    parkingSlot: user?.parkingSlot || '',
+    vehicleNumber: user?.vehicleNumber || '',
     currentPassword: '',
     newPassword: ''
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || '',
+        phone: user.phone || '',
+        parkingSlot: user.parkingSlot || '',
+        vehicleNumber: user.vehicleNumber || ''
+      }));
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -83,18 +93,18 @@ const Profile = () => {
     <div style={{ width: '100%' }}>
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
 
-        <div className="organic-card" style={{ padding: '40px' }}>
+        <div className="organic-card p-5 md:p-[40px]">
           <header style={{ borderBottom: `2px solid ${theme.textMain}`, paddingBottom: '20px', marginBottom: '30px' }}>
             <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.5rem', margin: 0, textTransform: 'uppercase' }}>
               OPERATOR_PROFILE
             </h2>
             <p className="mono-label" style={{ opacity: 0.6, marginTop: '10px' }}>
-              ID: {user.id} | ROLE: {user.role.toUpperCase()}
+              ID: {user?.id || user?._id || 'N/A'} | ROLE: {user?.role?.toUpperCase() || 'USER'}
             </p>
           </header>
 
           <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '25px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label className="mono-label">FULL_NAME</label>
                 <input type="text" name="name" value={formData.name} onChange={handleChange} required className="organic-input" style={{ width: '100%', padding: '12px' }} />
@@ -105,8 +115,8 @@ const Profile = () => {
               </div>
             </div>
 
-            {user.role !== 'security' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            {user?.role !== 'security' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="mono-label">PARKING_SLOT</label>
                   <input type="text" name="parkingSlot" placeholder="e.g. Slot P-101" value={formData.parkingSlot} onChange={handleChange} className="organic-input" style={{ width: '100%', padding: '12px' }} />
@@ -121,7 +131,7 @@ const Profile = () => {
             <div style={{ borderTop: `1px dashed ${theme.border}`, marginTop: '10px', paddingTop: '20px' }}>
               <h3 style={{ fontFamily: "'Outfit', sans-serif", fontSize: '14px', marginBottom: '20px' }}>// SECURITY_CREDENTIALS</h3>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="mono-label">CURRENT_PASSWORD</label>
                   <div style={{ position: 'relative' }}>

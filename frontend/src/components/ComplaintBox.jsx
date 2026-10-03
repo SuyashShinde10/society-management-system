@@ -181,24 +181,24 @@ const ComplaintBox = () => {
           </form>
         )}
 
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <div className="flex flex-col sm:flex-row gap-2.5 mb-5">
           <input 
             type="text" 
-            placeholder="SEARCH INCIDENTS..." 
+            placeholder="Search incidents by keyword or resident..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="organic-input" 
-            style={{ flex: 1, padding: '10px', boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif" }}
+            style={{ flex: 1, padding: '12px 16px', boxSizing: 'border-box', fontFamily: "'Outfit', sans-serif", borderRadius: '12px' }}
           />
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="organic-input" style={{ padding: '10px', fontFamily: "'Outfit', sans-serif" }}>
-            <option value="All">STATUS: ALL</option>
-            <option value="Pending">STATUS: PENDING</option>
-            <option value="Resolved">STATUS: RESOLVED</option>
-            <option value="Declined">STATUS: DECLINED</option>
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="organic-input" style={{ padding: '12px 14px', fontFamily: "'Outfit', sans-serif", borderRadius: '12px', minWidth: '140px' }}>
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Declined">Declined</option>
           </select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', maxHeight: '60vh', paddingRight: '10px' }}>
+        <div className="flex flex-col gap-3.5 sm:gap-4 py-1">
           {isLoading ? (
             <CardsGridSkeleton count={4} />
           ) : filteredComplaints.length === 0 ? (
@@ -211,12 +211,10 @@ const ComplaintBox = () => {
             filteredComplaints.map((c) => (
               <div
                 key={c._id}
+                className="bg-white rounded-2xl border border-[#E8E4D9] p-4 sm:p-6 shadow-sm hover:shadow-md transition-all"
                 style={{
-                  background: 'white', borderRadius: '20px', padding: '24px',
-                  border: `1px solid ${theme.border}`, transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
                   borderLeft: `6px solid ${c.status === 'Resolved' ? theme.resolved : c.status === 'Declined' ? theme.declined : theme.pending}`
                 }}
-                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
                   <h4 style={{ margin: 0, fontFamily: "'Cormorant Garamond', serif", fontSize: '24px', color: theme.textMain, fontWeight: '600', display: 'flex', alignItems: 'center' }}>

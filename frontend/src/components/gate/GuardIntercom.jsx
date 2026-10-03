@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import theme from '../../theme';
 import AuthContext from '../../context/AuthContext';
 import { PhoneCall, PhoneOff, Mic, MicOff, Volume2, Shield, Radio } from 'lucide-react';
@@ -29,24 +29,29 @@ const GuardIntercom = () => {
     }
   };
 
+  const callTimeoutRef = useRef(null);
+
   useEffect(() => {
-    let timer;
-    if (callState === 'connected') {
-      timer = setInterval(() => {
-        setCallDuration((prev) => prev + 1);
-      }, 1000);
-    } else {
-      setCallDuration(0);
-    }
+    if (callState !== 'connected') return;
+    const timer = setInterval(() => {
+      setCallDuration((prev) => prev + 1);
+    }, 1000);
     return () => clearInterval(timer);
   }, [callState]);
 
+  useEffect(() => {
+    return () => {
+      if (callTimeoutRef.current) clearTimeout(callTimeoutRef.current);
+    };
+  }, []);
+
   const startCall = () => {
+    setCallDuration(0);
     setCallState('calling');
     playTone(440, 800);
     toast.info('Dialing Main Gate Security Booth...');
 
-    setTimeout(() => {
+    callTimeoutRef.current = setTimeout(() => {
       setCallState('connected');
       playTone(880, 200);
       toast.success('Intercom Connected to Gate Guard');
@@ -54,7 +59,9 @@ const GuardIntercom = () => {
   };
 
   const endCall = () => {
+    if (callTimeoutRef.current) clearTimeout(callTimeoutRef.current);
     setCallState('idle');
+    setCallDuration(0);
     playTone(300, 300);
     toast.info('Intercom Call Ended');
   };
@@ -95,7 +102,7 @@ const GuardIntercom = () => {
 
       <div>
         <h3 style={{ margin: '0 0 6px 0', fontFamily: "'Cormorant Garamond', serif", fontSize: '26px', color: theme.textMain }}>
-          {user.role === 'security' ? 'Resident Intercom Terminal' : 'Main Security Post Intercom'}
+          {user?.role === 'security' ? 'Resident Intercom Terminal' : 'Main Security Post Intercom'}
         </h3>
         <p style={{ margin: 0, fontSize: '14px', color: theme.textSec }}>
           {callState === 'connected' ? (

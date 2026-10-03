@@ -1,1 +1,2 @@
-export { PulsatingDots, default } from './pulsating-dots.jsx';
+import PulsatingDots from './pulsating-dots.jsx';
+export default PulsatingDots;

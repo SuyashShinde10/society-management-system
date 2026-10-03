@@ -2,6 +2,7 @@ import User from '../models/User';
 import SecurityStaff from '../models/SecurityStaff';
 import Society from '../models/Society';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import logger from '../utils/logger';
 import { getProfessionalEmailTemplate } from '../utils/emailTemplates';
 import { emailQueue } from '../workers/emailQueue';
@@ -91,7 +92,12 @@ export const getSocietyLimits = async (societyId: string) => {
 
 export const seedSuperAdmin = async (data: any) => {
   const { email, password, secretCode } = data;
-  if (secretCode !== process.env.ADMIN_SECRET_CODE) {
+  const adminSecret = process.env.ADMIN_SECRET_CODE;
+  if (!adminSecret || !secretCode || typeof secretCode !== 'string' || Buffer.from(secretCode).length !== Buffer.from(adminSecret).length) {
+    throw new Error('INVALID_SECRET_CODE');
+  }
+  const isMatch = crypto.timingSafeEqual(Buffer.from(secretCode), Buffer.from(adminSecret));
+  if (!isMatch) {
     throw new Error('INVALID_SECRET_CODE');
   }
   let user = await User.findOne({ email });

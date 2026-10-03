@@ -71,13 +71,13 @@ const AIDisputeModal = ({ bill, onClose, onResolved }) => {
   };
 
   return (
-    <div style={{
+    <div className="p-3 sm:p-5" style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 1000, padding: '20px'
+      zIndex: 1000
     }}>
       <div style={{
-        background: 'white', width: '100%', maxWidth: '500px', height: '80vh',
+        background: 'white', width: '100%', maxWidth: '500px', height: '85vh', maxHeight: '650px',
         borderRadius: '20px', display: 'flex', flexDirection: 'column',
         boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
       }}>
