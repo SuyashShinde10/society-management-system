@@ -75,47 +75,31 @@ const MemberDashboard = () => {
         {/* --- HEADER --- */}
         <header className="dashboard-header">
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div className="dashboard-logo-box">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0, flex: 1 }}>
+            <div className="dashboard-logo-box shrink-0">
               <img src="/awaastech-logo.png" alt="Logo" style={{ width: '26px', height: '26px', objectFit: 'contain' }} />
             </div>
-            <div style={{ zIndex: 10 }}>
-              <h1 style={{ fontFamily: "'Cormorant Garamond', serif", margin: '0 0 4px 0', fontSize: '32px', fontWeight: '600', color: theme.textMain, lineHeight: 1 }}>
+            <div style={{ zIndex: 10, minWidth: 0, flex: 1 }}>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold leading-tight truncate" style={{ fontFamily: "'Cormorant Garamond', serif", margin: '0 0 4px 0', color: theme.textMain }}>
                 <AnimatedText text={(user?.societyName && user?.societyName !== 'UNLINKED' ? user.societyName : '') || user?.societyId?.name || 'Awaastech Society'} />
               </h1>
-              <p style={{ margin: 0, fontSize: '15px', fontWeight: '400', color: theme.textSec }}>
-                Welcome back, <span style={{ color: theme.accent, fontWeight: '600' }}>{user?.name}</span>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm" style={{ color: theme.textSec }}>
+                <span>Welcome back, <strong style={{ color: theme.accent, fontWeight: '600' }}>{user?.name}</strong></span>
                 {user.flatDetails && (
-                  <span style={{ marginLeft: '10px', fontSize: '13px', background: '#F9F8F3', padding: '4px 10px', borderRadius: '20px', border: `1px solid ${theme.border}` }}>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-medium" style={{ background: '#F9F8F3', border: `1px solid ${theme.border}` }}>
                     Wing {user.flatDetails.wing} • Flat {user.flatDetails.flatNumber}
                   </span>
                 )}
-              </p>
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              className="dashboard-menu-toggle"
-              onClick={() => {
-                if (window.innerWidth < 960) {
-                  setMobileMenuOpen(true);
-                } else {
-                  setSidebarCollapsed(prev => !prev);
-                }
-              }}
-              title="Menu"
-              aria-label="Toggle navigation menu"
-            >
-              <Menu size={20} />
-            </motion.button>
-
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => { logout(); navigate('/'); }}
               className="dashboard-btn-signout"
+              title="Sign Out"
+              aria-label="Sign Out"
             >
               <LogOut size={16} /> <span className="hidden sm:inline">Sign Out</span>
             </motion.button>

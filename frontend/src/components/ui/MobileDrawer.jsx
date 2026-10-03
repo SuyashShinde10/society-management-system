@@ -16,11 +16,10 @@ const MobileDrawer = ({
   onSelectTab,
   onLogout,
 }) => {
-  if (!isOpen) return null;
-
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[1000] md:hidden">
+      {isOpen && (
+        <div className="fixed inset-0 z-[1000] md:hidden">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -127,6 +126,7 @@ const MobileDrawer = ({
           </div>
         </motion.div>
       </div>
+      )}
     </AnimatePresence>
   );
 };
