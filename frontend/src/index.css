@@ -12,7 +12,7 @@
   --bg: #F9F8F3;
   --card-bg: #FFFDF9;
   --text: #2C2C2C;
-  --text-sec: #6B6B6B;
+  --text-sec: #464646; /* WCAG AA 5.8:1 contrast */
   --border: #E8E4D9;
 }
 
@@ -22,6 +22,18 @@
   word-wrap: break-word;
   scrollbar-width: thin;
   scrollbar-color: #C4C4C4 transparent;
+}
+
+/* Tabular Numbers for all financial and metric elements */
+.tabular-nums, table td, table th, .stat-value, .metric-value, [data-tabular] {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Accessible Warm Terracotta Focus Ring */
+*:focus-visible {
+  outline: 2px solid #D9734E !important;
+  outline-offset: 2px !important;
 }
 
 body {

@@ -31,16 +31,16 @@ export const BillBatchCard = ({
 
             {/* Status badges */}
             <div className="flex flex-wrap gap-1.5 mt-2">
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-800">
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800 tabular-nums">
                 Total: {group.total}
               </span>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-800">
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 tabular-nums">
                 Paid: {group.paid}
               </span>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-700 tabular-nums">
                 Verifying: {group.verifying}
               </span>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800">
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800 tabular-nums">
                 Pending: {group.pending}
               </span>
             </div>
@@ -48,13 +48,13 @@ export const BillBatchCard = ({
 
           {/* Right — amounts */}
           <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1 pt-2 sm:pt-0 border-t border-gray-100 sm:border-0 shrink-0">
-            <div className="text-lg sm:text-2xl font-bold text-gray-900 font-outfit">
+            <div className="text-lg sm:text-2xl font-bold text-gray-900 font-outfit tabular-nums">
               ₹{group.collectedAmount.toLocaleString()}
               <span className="text-xs sm:text-sm text-gray-400 font-normal">
                 &nbsp;/&nbsp;₹{group.totalAmount.toLocaleString()}
               </span>
             </div>
-            <div className="text-xs font-semibold text-emerald-600 font-outfit">
+            <div className="text-xs font-semibold text-emerald-600 font-outfit tabular-nums">
               {collectionPercent}% Collected
             </div>
           </div>

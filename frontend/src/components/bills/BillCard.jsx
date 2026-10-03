@@ -73,10 +73,10 @@ export const BillCard = ({
 
         {/* Amount & Status: Clean row on mobile, stacked on desktop */}
         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 pt-2 sm:pt-0 border-t border-gray-100 sm:border-0 shrink-0">
-          <div className="text-xl sm:text-2xl font-bold text-gray-900 font-outfit">
+          <div className="text-xl sm:text-2xl font-bold text-gray-900 font-outfit tabular-nums">
             ₹{Number(bill.amount || 0).toLocaleString()}
           </div>
-          <span className={`inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${statusClass}`}>
+          <span className={`inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full ${statusClass}`}>
             {bill.status || 'Pending'}
           </span>
         </div>

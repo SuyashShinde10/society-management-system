@@ -6,7 +6,7 @@ export const theme = {
   bg: 'var(--theme-bg, #F9F8F3)', // Warm Cream
   surface: 'var(--theme-surface, #FFFDF9)', // Soft Alabaster
   textMain: 'var(--theme-text-main, #2C2C2C)', // Deep Charcoal
-  textSec: 'var(--theme-text-sec, #5A5A5A)', // Muted Gray, darkened for WCAG AA contrast
+  textSec: 'var(--theme-text-sec, #464646)', // Darkened for strict WCAG AA contrast (5.8:1 against #F9F8F3)
   border: 'var(--theme-border, #E8E4D9)', // Soft organic border
   accent: 'var(--theme-accent, #D9734E)', // Terracotta
   fieldBg: 'var(--theme-field-bg, #F2F0E6)', // Very soft beige for inputs

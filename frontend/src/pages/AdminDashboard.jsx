@@ -1,16 +1,18 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, User, Users, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert, Briefcase, ShieldCheck, MapPin, Cpu, Palette, Package, Landmark, Leaf, Sparkles, Vote, MessageCircle, Menu, X } from 'lucide-react';
+import { LogOut, ShieldAlert, Menu, Search } from 'lucide-react';
 import theme from '../theme';
+
+// Navigation Architecture
+import { ADMIN_HUBS } from '../config/navigationHubs';
 
 // Components
 import NoticeBoard from '../components/NoticeBoard';
 import ComplaintBox from '../components/ComplaintBox';
 import ExpenseTracker from '../components/ExpenseTracker';
 import UserList from '../components/UserList';
-import AddMember from '../components/AddMember';
 import MaintenanceBills from '../components/MaintenanceBills';
 import DashboardOverview from '../components/DashboardOverview';
 import Profile from '../components/Profile';
@@ -25,7 +27,7 @@ import EmergencyProtocol from '../components/EmergencyProtocol';
 import IoTMetering from '../components/IoTMetering';
 import ThemeSettings from '../components/ThemeSettings';
 
-// New Expansion Components
+// Expansion Components
 import ParcelGateLocker from '../components/gate/ParcelGateLocker';
 import StaffDirectory from '../components/gate/StaffDirectory';
 import AmenityBooking from '../components/lifestyle/AmenityBooking';
@@ -40,6 +42,7 @@ import BackgroundBlobs from '../components/ui/BackgroundBlobs';
 import { DashboardPageSkeleton } from '../components/ui/DashboardSkeleton';
 import MobileBottomNav from '../components/ui/MobileBottomNav';
 import MobileDrawer from '../components/ui/MobileDrawer';
+import CommandPalette from '../components/ui/CommandPalette';
 
 const AdminDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -48,35 +51,29 @@ const AdminDashboard = () => {
   const [registryRefresh, setRegistryRefresh] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  // Global ⌘K / Ctrl+K launcher shortcut
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   if (!user) {
     return <DashboardPageSkeleton />;
   }
 
-  const navItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'profile', label: 'My Profile', icon: User },
-    { id: 'registry', label: 'Member Registry', icon: Users },
-    { id: 'notices', label: 'Notice Board', icon: Bell },
-    { id: 'meetings', label: 'Global Meetings', icon: Calendar },
-    { id: 'bills', label: 'Billing System', icon: ReceiptText },
-    { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
-    { id: 'parcels', label: 'Parcel Gate Locker', icon: Package },
-    { id: 'staff-dir', label: 'Domestic Staff Directory', icon: Users },
-    { id: 'amenities', label: 'Facility Bookings', icon: Sparkles },
-    { id: 'agm', label: 'Digital AGM & Voting', icon: Vote },
-    { id: 'accounting', label: 'Tally & Accounting', icon: Landmark },
-    { id: 'sustainability', label: 'Green Sustainability', icon: Leaf },
-    { id: 'whatsapp', label: 'WhatsApp Bot Simulator', icon: MessageCircle },
-    { id: 'theme', label: 'White-Label Theme', icon: Palette },
-    { id: 'analytics', label: 'Analytics Reports', icon: PieChart },
-  ];
-
   return (
     <div className="dashboard-container" style={{ backgroundColor: theme.bg, color: theme.textMain, fontFamily: "'Outfit', sans-serif" }}>
       <BackgroundBlobs />
       
-      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '30px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '24px' }}>
 
         {/* --- HEADER --- */}
         <motion.header initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}
@@ -96,7 +93,21 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+            {/* Command Palette Trigger Pill */}
+            <button
+              type="button"
+              onClick={() => setCommandPaletteOpen(true)}
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F4F1EA] hover:bg-[#EBE7DC] border border-[#E0DBCF] text-slate-600 hover:text-slate-900 text-xs font-medium transition-all"
+              title="Quick Jump (⌘K / Ctrl+K)"
+            >
+              <Search size={14} className="text-[#D9734E]" />
+              <span>Search or Jump...</span>
+              <kbd className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-mono shadow-2xs">
+                ⌘K
+              </kbd>
+            </button>
+
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => { logout(); navigate('/'); }}
               className="dashboard-btn-signout"
@@ -111,7 +122,7 @@ const AdminDashboard = () => {
         {/* --- MAIN LAYOUT --- */}
         <div className="dashboard-layout">
           
-          {/* NAVIGATION SIDEBAR (Desktop) */}
+          {/* NAVIGATION SIDEBAR (Desktop: 4-Hub Clustered Architecture) */}
           <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }}
             className={`sidebar-nav ${sidebarCollapsed ? 'collapsed' : ''} hidden md:flex`}>
             
@@ -123,8 +134,8 @@ const AdminDashboard = () => {
             )}
 
             <div className="sidebar-menu">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'space-between', padding: sidebarCollapsed ? '0' : '0 8px 4px 10px' }}>
-                {!sidebarCollapsed && <span className="dashboard-menu-heading" style={{ margin: 0, padding: 0 }}>Menu</span>}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'space-between', padding: sidebarCollapsed ? '0' : '0 8px 6px 10px' }}>
+                {!sidebarCollapsed && <span className="dashboard-menu-heading" style={{ margin: 0, padding: 0 }}>System Hubs</span>}
                 <button
                   type="button"
                   onClick={() => setSidebarCollapsed(prev => !prev)}
@@ -149,34 +160,50 @@ const AdminDashboard = () => {
                   <Menu size={16} />
                 </button>
               </div>
-              
-              {navItems.map((tab) => {
-                const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
-                const isActive = activeTab === tab.id;
-                const Icon = tab.icon;
-                
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      if (!isDisabled) {
-                        setActiveTab(tab.id);
-                        setMobileMenuOpen(false);
-                      }
-                    }}
-                    disabled={isDisabled}
-                    className={isActive ? "nav-btn-active" : "nav-btn"}
-                    title={tab.label}
-                    style={{
-                      cursor: isDisabled ? 'not-allowed' : 'pointer',
-                      opacity: isDisabled ? 0.4 : 1
-                    }}
-                  >
-                    <Icon size={18} color={isActive ? 'white' : theme.textSec} style={{ transition: 'color 0.2s', flexShrink: 0 }} />
-                    {!sidebarCollapsed && <span>{tab.label}</span>}
-                  </button>
-                );
-              })}
+
+              {/* 4 Categorized Hubs */}
+              {ADMIN_HUBS.map((hub) => (
+                <div key={hub.category} className="mb-2">
+                  {!sidebarCollapsed ? (
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1 flex items-center justify-between">
+                      <span>{hub.category}</span>
+                      {hub.tag && <span className="text-[9px] font-medium text-slate-400 bg-slate-100 px-1 rounded">{hub.tag}</span>}
+                    </div>
+                  ) : (
+                    <div className="w-5 h-[1px] bg-slate-200 mx-auto my-2" />
+                  )}
+
+                  <div className="space-y-0.5">
+                    {hub.items.map((tab) => {
+                      const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
+                      const isActive = activeTab === tab.id;
+                      const Icon = tab.icon;
+
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => {
+                            if (!isDisabled) {
+                              setActiveTab(tab.id);
+                              setMobileMenuOpen(false);
+                            }
+                          }}
+                          disabled={isDisabled}
+                          className={isActive ? "nav-btn-active" : "nav-btn"}
+                          title={tab.label}
+                          style={{
+                            cursor: isDisabled ? 'not-allowed' : 'pointer',
+                            opacity: isDisabled ? 0.4 : 1
+                          }}
+                        >
+                          <Icon size={17} color={isActive ? 'white' : theme.textSec} style={{ transition: 'color 0.2s', flexShrink: 0 }} />
+                          {!sidebarCollapsed && <span className="truncate">{tab.label}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.div>
 
@@ -187,16 +214,10 @@ const AdminDashboard = () => {
             {activeTab === 'overview' && <DashboardOverview onNavigate={setActiveTab} />}
             {activeTab === 'profile' && <Profile />}
             
+            {/* Member Registry: Full screen height database with slide-over Onboard modal */}
             {activeTab === 'registry' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-                <div className="dashboard-portal-card">
-                  <h2 className="dashboard-title-h2">Onboard New Resident</h2>
-                  <AddMember onAdd={() => setRegistryRefresh(prev => prev + 1)} />
-                </div>
-                <div className="dashboard-portal-card">
-                  <h2 className="dashboard-title-h2">Registry Database</h2>
-                  <UserList refreshTrigger={registryRefresh} />
-                </div>
+              <div className="dashboard-portal-card flex-1">
+                <UserList refreshTrigger={registryRefresh} onRefresh={() => setRegistryRefresh(prev => prev + 1)} />
               </div>
             )}
 
@@ -221,19 +242,25 @@ const AdminDashboard = () => {
             {activeTab === 'accounting' && <div className="dashboard-portal-card flex-1"><AccountingCenter /></div>}
             {activeTab === 'sustainability' && <div className="dashboard-portal-card flex-1"><GreenSustainability /></div>}
             {activeTab === 'whatsapp' && <div className="dashboard-portal-card flex-1"><WhatsAppSimulator /></div>}
-
-            
           </motion.div>
 
         </div>
       </div>
 
-      {/* Mobile Drawer (Full Categorized Module List) */}
+      {/* Global Command Bar (⌘K / Ctrl+K) */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onNavigate={setActiveTab}
+        role="admin"
+      />
+
+      {/* Mobile Drawer (4-Hub Categorized Module List) */}
       <MobileDrawer
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
         user={user}
-        navItems={navItems}
+        hubs={ADMIN_HUBS}
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         onLogout={() => { logout(); navigate('/'); }}

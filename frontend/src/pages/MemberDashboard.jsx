@@ -1,9 +1,12 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import AuthContext from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, User, Bell, Calendar, ReceiptText, MessageSquareWarning, Wallet, PieChart, LogOut, ShieldAlert, Bot, Tag, Package, QrCode, Users, Radio, Sparkles, Vote, MessageCircle, Menu, X } from 'lucide-react';
+import { LogOut, ShieldAlert, Menu, Search, ChevronDown } from 'lucide-react';
 import theme from '../theme';
+
+// Navigation Architecture
+import { MEMBER_HUBS } from '../config/navigationHubs';
 
 // Components
 import NoticeBoard from '../components/NoticeBoard';
@@ -33,6 +36,7 @@ import BackgroundBlobs from '../components/ui/BackgroundBlobs';
 import { DashboardPageSkeleton } from '../components/ui/DashboardSkeleton';
 import MobileBottomNav from '../components/ui/MobileBottomNav';
 import MobileDrawer from '../components/ui/MobileDrawer';
+import CommandPalette from '../components/ui/CommandPalette';
 
 const MemberDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -40,37 +44,29 @@ const MemberDashboard = () => {
   const [activeTab, setActiveTab] = useState(user?.mustChangePassword ? 'profile' : 'overview');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  // Global ⌘K / Ctrl+K launcher shortcut
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   if (!user) {
     return <DashboardPageSkeleton />;
   }
 
-  const navItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'profile', label: 'My Profile', icon: User },
-    { id: 'parcels', label: 'Gate Parcels', icon: Package },
-    { id: 'passes', label: 'Guest Passes', icon: QrCode },
-    { id: 'staff', label: 'Domestic Staff', icon: Users },
-    { id: 'intercom', label: 'Guard Intercom', icon: Radio },
-    { id: 'amenities', label: 'Facility Bookings', icon: Sparkles },
-    { id: 'classifieds', label: 'Classifieds & Carpool', icon: Tag },
-    { id: 'agm', label: 'Digital AGM Voting', icon: Vote },
-    { id: 'whatsapp', label: 'WhatsApp Bot', icon: MessageCircle },
-    { id: 'bills', label: 'My Bills', icon: ReceiptText },
-    { id: 'notices', label: 'Notice Board', icon: Bell },
-    { id: 'meetings', label: 'Global Meetings', icon: Calendar },
-    { id: 'complaints', label: 'Complaints', icon: MessageSquareWarning },
-    { id: 'expenses', label: 'Society Expenses', icon: Wallet },
-    { id: 'offers', label: 'Local Offers', icon: Tag },
-    { id: 'chatbot', label: 'AI Assistant', icon: Bot },
-    { id: 'analytics', label: 'Analytics Reports', icon: PieChart },
-  ];
-
   return (
     <div className="dashboard-container" style={{ backgroundColor: theme.bg, color: theme.textMain, fontFamily: "'Outfit', sans-serif" }}>
       <BackgroundBlobs />
       
-      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '30px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, width: '100%', gap: '24px' }}>
 
         {/* --- HEADER --- */}
         <header className="dashboard-header">
@@ -83,18 +79,43 @@ const MemberDashboard = () => {
               <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold leading-tight truncate" style={{ fontFamily: "'Cormorant Garamond', serif", margin: '0 0 4px 0', color: theme.textMain }}>
                 <AnimatedText text={(user?.societyName && user?.societyName !== 'UNLINKED' ? user.societyName : '') || user?.societyId?.name || 'Awaastech Society'} />
               </h1>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm" style={{ color: theme.textSec }}>
-                <span>Welcome back, <strong style={{ color: theme.accent, fontWeight: '600' }}>{user?.name}</strong></span>
-                {user.flatDetails && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-medium" style={{ background: '#F9F8F3', border: `1px solid ${theme.border}` }}>
-                    Wing {user.flatDetails.wing} • Flat {user.flatDetails.flatNumber}
-                  </span>
-                )}
+              
+              {/* Interactive Resident Action Pill */}
+              <div className="flex items-center gap-2 mt-1">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('profile')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#F4F1EA] hover:bg-[#EBE7DC] border border-[#E0DBCF] transition-all cursor-pointer group"
+                  title="View Profile & Flat Settings"
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="text-slate-800 font-semibold">{user?.name}</span>
+                  {user.flatDetails && (
+                    <span className="text-slate-500 font-normal">
+                      • Wing {user.flatDetails.wing}-{user.flatDetails.flatNumber}
+                    </span>
+                  )}
+                  <ChevronDown size={13} className="text-slate-400 group-hover:text-slate-700 transition-colors ml-0.5" />
+                </button>
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+            {/* Quick Command Launcher Pill */}
+            <button
+              type="button"
+              onClick={() => setCommandPaletteOpen(true)}
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F4F1EA] hover:bg-[#EBE7DC] border border-[#E0DBCF] text-slate-600 hover:text-slate-900 text-xs font-medium transition-all"
+              title="Quick Jump (⌘K / Ctrl+K)"
+            >
+              <Search size={14} className="text-[#D9734E]" />
+              <span>Jump to...</span>
+              <kbd className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-mono shadow-2xs">
+                ⌘K
+              </kbd>
+            </button>
+
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => { logout(); navigate('/'); }}
               className="dashboard-btn-signout"
@@ -109,9 +130,8 @@ const MemberDashboard = () => {
         {/* --- MAIN LAYOUT --- */}
         <div className="dashboard-layout">
           
-          {/* NAVIGATION SIDEBAR (Desktop) */}
-          <div
-            className={`sidebar-nav ${sidebarCollapsed ? 'collapsed' : ''} hidden md:flex`}>
+          {/* NAVIGATION SIDEBAR (Desktop: 4-Hub Clustered Architecture) */}
+          <div className={`sidebar-nav ${sidebarCollapsed ? 'collapsed' : ''} hidden md:flex`}>
             
             {user?.mustChangePassword && (
               <div className="dashboard-password-warning">
@@ -121,8 +141,8 @@ const MemberDashboard = () => {
             )}
 
             <div className="sidebar-menu">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'space-between', padding: sidebarCollapsed ? '0' : '0 8px 4px 10px' }}>
-                {!sidebarCollapsed && <span className="dashboard-menu-heading" style={{ margin: 0, padding: 0 }}>Menu</span>}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'space-between', padding: sidebarCollapsed ? '0' : '0 8px 6px 10px' }}>
+                {!sidebarCollapsed && <span className="dashboard-menu-heading" style={{ margin: 0, padding: 0 }}>Resident Hubs</span>}
                 <button
                   type="button"
                   onClick={() => setSidebarCollapsed(prev => !prev)}
@@ -147,70 +167,94 @@ const MemberDashboard = () => {
                   <Menu size={16} />
                 </button>
               </div>
-              
-              {navItems.map((tab) => {
-                const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
-                const isActive = activeTab === tab.id;
-                const Icon = tab.icon;
-                
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      if (!isDisabled) {
-                        setActiveTab(tab.id);
-                        setMobileMenuOpen(false);
-                      }
-                    }}
-                    disabled={isDisabled}
-                    className={isActive ? "nav-btn-active" : "nav-btn"}
-                    title={tab.label}
-                    style={{
-                      cursor: isDisabled ? 'not-allowed' : 'pointer',
-                      opacity: isDisabled ? 0.4 : 1
-                    }}
-                  >
-                    <Icon size={18} color={isActive ? 'white' : theme.textSec} style={{ transition: 'color 0.2s', flexShrink: 0 }} />
-                    {!sidebarCollapsed && <span>{tab.label}</span>}
-                  </button>
-                );
-              })}
+
+              {/* 4 Categorized Resident Hubs */}
+              {MEMBER_HUBS.map((hub) => (
+                <div key={hub.category} className="mb-2">
+                  {!sidebarCollapsed ? (
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1 flex items-center justify-between">
+                      <span>{hub.category}</span>
+                      {hub.tag && <span className="text-[9px] font-medium text-slate-400 bg-slate-100 px-1 rounded">{hub.tag}</span>}
+                    </div>
+                  ) : (
+                    <div className="w-5 h-[1px] bg-slate-200 mx-auto my-2" />
+                  )}
+
+                  <div className="space-y-0.5">
+                    {hub.items.map((tab) => {
+                      const isDisabled = user?.mustChangePassword && tab.id !== 'profile';
+                      const isActive = activeTab === tab.id;
+                      const Icon = tab.icon;
+
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => {
+                            if (!isDisabled) {
+                              setActiveTab(tab.id);
+                              setMobileMenuOpen(false);
+                            }
+                          }}
+                          disabled={isDisabled}
+                          className={isActive ? "nav-btn-active" : "nav-btn"}
+                          title={tab.label}
+                          style={{
+                            cursor: isDisabled ? 'not-allowed' : 'pointer',
+                            opacity: isDisabled ? 0.4 : 1
+                          }}
+                        >
+                          <Icon size={17} color={isActive ? 'white' : theme.textSec} style={{ transition: 'color 0.2s', flexShrink: 0 }} />
+                          {!sidebarCollapsed && <span className="truncate">{tab.label}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* CONTENT PORTAL */}
-          <div
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
             className="main-content" style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             
             {activeTab === 'overview' && <DashboardOverview onNavigate={setActiveTab} />}
             {activeTab === 'profile' && <Profile />}
-            {activeTab === 'parcels' && <div className="dashboard-portal-card flex-1"><ParcelGateLocker /></div>}
             {activeTab === 'passes' && <div className="dashboard-portal-card flex-1"><GuestPassManager /></div>}
+            {activeTab === 'parcels' && <div className="dashboard-portal-card flex-1"><ParcelGateLocker /></div>}
             {activeTab === 'staff' && <div className="dashboard-portal-card flex-1"><StaffDirectory /></div>}
             {activeTab === 'intercom' && <div className="dashboard-portal-card flex-1"><GuardIntercom /></div>}
             {activeTab === 'amenities' && <div className="dashboard-portal-card flex-1"><AmenityBooking /></div>}
             {activeTab === 'classifieds' && <div className="dashboard-portal-card flex-1"><CommunityClassifieds /></div>}
             {activeTab === 'agm' && <div className="dashboard-portal-card flex-1"><DigitalAGM /></div>}
             {activeTab === 'whatsapp' && <div className="dashboard-portal-card flex-1"><WhatsAppSimulator /></div>}
+            {activeTab === 'bills' && <div className="dashboard-portal-card flex-1"><MaintenanceBills /></div>}
             {activeTab === 'notices' && <div className="dashboard-portal-card flex-1"><NoticeBoard /></div>}
             {activeTab === 'meetings' && <div className="dashboard-portal-card flex-1"><Meetings /></div>}
-            {activeTab === 'bills' && <div className="dashboard-portal-card flex-1"><MaintenanceBills /></div>}
             {activeTab === 'complaints' && <div className="dashboard-portal-card flex-1"><ComplaintBox /></div>}
             {activeTab === 'expenses' && <div className="dashboard-portal-card flex-1"><ExpenseTracker /></div>}
             {activeTab === 'offers' && <div className="dashboard-portal-card flex-1"><LocalOffers /></div>}
             {activeTab === 'chatbot' && <div className="dashboard-portal-card flex-1"><ResidentChatbot /></div>}
             {activeTab === 'analytics' && <div className="dashboard-portal-card flex-1"><Analytics /></div>}
-          </div>
+          </motion.div>
 
         </div>
       </div>
 
-      {/* Mobile Drawer (Full Categorized Module List) */}
+      {/* Global Command Bar (⌘K / Ctrl+K) */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onNavigate={setActiveTab}
+        role="member"
+      />
+
+      {/* Mobile Drawer (4-Hub Categorized Module List) */}
       <MobileDrawer
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
         user={user}
-        navItems={navItems}
+        hubs={MEMBER_HUBS}
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         onLogout={() => { logout(); navigate('/'); }}

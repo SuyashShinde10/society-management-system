@@ -249,10 +249,10 @@ const DashboardOverview = ({ onNavigate }) => {
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span style={{ fontFamily: "'Cormorant Garamond', serif" }} className="text-2xl sm:text-4xl font-bold text-gray-900 leading-none">
+            <span className="text-2xl sm:text-3xl font-bold font-outfit tabular-nums text-gray-900 leading-none">
               {stats.notices}
             </span>
-            <span className="text-[11px] text-[#D9734E] font-semibold">View →</span>
+            <span className="text-xs text-[#D9734E] font-semibold">View →</span>
           </div>
         </motion.div>
 
@@ -274,10 +274,10 @@ const DashboardOverview = ({ onNavigate }) => {
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span style={{ fontFamily: "'Cormorant Garamond', serif" }} className={`text-2xl sm:text-4xl font-bold leading-none ${stats.complaints > 0 ? 'text-red-800' : 'text-gray-900'}`}>
+            <span className={`text-2xl sm:text-3xl font-bold font-outfit tabular-nums leading-none ${stats.complaints > 0 ? 'text-red-800' : 'text-gray-900'}`}>
               {stats.complaints}
             </span>
-            <span className={`text-[11px] font-semibold ${stats.complaints > 0 ? 'text-red-600' : 'text-slate-400'}`}>
+            <span className={`text-xs font-semibold ${stats.complaints > 0 ? 'text-red-600' : 'text-slate-400'}`}>
               Tickets →
             </span>
           </div>
@@ -301,10 +301,10 @@ const DashboardOverview = ({ onNavigate }) => {
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span style={{ fontFamily: "'Cormorant Garamond', serif" }} className={`text-2xl sm:text-4xl font-bold leading-none ${stats.bills > 0 ? 'text-red-800' : 'text-gray-900'}`}>
+            <span className={`text-2xl sm:text-3xl font-bold font-outfit tabular-nums leading-none ${stats.bills > 0 ? 'text-red-800' : 'text-gray-900'}`}>
               {stats.bills}
             </span>
-            <span className={`text-[11px] font-bold ${stats.bills > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+            <span className={`text-xs font-bold tabular-nums ${stats.bills > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
               {stats.bills > 0 ? `₹${stats.totalBillsAmount.toLocaleString()}` : 'Settled'}
             </span>
           </div>
@@ -324,10 +324,10 @@ const DashboardOverview = ({ onNavigate }) => {
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span style={{ fontFamily: "'Cormorant Garamond', serif" }} className="text-2xl sm:text-4xl font-bold text-gray-900 leading-none">
+            <span className="text-2xl sm:text-3xl font-bold font-outfit tabular-nums text-gray-900 leading-none">
               {stats.parcels}
             </span>
-            <span className="text-[11px] text-amber-700 font-semibold">Pickup →</span>
+            <span className="text-xs text-amber-700 font-semibold">Pickup →</span>
           </div>
         </motion.div>
 
@@ -346,7 +346,7 @@ const DashboardOverview = ({ onNavigate }) => {
                   <Users size={16} color={theme.accent} />
                 </div>
               </div>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif" }} className="text-2xl sm:text-4xl font-bold text-gray-900 leading-none">
+              <div className="text-2xl sm:text-3xl font-bold font-outfit tabular-nums text-gray-900 leading-none">
                 {stats.totalMembers}
               </div>
             </motion.div>
@@ -363,7 +363,7 @@ const DashboardOverview = ({ onNavigate }) => {
                   <UserMinus size={16} color={theme.textMain} />
                 </div>
               </div>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif" }} className="text-2xl sm:text-4xl font-bold text-gray-900 leading-none">
+              <div className="text-2xl sm:text-3xl font-bold font-outfit tabular-nums text-gray-900 leading-none">
                 {stats.pastMembers}
               </div>
             </motion.div>
